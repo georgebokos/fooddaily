@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="application-name" content="FoodDaily">
+<meta name="theme-color" content="#3A7558">
+<link rel="manifest" href="manifest.json">
+<title>FoodDaily — Μεσογειακές Συνταγές</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F7F5EE;--pri:#3A7558;--lt:#DFF2E8;--em:#E8F6EE;--bd:#BEE0CE;
+  --w:#FFF;--tx:#1C1A17;--t2:#5C5650;--t3:#9A9490;
+  --sh:0 2px 14px rgba(0,0,0,.07);--shl:0 8px 32px rgba(0,0,0,.15);--r:18px;--rs:12px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--tx);max-width:700px;margin:0 auto;min-height:100vh;transition:background .5s;}
+.serif{font-family:'Playfair Display',serif;}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:4px}
+/* HEADER */
+.hdr{padding:1.25rem 1.25rem .625rem;display:flex;justify-content:space-between;align-items:flex-start;}
+.hdr h1{font-size:26px;font-weight:700;color:var(--pri);font-family:'Playfair Display',serif;transition:color .5s;}
+.hdr p{font-size:12.5px;color:var(--t2);margin-top:3px;}
+.hdr-r{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+.hdr-btns{display:flex;gap:7px;align-items:center;}
+.lang-sw{display:flex;gap:3px;background:var(--lt);border:1.5px solid var(--bd);border-radius:20px;padding:3px 5px;transition:all .5s;}
+.lbtn{width:32px;height:24px;border:none;background:transparent;font-size:11.5px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;border-radius:12px;opacity:.5;transition:all .2s;padding:0;letter-spacing:.03em;}
+.lbtn:hover{opacity:.85}
+.lbtn.on{background:var(--w);opacity:1;box-shadow:0 1px 4px rgba(0,0,0,.12);}
+.mic{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--bd);background:var(--lt);font-size:17px;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;}
+.mic.on{background:var(--pri);color:#fff;border-color:var(--pri);}
+.bell{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--bd);background:var(--lt);font-size:16px;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;position:relative;}
+.bell.on{background:var(--pri);color:#fff;}
+.bell-dot{position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:#EF4444;border:2px solid var(--bg);}
+.vst{font-size:11px;color:var(--t3);}
+/* NAV */
+.nav{padding:0 1rem .5rem;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap;}
+.nav::-webkit-scrollbar{display:none}
+.ntab{display:inline-block;padding:7px 15px;border-radius:30px;border:1.5px solid var(--bd);background:transparent;color:var(--t2);font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .3s;margin-right:5px;}
+.ntab:hover{background:var(--lt);}
+.ntab.on{background:var(--pri);color:#fff;border-color:var(--pri);font-weight:500;}
+/* CATS */
+.cats{padding:.25rem 1rem .75rem;overflow-x:auto;white-space:nowrap;}
+.cats::-webkit-scrollbar{display:none}
+.cpill{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border-radius:30px;border:1.5px solid var(--bd);background:var(--w);color:var(--t2);font-size:13px;cursor:pointer;transition:all .3s;margin-right:6px;}
+.cpill:hover{background:var(--lt);}
+.cpill.on{background:var(--pri);color:#fff;border-color:var(--pri);font-weight:500;}
+/* SECTIONS */
+.sec{display:none;padding:0 1.25rem 5rem;}.sec.show{display:block;}
+/* MEAL CARDS */
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem;}
+@media(max-width:440px){.mgrid{grid-template-columns:1fr;}}
+.mcard{background:var(--w);border:1.5px solid #EDE8DE;border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .22s;box-shadow:var(--sh);}
+.mcard:hover{transform:translateY(-3px);box-shadow:var(--shl);}
+.mcard:active{transform:scale(.97);}
+.mtop{height:140px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.mtop img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s;}
+.mtop img.loaded{opacity:1;}
+.memoji{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:60px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.13));transition:opacity .5s;z-index:1;}
+.mtop-grad{position:absolute;bottom:0;left:0;right:0;height:65%;background:linear-gradient(to top,rgba(0,0,0,.6),transparent);z-index:2;}
+.mtop-badge{position:absolute;top:8px;left:8px;z-index:3;}
+.mtop-fresh{position:absolute;top:8px;right:8px;z-index:3;background:rgba(22,163,74,.9);color:#fff;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;}
+.mbtm{padding:10px 12px 12px;}
+.mname{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px;line-height:1.25;}
+.mmeta{font-size:11.5px;color:var(--t2);margin-bottom:3px;}
+.mhist{font-size:10.5px;color:var(--t3);}
+.badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500;display:inline-block;}
+.b-pasta{background:#FEF0C4;color:#8A4A08;}.b-seafood{background:#D4E8FF;color:#1050A0;}
+.b-meat{background:#FFCCCA;color:#901010;}.b-legumes{background:#CCEEDC;color:#1A5A38;}
+.b-vegetables{background:#C8ECD0;color:#1A5A38;}.b-salads{background:#C4E8E8;color:#0A4040;}
+.b-soups{background:#FFE5B4;color:#6A3A00;}.b-new{background:#F0FDF4;color:#16A34A;border:1px solid #86EFAC;}
+.remind{display:flex;flex-wrap:wrap;gap:7px;align-items:center;padding:10px 14px;margin-bottom:.875rem;background:var(--lt);border:1.5px solid var(--bd);border-radius:var(--rs);transition:all .5s;}
+.rpill{padding:3px 11px;border-radius:20px;font-size:12px;font-weight:500;background:var(--w);color:var(--pri);border:1.5px solid var(--bd);cursor:pointer;}
+.balance{background:var(--w);border:1.5px solid #EDE8DE;border-radius:var(--rs);padding:12px 15px;margin-bottom:.5rem;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--sh);}
+.bal-t{font-size:13.5px;font-weight:500;color:var(--tx);}
+.bal-s{font-size:12px;color:var(--t3);}
+.reshuffle{width:100%;padding:12px;margin-top:.75rem;border-radius:var(--rs);border:1.5px solid var(--bd);background:transparent;color:var(--pri);font-size:13.5px;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;}
+.reshuffle:hover{background:var(--lt);}
+/* OVERLAY */
+.ov{position:fixed;inset:0;z-index:200;display:flex;align-items:flex-end;background:transparent;pointer-events:none;max-width:700px;margin:0 auto;}
+.ov.show{background:rgba(0,0,0,.5);pointer-events:all;transition:background .35s;}
+.ovsh{width:100%;background:var(--w);border-radius:26px 26px 0 0;max-height:94vh;overflow-y:auto;transform:translateY(100%);transition:transform .38s cubic-bezier(.4,0,.2,1);box-shadow:0 -8px 40px rgba(0,0,0,.18);}
+.ov.show .ovsh{transform:translateY(0);}
+.ovhdl{width:36px;height:4px;background:#DDD;border-radius:2px;margin:12px auto 0;}
+.ovhero{position:relative;height:220px;overflow:hidden;}
+.ovhero img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s;}
+.ovhero img.loaded{opacity:1;}
+.ovhero-fb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transition:opacity .5s;}
+.ovhero-grad{position:absolute;bottom:0;left:0;right:0;height:65%;background:linear-gradient(to top,rgba(0,0,0,.72),transparent);}
+.ovcls{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.35);border:none;color:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;}
+.ovtitle{position:absolute;bottom:0;left:0;right:0;padding:1.25rem 1.5rem;z-index:5;}
+.ovtitle h2{font-size:22px;font-family:'Playfair Display',serif;color:#fff;font-weight:700;text-shadow:0 2px 8px rgba(0,0,0,.5);}
+.ovstats{display:flex;gap:18px;padding:.875rem 1.5rem 0;}
+.ovstat label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);display:block;}
+.ovstat span{font-size:17px;font-weight:600;color:var(--tx);}
+.ttsbar{margin:.75rem 1.5rem .25rem;display:flex;align-items:center;gap:8px;padding:9px 13px;background:#EFF6FF;border:1.5px solid #93C5FD;border-radius:var(--rs);}
+.ttsbtn{padding:6px 14px;border-radius:20px;border:1.5px solid #3B82F6;background:#fff;color:#1D4ED8;font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;}
+.ovtabs{display:flex;border-bottom:1.5px solid #EDE8DE;padding:0 1.5rem;}
+.otab{padding:11px 17px;font-size:13.5px;font-weight:500;border:none;background:none;cursor:pointer;color:var(--t2);border-bottom:2.5px solid transparent;margin-bottom:-1.5px;transition:all .2s;font-family:'Inter',sans-serif;}
+.otab.on{color:var(--pri);border-bottom-color:var(--pri);}
+.ovbody{padding:1.5rem;}
+.ing-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+@media(max-width:440px){.ing-grid{grid-template-columns:1fr;}}
+.ing-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#F9F7F2;border:1.5px solid #EDE8DE;border-radius:var(--rs);font-size:13px;cursor:pointer;transition:all .2s;user-select:none;}
+.ing-item.done{opacity:.4;text-decoration:line-through;}
+.ing-chk{width:16px;height:16px;border-radius:50%;background:var(--lt);border:1.5px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;transition:all .3s;}
+.ing-item.done .ing-chk{background:var(--pri);border-color:var(--pri);color:#fff;}
+.step-list{display:flex;flex-direction:column;gap:9px;}
+.step-item{display:flex;gap:11px;padding:12px;background:#F9F7F2;border:1.5px solid #EDE8DE;border-radius:var(--rs);cursor:pointer;transition:all .2s;}
+.step-item.done{opacity:.4;}
+.step-num{min-width:28px;height:28px;border-radius:50%;background:var(--lt);border:1.5px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--pri);flex-shrink:0;transition:all .3s;}
+.step-item.done .step-num{background:var(--pri);color:#fff;border-color:var(--pri);}
+.step-txt{font-size:13.5px;color:var(--tx);line-height:1.6;}
+.pair-box{padding:12px 14px;background:#F9F7F2;border:1.5px solid #EDE8DE;border-radius:var(--rs);margin-bottom:8px;}
+.pair-t{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:3px;}
+.pair-d{font-size:13px;color:var(--t2);line-height:1.55;}
+.ext-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:12px;margin-top:1rem;border-radius:var(--rs);border:1.5px solid var(--bd);background:var(--lt);color:var(--pri);font-size:13.5px;font-weight:500;cursor:pointer;text-decoration:none;transition:all .2s;font-family:'Inter',sans-serif;}
+.ext-btn:hover{background:var(--pri);color:#fff;}
+.cost-note{margin-top:10px;padding:10px 12px;background:var(--lt);border:1.5px solid var(--bd);border-radius:var(--rs);font-size:12.5px;color:var(--pri);}
+/* FESTIVE */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:440px){.fgrid{grid-template-columns:1fr;}}
+.fcard{background:var(--w);border:1.5px solid #EDE8DE;border-radius:var(--r);padding:13px;cursor:pointer;transition:all .22s;box-shadow:var(--sh);}
+.fcard:hover{transform:translateY(-2px);box-shadow:var(--shl);}
+.fcard.fasting{border-left:3px solid #16A34A;}
+.fcard.fish{border-left:3px solid #2563EB;}
+.fe{font-size:27px;margin-bottom:5px;}
+.fn{font-size:13.5px;font-weight:600;color:var(--tx);margin-bottom:2px;}
+.fd{font-size:11.5px;color:var(--t3);margin-bottom:5px;}
+.ftag{font-size:11px;padding:2px 8px;border-radius:10px;display:inline-block;}
+.ft-fasting{background:#DCFCE7;color:#166534;}.ft-fish{background:#DBEAFE;color:#1E40AF;}
+.ft-major{background:#FEF9C3;color:#92400E;}.ft-national{background:#FEE2E2;color:#991B1B;}.ft-folk{background:#EDE9FE;color:#5B21B6;}
+.fn-box{padding:12px 14px;background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:var(--rs);margin-bottom:.875rem;}
+.fn-t{font-size:13px;font-weight:600;color:#166534;margin-bottom:3px;}
+.fn-d{font-size:13px;color:#15803D;line-height:1.55;}
+.sec-lbl{font-size:11.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin:.875rem 0 .625rem;}
+/* Festive menu items - clickable */
+.fmenu-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--w);border:1.5px solid #EDE8DE;border-radius:var(--rs);margin-bottom:6px;transition:all .22s;}
+.fmenu-item.clickable{cursor:pointer;border-color:var(--bd);}
+.fmenu-item.clickable:hover{border-color:var(--pri);background:var(--lt);transform:translateX(3px);}
+.fmdot{width:9px;height:9px;border-radius:50%;background:#16A34A;flex-shrink:0;}
+.fmname{font-size:13.5px;color:var(--tx);flex:1;}
+.fmbadge{font-size:10.5px;color:var(--t2);}
+.fmarrow{font-size:13px;color:var(--pri);opacity:0;}
+.fmenu-item.clickable:hover .fmarrow{opacity:1;}
+.tl-row{display:flex;gap:11px;padding-bottom:11px;}
+.tl-dot{width:10px;height:10px;border-radius:50%;background:#16A34A;flex-shrink:0;margin-top:4px;}
+.tl-txt{font-size:13px;color:var(--tx);}
+.back-btn{display:flex;align-items:center;gap:6px;padding:5px 0;margin-bottom:.875rem;background:none;border:none;cursor:pointer;color:var(--t2);font-size:13.5px;font-family:'Inter',sans-serif;}
+.back-btn:hover{color:var(--pri);}
+/* SWEETS */
+.swgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+@media(max-width:440px){.swgrid{grid-template-columns:1fr;}}
+.swcard{background:var(--w);border:1.5px solid #EDE8DE;border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .22s;box-shadow:var(--sh);}
+.swcard:hover{transform:translateY(-3px);box-shadow:var(--shl);}
+.swebox{height:74px;display:flex;align-items:center;justify-content:center;font-size:33px;}
+.swinfo{padding:10px 12px;}
+.swname{font-size:13.5px;font-weight:600;color:var(--tx);margin-bottom:2px;}
+.swcal{font-size:12px;color:var(--t3);}
+/* FRIDGE */
+.inp-row{display:flex;gap:8px;margin-bottom:10px;}
+.inp-row input{flex:1;padding:10px 13px;border:1.5px solid #DDD8CE;border-radius:var(--rs);font-size:14px;background:var(--w);color:var(--tx);outline:none;font-family:'Inter',sans-serif;}
+.inp-row input:focus{border-color:var(--pri);}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1rem;min-height:28px;}
+.tag{display:flex;align-items:center;gap:5px;padding:4px 11px;background:var(--lt);border:1.5px solid var(--bd);border-radius:20px;font-size:13px;color:var(--tx);}
+.tag button{background:none;border:none;cursor:pointer;color:var(--t3);font-size:16px;line-height:1;padding:0;}
+.fres-card{background:var(--w);border:1.5px solid #EDE8DE;border-radius:var(--r);overflow:hidden;margin-bottom:10px;cursor:pointer;transition:all .22s;box-shadow:var(--sh);}
+.fres-card:hover{transform:translateY(-2px);box-shadow:var(--shl);}
+.fres-top{display:flex;align-items:center;gap:11px;padding:12px 14px 10px;}
+.fres-e{font-size:36px;flex-shrink:0;}
+.fres-info{flex:1;}
+.fres-name{font-size:15px;font-weight:700;color:var(--tx);margin-bottom:4px;}
+.fres-meta{font-size:12px;color:var(--t2);margin-bottom:4px;}
+.fscore{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:20px;}
+.fscore.hi{background:#DCFCE7;color:#166534;}.fscore.mid{background:#FEF9C3;color:#92400E;}.fscore.lo{background:#FEE2E2;color:#991B1B;}
+.fres-miss{font-size:11.5px;color:var(--t3);padding:6px 14px 10px;border-top:1px solid #F0EDE6;}
+.fres-btn{display:flex;align-items:center;justify-content:center;gap:5px;padding:9px;background:var(--lt);border-top:1.5px solid var(--bd);font-size:13px;font-weight:500;color:var(--pri);}
+.fridge-empty{text-align:center;padding:2rem 1rem;color:var(--t3);}
+/* SHARED */
+.wide-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:12px;border-radius:var(--rs);border:1.5px solid var(--bd);background:var(--pri);color:#fff;font-size:13.5px;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;margin-bottom:.875rem;transition:all .2s;}
+.wide-btn:hover{filter:brightness(1.1);}
+.wide-btn.ghost{background:transparent;color:var(--pri);}
+.wide-btn.ghost:hover{background:var(--lt);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+@media(max-width:440px){.form-row{grid-template-columns:1fr;}}
+.fgrp{display:flex;flex-direction:column;gap:5px;}
+.fgrp label{font-size:12px;color:var(--t2);}
+.fgrp input,.fgrp select{padding:10px 12px;border:1.5px solid #DDD8CE;border-radius:var(--rs);font-size:13.5px;font-family:'Inter',sans-serif;background:var(--w);color:var(--tx);outline:none;}
+.fgrp input:focus,.fgrp select:focus{border-color:var(--pri);}
+.dpills{display:flex;flex-wrap:wrap;gap:7px;margin:6px 0 .875rem;}
+.dpill{padding:6px 13px;border-radius:20px;font-size:13px;cursor:pointer;background:var(--w);border:1.5px solid #DDD8CE;color:var(--t2);font-family:'Inter',sans-serif;transition:all .2s;}
+.dpill.on{background:var(--lt);color:var(--pri);border-color:var(--bd);font-weight:500;}
+.sea-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem;}
+@media(max-width:440px){.sea-grid{grid-template-columns:1fr 1fr;}}
+.sea-item{padding:11px 8px;background:var(--w);border:1.5px solid #EDE8DE;border-radius:var(--rs);text-align:center;box-shadow:var(--sh);}
+.sea-e{font-size:27px;display:block;margin-bottom:4px;}
+.rrow{padding:11px 14px;background:var(--w);border:1.5px solid #EDE8DE;border-radius:var(--rs);cursor:pointer;transition:all .2s;margin-bottom:8px;box-shadow:var(--sh);}
+.rrow:hover{border-color:var(--pri);background:var(--lt);}
+.rrn{font-size:14px;font-weight:500;color:var(--tx);margin-bottom:2px;}
+.rrm{font-size:12px;color:var(--t3);}
+/* NOTIF MODAL */
+.nmod{position:fixed;inset:0;z-index:300;display:none;align-items:flex-end;background:rgba(0,0,0,.5);}
+.nmod.show{display:flex;}
+.nsh{width:100%;max-width:700px;margin:0 auto;background:#fff;border-radius:24px 24px 0 0;padding:1.5rem;}
+.nhdl{width:36px;height:4px;background:#DDD;border-radius:2px;margin:0 auto 1.25rem;}
+.nrow{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid #F0EDE6;}
+.nrow:last-of-type{border-bottom:none;}
+.nrow-l{font-size:14px;font-weight:500;color:var(--tx);}
+.nrow-s{font-size:12px;color:var(--t3);margin-top:2px;}
+.tog{width:44px;height:25px;border-radius:13px;background:#DDD;border:none;cursor:pointer;position:relative;transition:background .3s;flex-shrink:0;}
+.tog::after{content:'';position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:#fff;transition:transform .3s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.tog.on{background:var(--pri);}
+.tog.on::after{transform:translateX(19px);}
+.tpick{padding:7px 11px;border:1.5px solid #DDD;border-radius:var(--rs);font-size:13.5px;font-family:'Inter',sans-serif;color:var(--tx);background:#fff;outline:none;}
+.tpick:focus{border-color:var(--pri);}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div><h1 class="serif">🫒 FoodDaily</h1><p id="app-date"></p></div>
+  <div class="hdr-r">
+    <div class="hdr-btns">
+      <div class="lang-sw">
+        <button class="lbtn on" id="lb-el" onclick="setLang('el')">ΕΛ</button>
+        <button class="lbtn" id="lb-en" onclick="setLang('en')">EN</button>
+      </div>
+      <button class="bell" id="bell" onclick="openNmod()" title="Ειδοποιήσεις">🔔</button>
+      <button class="mic" id="mic" onclick="toggleVoice()">🎤</button>
+    </div>
+    <div class="vst" id="vst">Φωνητική εντολή</div>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="ntab on" onclick="goSec('daily',this)">☀️ Σήμερα</button>
+  <button class="ntab" onclick="goSec('festive',this)">⭐ Εορτές</button>
+  <button class="ntab" onclick="goSec('sweets',this)">🍯 Γλυκά</button>
+  <button class="ntab" onclick="goSec('fridge',this)">🧊 Ψυγείο</button>
+  <button class="ntab" onclick="goSec('guests',this)">👥 Καλεσμένοι</button>
+  <button class="ntab" onclick="goSec('seasonal',this)">🌿 Εποχιακά</button>
+</div>
+
+<!-- DAILY -->
+<div id="s-daily" class="sec show">
+  <div class="cats">
+    <div style="display:inline-flex;gap:8px;white-space:nowrap;" id="cat-row">
+      <button class="cpill on" onclick="selCat('all',this)">🌿 Όλα</button>
+      <button class="cpill" onclick="selCat('pasta',this)">🍝 Ζυμαρικά</button>
+      <button class="cpill" onclick="selCat('seafood',this)">🐟 Θαλασσινά</button>
+      <button class="cpill" onclick="selCat('meat',this)">🥩 Κρεατικά</button>
+      <button class="cpill" onclick="selCat('legumes',this)">🫘 Όσπρια</button>
+      <button class="cpill" onclick="selCat('vegetables',this)">🥦 Λαχανικά</button>
+      <button class="cpill" onclick="selCat('salads',this)">🥗 Σαλάτες</button>
+      <button class="cpill" onclick="selCat('soups',this)">🍲 Σούπες</button>
+    </div>
+  </div>
+  <div id="remind-wrap"></div>
+  <div style="font-size:11.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin-bottom:.875rem;" id="daily-lbl">Προτάσεις για σήμερα</div>
+  <div class="mgrid" id="meals-grid"></div>
+  <div class="balance">
+    <div><div class="bal-t">Εβδομαδιαία ισορροπία</div><div class="bal-s" id="bal-s">🐟 2× ψάρι · 🫘 2× όσπρια ανά εβδομάδα</div></div>
+    <span style="font-size:24px">📊</span>
+  </div>
+  <button class="reshuffle" onclick="reshuffle()">🔀 Νέες προτάσεις</button>
+</div>
+
+<!-- FESTIVE -->
+<div id="s-festive" class="sec">
+  <div id="fest-main">
+    <div class="cats" style="padding-left:0;padding-right:0">
+      <div style="display:inline-flex;gap:8px;white-space:nowrap;" id="fest-filter-row">
+        <button class="cpill on" onclick="filtFest('all',this)">Όλες</button>
+        <button class="cpill" onclick="filtFest('fasting',this)">🌿 Νηστεία</button>
+        <button class="cpill" onclick="filtFest('fish',this)">🐟 Ψάρι</button>
+        <button class="cpill" onclick="filtFest('major',this)">⭐ Μεγάλες</button>
+        <button class="cpill" onclick="filtFest('national',this)">🇬🇷 Εθνικές</button>
+        <button class="cpill" onclick="filtFest('folk',this)">🎭 Λαϊκές</button>
+      </div>
+    </div>
+    <div class="fgrid" id="fest-grid"></div>
+  </div>
+  <div id="fest-det" style="display:none">
+    <button class="back-btn" onclick="backFest()">← Πίσω</button>
+    <div style="font-size:22px;font-weight:700;font-family:'Playfair Display',serif;margin-bottom:4px;" id="fd-t"></div>
+    <div style="font-size:13px;color:var(--t2);margin-bottom:.875rem;" id="fd-s"></div>
+    <div id="fd-fn"></div>
+    <div class="sec-lbl">Παραδοσιακό Μενού — πάτα για συνταγή</div>
+    <div id="fd-menu"></div>
+    <div class="sec-lbl" style="margin-top:.875rem">Κρασί & Ποτά</div>
+    <div id="fd-wine"></div>
+    <div class="sec-lbl">Χρονοδιάγραμμα</div>
+    <div id="fd-tl"></div>
+  </div>
+</div>
+
+<!-- SWEETS -->
+<div id="s-sweets" class="sec">
+  <div class="cats" style="padding-left:0;padding-right:0;margin-bottom:.875rem">
+    <div style="display:inline-flex;gap:8px;white-space:nowrap;" id="sw-cats">
+      <button class="cpill on" onclick="filtSw('keik',this)">🎂 Κέικ</button>
+      <button class="cpill" onclick="filtSw('koulourakia',this)">🍪 Κουλουράκια</button>
+      <button class="cpill" onclick="filtSw('tiganites',this)">🥞 Τηγανίτες</button>
+      <button class="cpill" onclick="filtSw('paradosiaka',this)">🍯 Παραδοσιακά</button>
+      <button class="cpill" onclick="filtSw('epochiaka',this)">🌸 Εποχιακά</button>
+    </div>
+  </div>
+  <div class="swgrid" id="sw-grid"></div>
+</div>
+
+<!-- FRIDGE -->
+<div id="s-fridge" class="sec">
+  <div style="font-size:15px;font-weight:600;font-family:'Playfair Display',serif;margin-bottom:4px">🧊 Τι έχεις στο ψυγείο;</div>
+  <div style="font-size:13px;color:var(--t2);margin-bottom:11px">Βάλε υλικά και θα βρω τι να μαγειρέψεις!</div>
+  <div class="inp-row">
+    <input type="text" id="fridge-inp" placeholder="π.χ. κιμάς, ντομάτα, τυρί...">
+    <button class="wide-btn" style="width:auto;margin:0;padding:10px 18px" onclick="addTag()">+</button>
+  </div>
+  <div class="tags" id="tags">
+    <div class="tag">κολοκυθάκια <button onclick="this.parentElement.remove();smartFridge()">×</button></div>
+    <div class="tag">αυγά <button onclick="this.parentElement.remove();smartFridge()">×</button></div>
+    <div class="tag">φέτα <button onclick="this.parentElement.remove();smartFridge()">×</button></div>
+  </div>
+  <button class="wide-btn" onclick="smartFridge()">🔍 Βρες μου συνταγές!</button>
+  <div id="fridge-res"></div>
+</div>
+
+<!-- GUESTS -->
+<div id="s-guests" class="sec">
+  <div style="font-size:13px;color:var(--t2);margin-bottom:12px">Σχεδίασε δείπνο για καλεσμένους</div>
+  <div class="form-row">
+    <div class="fgrp"><label>Αριθμός ατόμων</label><input type="number" id="g-num" value="6" min="2" max="30"></div>
+    <div class="fgrp"><label>Περίσταση</label><select id="g-occ">
+      <option>Κυριακάτικο τραπέζι</option><option>Γενέθλια</option><option>Επέτειος</option><option>Επαγγελματικό δείπνο</option><option>Ανεπίσημο γεύμα</option>
+    </select></div>
+  </div>
+  <div class="fgrp"><label>Διατροφικές ανάγκες</label>
+    <div class="dpills">
+      <button class="dpill" onclick="this.classList.toggle('on')">Χορτοφάγος</button>
+      <button class="dpill" onclick="this.classList.toggle('on')">Vegan</button>
+      <button class="dpill" onclick="this.classList.toggle('on')">Κοιλιοκάκη</button>
+      <button class="dpill" onclick="this.classList.toggle('on')">Νηστεία</button>
+      <button class="dpill" onclick="this.classList.toggle('on')">Χωρίς γλουτένη</button>
+    </div>
+  </div>
+  <button class="wide-btn" onclick="genGuests()">🪄 Δημιούργησε μενού & λίστα αγορών</button>
+</div>
+
+<!-- SEASONAL -->
+<div id="s-seasonal" class="sec">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px">
+    <div style="font-size:13px;color:var(--t2)">Εποχιακά — Μάιος 2026</div>
+    <span style="font-size:11.5px;color:#166534;background:#DCFCE7;padding:3px 10px;border-radius:10px">Φρέσκα τώρα</span>
+  </div>
+  <div class="sea-grid">
+    <div class="sea-item"><span class="sea-e">🌿</span><div style="font-size:13px;font-weight:500">Αγκινάρες</div><div style="font-size:11.5px;color:var(--t3)">Ιδανική εποχή</div></div>
+    <div class="sea-item"><span class="sea-e">🍒</span><div style="font-size:13px;font-weight:500">Κεράσια</div><div style="font-size:11.5px;color:var(--t3)">Φρέσκα τώρα</div></div>
+    <div class="sea-item"><span class="sea-e">🥒</span><div style="font-size:13px;font-weight:500">Κολοκυθάκια</div><div style="font-size:11.5px;color:var(--t3)">Πολύ φθηνά</div></div>
+    <div class="sea-item"><span class="sea-e">🌱</span><div style="font-size:13px;font-weight:500">Σπαράγγια</div><div style="font-size:11.5px;color:var(--t3)">Τελ. εβδομάδες</div></div>
+    <div class="sea-item"><span class="sea-e">🍓</span><div style="font-size:13px;font-weight:500">Φράουλες</div><div style="font-size:11.5px;color:var(--t3)">Αιχμή εποχής</div></div>
+    <div class="sea-item"><span class="sea-e">🥬</span><div style="font-size:13px;font-weight:500">Κουκιά</div><div style="font-size:11.5px;color:var(--t3)">Φρέσκα τώρα</div></div>
+  </div>
+  <div style="font-size:11.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin:.875rem 0 .625rem">Προτεινόμενες συνταγές</div>
+  <div class="rrow" onclick="openR('anginaresPolita')"><div class="rrn">Αγκινάρες αλά πολίτα</div><div class="rrm">Εποχιακό · 290 θερμ. · 50'</div></div>
+  <div class="rrow" onclick="openR('gigantes')"><div class="rrn">Γίγαντες πλακί</div><div class="rrm">Εποχιακό · 310 θερμ. · 90'</div></div>
+  <div class="rrow" onclick="openR('tartaFragola')"><div class="rrn">Τάρτα φράουλας</div><div class="rrm">Γλυκό εποχής · 320 θερμ. · 45'</div></div>
+</div>
+
+<!-- OVERLAY -->
+<div class="ov" id="overlay" onclick="ovBgClick(event)">
+  <div class="ovsh">
+    <div class="ovhdl"></div>
+    <div class="ovhero" id="ov-hero"></div>
+    <div class="ovstats" id="ov-stats"></div>
+    <div class="ttsbar">
+      <span style="font-size:16px">🔊</span>
+      <span style="font-size:12.5px;color:#1D4ED8;flex:1" id="ov-tts-lbl">Εκφώνηση</span>
+      <button class="ttsbtn" id="ov-tts-btn" onclick="toggleTTS()">▶ Άκου</button>
+    </div>
+    <div class="ovtabs">
+      <button class="otab on" id="otab-ing" onclick="ovTab('ing')">Υλικά</button>
+      <button class="otab" id="otab-steps" onclick="ovTab('steps')">Εκτέλεση</button>
+      <button class="otab" id="otab-pair" onclick="ovTab('pair')">Ταίριασμα</button>
+    </div>
+    <div class="ovbody">
+      <div id="ot-ing"></div>
+      <div id="ot-steps" style="display:none"></div>
+      <div id="ot-pair" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIF MODAL -->
+<div class="nmod" id="nmod" onclick="if(event.target===this)closeNmod()">
+  <div class="nsh">
+    <div class="nhdl"></div>
+    <div style="font-size:18px;font-weight:700;font-family:'Playfair Display',serif;margin-bottom:.5rem">🔔 Ειδοποιήσεις</div>
+    <div style="font-size:13px;color:var(--t2);margin-bottom:1.25rem">Λάβε καθημερινή πρόταση φαγητού στην ώρα που θέλεις.</div>
+    <div class="nrow">
+      <div><div class="nrow-l">Ενεργοποίηση</div><div class="nrow-s">Χρειάζεται άδεια browser</div></div>
+      <button class="tog" id="ntog" onclick="toggleNotif()"></button>
+    </div>
+    <div class="nrow">
+      <div><div class="nrow-l">Ώρα αποστολής</div><div class="nrow-s">Κάθε μέρα στην ώρα αυτή</div></div>
+      <input class="tpick" type="time" id="ntime" value="09:00" onchange="localStorage.setItem('notif_time',this.value)">
+    </div>
+    <div style="margin-top:1rem;padding:11px;background:#FFF9F0;border-radius:10px;font-size:12.5px;color:#9A6010">⚠️ Λειτουργεί μόνο από web server (GitHub Pages) — όχι από αρχείο.</div>
+    <button class="wide-btn" style="margin-top:1rem;margin-bottom:.5rem" onclick="testNotif()">📣 Δοκιμή τώρα</button>
+    <button class="wide-btn ghost" style="margin-bottom:0" onclick="closeNmod()">Κλείσιμο</button>
+  </div>
+</div>
+
+<script>
+let curCat='all',curSec='daily',curSwCat='keik',curFestF='all',_meal=null,isTTS=false,recog=null,isLis=false,curLang=localStorage.getItem('fd_lang')||'el';
+// ── THEMES ──────────────────────────────────────────────────────
+const TH={
+  all:{bg:'#F7F5EE',pri:'#3A7558',lt:'#DFF2E8',em:'#E8F6EE',bd:'#BEE0CE'},
+  pasta:{bg:'#FFFBEF',pri:'#B87818',lt:'#FEF0C4',em:'#FEF4D0',bd:'#EDD888'},
+  seafood:{bg:'#F2F8FF',pri:'#2465A8',lt:'#D4E8FF',em:'#D8EEFF',bd:'#A8CCEE'},
+  meat:{bg:'#FFF0EE',pri:'#C02020',lt:'#FFD0CC',em:'#FFCCCA',bd:'#E89898'},
+  legumes:{bg:'#F3FAF6',pri:'#2E7A54',lt:'#CCEEDC',em:'#D4F0E0',bd:'#A4D8B8'},
+  vegetables:{bg:'#F4FBF4',pri:'#388054',lt:'#C8ECD0',em:'#D4F0DA',bd:'#A0D8B0'},
+  salads:{bg:'#F0FAFA',pri:'#28888A',lt:'#C4E8E8',em:'#CCE8E8',bd:'#8AD0D0'},
+  soups:{bg:'#FFF9F0',pri:'#9A6010',lt:'#FFE5B4',em:'#FFEECC',bd:'#EED088'}
+};
+function applyTheme(c){
+  const t=TH[c]||TH.all,s=document.documentElement.style;
+  s.setProperty('--bg',t.bg);s.setProperty('--pri',t.pri);
+  s.setProperty('--lt',t.lt);s.setProperty('--em',t.em);s.setProperty('--bd',t.bd);
+}
+// ── i18n ──────────────────────────────────────────────────────
+const TR={
+  el:{sub:'Μεσογειακές Συνταγές',
+    n0:'☀️ Σήμερα',n1:'⭐ Εορτές',n2:'🍯 Γλυκά',n3:'🧊 Ψυγείο',n4:'👥 Καλεσμένοι',n5:'🌿 Εποχιακά',
+    c0:'🌿 Όλα',c1:'🍝 Ζυμαρικά',c2:'🐟 Θαλασσινά',c3:'🥩 Κρεατικά',
+    c4:'🫘 Όσπρια',c5:'🥦 Λαχανικά',c6:'🥗 Σαλάτες',c7:'🍲 Σούπες',
+    cl_pasta:'Ζυμαρικό',cl_seafood:'Θαλασσινό',cl_meat:'Κρεατικό',cl_legumes:'Όσπριο',
+    cl_vegetables:'Λαχανικό',cl_salads:'Σαλάτα',cl_soups:'Σούπα',
+    daily_lbl:'Προτάσεις για σήμερα',fresh:'✦ Φρέσκο',
+    new_sug:'✨ Νέα πρόταση',days_ago:'μέρες πριν',
+    remind:'Έχεις καιρό χωρίς:',bal_t:'Εβδομαδιαία ισορροπία',
+    reshuf:'🔀 Νέες προτάσεις',cal:'Θερμίδες',time:'Χρόνος',srv:'Μερίδες',
+    cost:'Κόστος υλικών',per_srv:'/μερ.',cost_yr:'τιμές 2026',
+    t_ing:'Υλικά',t_steps:'Εκτέλεση',t_pair:'Ταίριασμα',
+    tts_p:'▶ Άκου',tts_s:'⏸ Παύση',
+    ext:'🔍 Αναλυτική συνταγή ↗',
+    wine:'🍷 Κρασί',beer:'🍺 Μπύρα',plate:'🍽️ Στήσιμο πιάτου',
+    fridge_t:'🧊 Τι έχεις στο ψυγείο;',
+    fridge_s:'Βάλε υλικά και θα βρω τι να μαγειρέψεις!',
+    fridge_ph:'π.χ. κιμάς, ντομάτα, τυρί...',
+    fridge_btn:'🔍 Βρες μου συνταγές!',
+    f_found:'συνταγές με αυτά που έχεις:',
+    f_miss:'Λείπουν:',f_ok:'✅ Έχεις όλα τα κύρια υλικά!',f_open:'📖 Άνοιξε τη συνταγή →',
+    s_hi:'Τέλεια ταιριαστό!',s_mid:'Καλό ταίριασμα',s_lo:'Χρειάζεται λίγα ακόμα',
+    guests_t:'Σχεδίασε δείπνο για καλεσμένους',
+    g_num:'Αριθμός ατόμων',g_occ:'Περίσταση',g_diet:'Διατροφικές ανάγκες',
+    g_btn:'🪄 Δημιούργησε μενού & λίστα αγορών',
+    occ:['Κυριακάτικο τραπέζι','Γενέθλια','Επέτειος','Επαγγελματικό δείπνο','Ανεπίσημο γεύμα'],
+    diet:['Χορτοφάγος','Vegan','Κοιλιοκάκη','Νηστεία','Χωρίς γλουτένη'],
+    sea_lbl:'Εποχιακά — Μάιος 2026',sea_fr:'Φρέσκα τώρα',sea_title:'Προτεινόμενες συνταγές',
+    sw:['🎂 Κέικ','🍪 Κουλουράκια','🥞 Τηγανίτες','🍯 Παραδοσιακά','🌸 Εποχιακά'],
+    vst:'Φωνητική εντολή',f_all:'Όλες',
+    f_fasting:'🌿 Νηστεία',f_fish:'🐟 Ψάρι',f_major:'⭐ Μεγάλες',f_nat:'🇬🇷 Εθνικές',f_folk:'🎭 Λαϊκές',
+    clickable_recipe:'Πάτα για συνταγή →'
+  },
+  en:{sub:'Mediterranean Recipes',
+    n0:'☀️ Today',n1:'⭐ Feasts',n2:'🍯 Sweets',n3:'🧊 Fridge',n4:'👥 Guests',n5:'🌿 Seasonal',
+    c0:'🌿 All',c1:'🍝 Pasta',c2:'🐟 Seafood',c3:'🥩 Meat',
+    c4:'🫘 Legumes',c5:'🥦 Vegetables',c6:'🥗 Salads',c7:'🍲 Soups',
+    cl_pasta:'Pasta',cl_seafood:'Seafood',cl_meat:'Meat',cl_legumes:'Legume',
+    cl_vegetables:'Vegetable',cl_salads:'Salad',cl_soups:'Soup',
+    daily_lbl:"Today's suggestions",fresh:'✦ New',
+    new_sug:'✨ New suggestion',days_ago:'days ago',
+    remind:"Haven't had in a while:",bal_t:'Weekly balance',
+    reshuf:'🔀 New suggestions',cal:'Calories',time:'Time',srv:'Servings',
+    cost:'Ingredient cost',per_srv:'/serv.',cost_yr:'prices 2026',
+    t_ing:'Ingredients',t_steps:'Instructions',t_pair:'Pairing',
+    tts_p:'▶ Listen',tts_s:'⏸ Pause',
+    ext:'🔍 Full recipe online ↗',
+    wine:'🍷 Wine',beer:'🍺 Beer',plate:'🍽️ Plating tips',
+    fridge_t:"🧊 What's in your fridge?",
+    fridge_s:"Add ingredients and I'll find what you can cook!",
+    fridge_ph:'e.g. tomato, onion, cheese...',
+    fridge_btn:'🔍 Find me recipes!',
+    f_found:'recipes with what you have:',
+    f_miss:'Missing:',f_ok:"✅ You have all main ingredients!",f_open:'📖 Open recipe →',
+    s_hi:'Perfect match!',s_mid:'Good match',s_lo:'Needs a few more',
+    guests_t:'Plan a dinner for guests',
+    g_num:'Number of people',g_occ:'Occasion',g_diet:'Dietary needs',
+    g_btn:'🪄 Generate menu & shopping list',
+    occ:['Sunday family lunch','Birthday','Anniversary','Business dinner','Casual meal'],
+    diet:['Vegetarian','Vegan','Celiac','Fasting','Gluten-free'],
+    sea_lbl:'Seasonal — May 2026',sea_fr:'Fresh now',sea_title:'Suggested recipes',
+    sw:['🎂 Cakes','🍪 Cookies','🥞 Pancakes','🍯 Traditional','🌸 Seasonal'],
+    vst:'Voice command',f_all:'All',
+    f_fasting:'🌿 Fasting',f_fish:'🐟 Fish',f_major:'⭐ Major',f_nat:'🇬🇷 National',f_folk:'🎭 Folk',
+    clickable_recipe:'Tap for recipe →'
+  }
+};
+function t(k){return TR[curLang]?.[k]||TR.el[k]||k;}
+
+// ── PHOTOS (Unsplash CDN confirmed IDs) ──────────────────────
+// TheMealDB search terms → real food photos (free, CORS OK)
+const MDB_TERMS={
+  fasolada:'bean soup',tsipoura:'sea bream',gemista:'stuffed peppers',
+  horiatiki:'greek salad',aglio:'spaghetti aglio',garides:'prawn saganaki',
+  kotopoulo:'chicken lemon',keftedes:'keftedes',revythada:'chickpea',
+  fakes:'lentil soup',spanakoryzo:'spinach rice',briami:'roasted vegetables',
+  kima:'spaghetti bolognese',kalamaria:'calamari',psarosoupa:'fish soup',
+  kotosopa:'chicken soup',moussaka:'moussaka',giouvetsi:'lamb',
+  souvlakia:'souvlaki',pastitsio:'pastitsio',carbonara:'spaghetti carbonara',
+  dolmades:'dolmades',taramosalata:'taramosalata',bakaliaro:'fish',
+  htapodi:'octopus',mydia:'mussels',sardeles:'sardines',
+  tzatziki_dish:'tzatziki',gigantes:'beans',fava:'split pea',
+  salata_rokka:'rocket salad',giouvarlaakia:'meatball soup',
+  biftekia:'burger',arnaki_lemonato:'roast lamb',kritharaki:'orzo',
+  pasta_saltsa:'tomato pasta',tagliatelle_salmon:'salmon pasta',
+  imam:'stuffed eggplant',psari_plaki:'baked fish'
+};
+const IMG_CACHE={};
+const CAT_GRAD={
+  pasta:'linear-gradient(145deg,#FFF8E7,#FFE082)',
+  seafood:'linear-gradient(145deg,#E3F2FD,#90CAF9)',
+  meat:'linear-gradient(145deg,#FFF0EE,#EF9A9A)',
+  legumes:'linear-gradient(145deg,#F1F8E9,#C5E1A5)',
+  vegetables:'linear-gradient(145deg,#E8F5E9,#A5D6A7)',
+  salads:'linear-gradient(145deg,#E0F7FA,#80DEEA)',
+  soups:'linear-gradient(145deg,#FFFDE7,#FFF176)'
+};
+const CAT_CL={pasta:'b-pasta',seafood:'b-seafood',meat:'b-meat',legumes:'b-legumes',vegetables:'b-vegetables',salads:'b-salads',soups:'b-soups'};
+
+const MEALS={
+  fasolada:{en:'Greek Bean Soup',n:'Φασολάδα',e:'🫘',cats:['legumes','soups'],cal:320,time:50,srv:4,pop:1,cost:'~5€',cps:'~1.25€',
+    ing:['Φασόλια λευκά 500γρ','Καρότα 2','Σέλινο 2 κλαδιά','Κρεμμύδι 1','Ντομάτα τριμμένη 200γρ','Ελαιόλαδο 4 κ.σ.','Αλάτι, πιπέρι','Δαφνόφυλλο 2'],
+    steps:['Μουλιάζεις φασόλια όλη νύχτα. Στραγγίζεις, βράζεις σε καινούργιο νερό 10 λεπτά, ξαφρίζεις.','Προσθέτεις κρεμμύδι, καρότα, σέλινο, δαφνόφυλλα. Σιγοβράζεις 30 λεπτά.','Ρίχνεις ντομάτα, ελαιόλαδο, αλάτι, πιπέρι. Άλλα 20 λεπτά.','Σερβίρεις με ωμό ελαιόλαδο, ελιές Καλαμών και χωριάτικο ψωμί.'],
+    wine:'Ασύρτικο Σαντορίνης ή Ροδίτης.',beer:'Mythos ή ελαφριά pilsner.',plate:'Βαθύ πιάτο, ωμό ελαιόλαδο, 2-3 ελιές, κλαδάκι σέλινο.'},
+  horiatiki:{en:'Greek Salad',n:'Χωριάτικη σαλάτα',e:'🥗',cats:['salads'],cal:280,time:10,srv:2,pop:1,cost:'~5€',cps:'~2.50€',
+    ing:['Ντομάτες 3 μεγάλες','Αγγούρι 1','Κρεμμύδι 1','Πιπεριά πράσινη 1','Φέτα 150γρ','Ελιές Καλαμών 80γρ','Ελαιόλαδο 3 κ.σ.','Ρίγανη & αλάτι'],
+    steps:['Κόβεις ντομάτες χοντρά, αγγούρι ροδέλες, κρεμμύδι λεπτές φέτες, πιπεριά ροδέλες.','Τακτοποιείς σε πιατέλα. Φέτα ΟΛΟΚΛΗΡΗ στη μέση.','Ελιές γύρω, ελαιόλαδο, αλάτι, άφθονη ρίγανη. ΔΕΝ ανακατεύεις.'],
+    wine:'Ξηρό λευκό Σαντορίνης.',beer:'Fix ή Mythos, κρύα.',plate:'Φέτα ολόκληρη σαν νησί. Ελαιόλαδο ρίχνεται μπροστά στον καλεσμένο.'},
+  kotopoulo:{en:'Lemon Roast Chicken',n:'Κοτόπουλο λεμονάτο',e:'🍗',cats:['meat'],cal:420,time:70,srv:4,pop:1,cost:'~8.50€',cps:'~2.10€',
+    ing:['Κοτόπουλο 1.5kg κομμάτια','Λεμόνια 2','Σκόρδο 4','Ελαιόλαδο 4 κ.σ.','Ρίγανη & θυμάρι','Πατάτες 600γρ','Αλάτι & πιπέρι'],
+    steps:['Μαρινάρεις κοτόπουλο με χυμό λεμονιού, ξύσμα, ελαιόλαδο, σκόρδο, ρίγανη τουλάχιστον 1 ώρα.','Βάζεις κοτόπουλο + πατάτες σε σφήνες σε ταψί. Περιχύνεις με μαρινάδα.','Ψήνεις 200°C για 55-60 λεπτά. Στα 40 λεπτά γυρίζεις.'],
+    wine:'Αγιωργίτικο Νεμέας.',beer:'Mythos.',plate:'Κομμάτια με πατάτες. Φρέσκια ρίγανη, ξύσμα λεμονιού.'},
+  keftedes:{en:'Greek Meatballs',n:'Κεφτέδες',e:'🧆',cats:['meat'],cal:380,time:40,srv:4,pop:1,cost:'~7.50€',cps:'~1.90€',
+    ing:['Κιμάς 500γρ','Κρεμμύδι τριμμένο 1','Ψωμί μπαγιάτικο 2 φέτες','Αυγό 1','Μαϊντανός','Μέντα 1 κ.γ.','Αλάτι & πιπέρι'],
+    steps:['Μουλιάζεις ψωμί, στύβεις. Ανακατεύεις με κιμά, κρεμμύδι, αυγό, μαϊντανό, μέντα, αλάτι.','Ζυμώνεις 2-3 λεπτά. Ψυγείο 30 λεπτά.','Πλάθεις, τηγανίζεις σε ελαιόλαδο 3-4 λεπτά ανά πλευρά.'],
+    wine:'Ξινόμαυρο ή Νεμέα.',beer:'Mythos.',plate:'Πιατέλα, λεμόνι, μαϊντανός. Τζατζίκι δίπλα.'},
+  aglio:{en:'Spaghetti Aglio e Olio',n:'Σπαγγέτι αλιό ε ολιό',e:'🍝',cats:['pasta'],cal:490,time:20,srv:2,pop:1,cost:'~3.50€',cps:'~1.75€',
+    ing:['Σπαγγέτι 200γρ','Σκόρδο 5 σκελίδες','Ελαιόλαδο ε.π. 60ml','Μαϊντανός φρέσκος','Πεπερόνσινο 1-2','Αλάτι','Παρμεζάνα'],
+    steps:['Βράζεις σπαγγέτι al dente. Φυλάς 1 κούπα νερό ζυμαρικών.','Σκόρδο + πεπερόνσινο σε χαμηλή φωτιά 2-3 λεπτά. ΟΧΙ να καεί.','Σπαγγέτι στο τηγάνι + λίγο νερό ζυμαρικών, ανακατεύεις δυνατά. Μαϊντανός.'],
+    wine:'Pinot Grigio ή Vermentino.',beer:'Ελαφριά lager.',plate:'Φωλιά σπαγγέτι, μαϊντανός, παρμεζάνα.'},
+  garides:{en:'Shrimp Saganaki',n:'Γαρίδες σαγανάκι',e:'🦐',cats:['seafood'],cal:380,time:25,srv:2,pop:2,cost:'~12€',cps:'~6€',
+    ing:['Γαρίδες ωμές 500γρ','Ντομάτα τριμμένη 200γρ','Φέτα 100γρ','Ούζο 2 κ.σ.','Σκόρδο 2','Ελαιόλαδο','Μαϊντανός','Ρίγανη'],
+    steps:['Σοτάρεις γαρίδες 1-2 λεπτά. Βγάζεις.','Σκόρδο, ντομάτα, ρίγανη. Σιγοβράζεις 5 λεπτά.','Ούζο, γαρίδες πίσω, φέτα θρυμματισμένη. Γκριλ 3-4 λεπτά.'],
+    wine:'Ασύρτικο Σαντορίνης.',beer:'Lager ή ούζο.',plate:'Σαγανάκι κατευθείαν, μαϊντανός, ψωμί.'},
+  fakes:{en:'Greek Lentil Soup',n:'Φακές σούπα',e:'🍲',cats:['legumes','soups'],cal:290,time:40,srv:4,pop:1,cost:'~3€',cps:'~0.75€',
+    ing:['Φακές 400γρ','Κρεμμύδι 1','Καρότα 2','Σκόρδο 2','Ντομάτα τριμμένη 150γρ','Ελαιόλαδο 3 κ.σ.','Δαφνόφυλλο','Ξύδι 1 κ.σ.'],
+    steps:['Σοτάρεις κρεμμύδι, καρότα, σκόρδο σε ελαιόλαδο 5 λεπτά. Ντομάτα, μυρωδικά.','Φακές + νερό. Βράζεις 30-35 λεπτά.','Ξύδι στο τέλος (κλασικό!), αλάτι, πιπέρι.'],
+    wine:'Ξηρό ρόδινο.',beer:'Pilsner.',plate:'Βαθύ πιάτο, ωμό ελαιόλαδο, ξύδι, ελιές.'},
+  kima:{en:'Pasta with Meat Sauce',n:'Μακαρόνια με κιμά',e:'🍝',cats:['pasta','meat'],cal:520,time:45,srv:4,pop:1,cost:'~10€',cps:'~2.50€',
+    ing:['Μακαρόνια 400γρ','Κιμάς 500γρ','Ντομάτα τριμμένη 400γρ','Κρεμμύδι 1','Σκόρδο 2','Κρασί κόκκινο 100ml','Κανέλα, μπαχάρι'],
+    steps:['Σοτάρεις κρεμμύδι. Κιμάς ροδίζει. Σβήνεις με κρασί.','Ντομάτα, κανέλα, μπαχάρι, αλάτι. Σιγοβράζεις 25-30 λεπτά.','Μακαρόνια al dente. Κεφαλοτύρι.'],
+    wine:'Αγιωργίτικο.',beer:'Mythos.',plate:'Βαθύ πιάτο, σάλτσα πλούσια, τριμμένο τυρί.'},
+  gemista:{en:'Stuffed Tomatoes & Peppers',n:'Γεμιστά',e:'🍅',cats:['vegetables'],cal:420,time:90,srv:6,pop:1,cost:'~6€',cps:'~1€',
+    ing:['Ντομάτες 6','Πιπεριές 4','Ρύζι 300γρ','Κρεμμύδι 2','Μαϊντανός & δυόσμος','Ελαιόλαδο 5 κ.σ.','Ζάχαρη 1 κ.γ.'],
+    steps:['Κόβεις καπάκια, αδειάζεις. Γέμιση: ρύζι, κρεμμύδι, μυρωδικά, ελαιόλαδο, χυμοί.','Γεμίζεις στα 3/4. Ταψί με νεράκι.','180°C 60-70 λεπτά.'],
+    wine:'Αγιωργίτικο ή ροζέ.',beer:'Lager.',plate:'Με καπάκια, βασιλικός, ελαιόλαδο.'},
+  spanakoryzo:{en:'Spinach Rice',n:'Σπανακόρυζο',e:'🌿',cats:['vegetables'],cal:310,time:35,srv:4,pop:1,cost:'~4.50€',cps:'~1.15€',
+    ing:['Σπανάκι 600γρ','Ρύζι 150γρ','Κρεμμύδι 1','Κρεμμυδάκια 4','Ελαιόλαδο 4 κ.σ.','Άνηθος','Λεμόνι 1'],
+    steps:['Σοτάρεις κρεμμύδια. Σπανάκι μαραίνεται.','Ρύζι, 350ml νερό, αλάτι. 18-20 λεπτά.','Λεμόνι, άνηθος.'],
+    wine:'Μαλαγουζιά.',beer:'Ελαφριά lager.',plate:'Βαθύ πιάτο, λεμόνι, φέτα στο πλάι.'},
+  moussaka:{en:'Moussaka',n:'Μουσακάς',e:'🍆',cats:['meat','vegetables'],cal:560,time:100,srv:6,pop:1,cost:'~10€',cps:'~2.50€',
+    ing:['Μελιτζάνες 3','Κιμάς 500γρ','Πατάτες 3','Ντομάτα 300γρ','Κρεμμύδι 1','Γάλα 800ml','Αλεύρι 4 κ.σ.','Βούτυρο','Κεφαλοτύρι','Κανέλα'],
+    steps:['Μελιτζάνες + πατάτες ψήνεις ή τηγανίζεις. Κιμάς με κρεμμύδι, ντομάτα, κανέλα.','Βεσαμέλ: βούτυρο+αλεύρι+γάλα+αυγά+τυρί.','Στρώσεις: πατάτες, μελιτζάνες, κιμάς, βεσαμέλ. 180°C 50-60 λεπτά.'],
+    wine:'Αγιωργίτικο.',beer:'Mythos.',plate:'Κρυώνεις 20 λεπτά, τετράγωνα κομμάτια.'},
+  souvlakia:{en:'Pork Souvlaki',n:'Σουβλάκια χοιρινά',e:'🥩',cats:['meat'],cal:350,time:30,srv:4,pop:1,cost:'~7€',cps:'~1.75€',
+    ing:['Χοιρινό λαιμό 600γρ','Ελαιόλαδο 3 κ.σ.','Ρίγανη','Χυμός λεμονιού','Σκόρδο 2','Αλάτι & πιπέρι'],
+    steps:['Κύβοι 2-3 εκ. Μαρινάρεις 1+ ώρα.','Σουβλάκια. Σχάρα 10-12 λεπτά.','Πίτα, τζατζίκι, ντομάτα, κρεμμύδι.'],
+    wine:'Ξινόμαυρο.',beer:'Mythos παγωμένη!',plate:'Πίτα ή πιάτο με πατάτες.'},
+  pastitsio:{en:'Greek Pasta Bake',n:'Παστίτσιο',e:'🥘',cats:['pasta','meat'],cal:580,time:90,srv:6,pop:1,cost:'~9€',cps:'~2.25€',
+    ing:['Μακαρόνια χοντρά 500γρ','Κιμάς 500γρ','Ντομάτα τριμμένη 300γρ','Κρεμμύδι 1','Γάλα 1λ','Αλεύρι 4 κ.σ.','Βούτυρο 80γρ','Κεφαλοτύρι 150γρ','Κανέλα'],
+    steps:['Κιμάς: κρεμμύδι, κιμάς, ντομάτα, κανέλα. 20 λεπτά.','Βεσαμέλ: βούτυρο+αλεύρι+γάλα+αυγά+τυρί.','Στρώσεις: μακαρόνια, κιμάς, μακαρόνια, βεσαμέλ. 180°C 45-50 λεπτά.'],
+    wine:'Αγιωργίτικο.',beer:'Mythos.',plate:'Τετράγωνα κομμάτια, κρυώνεις 15 λεπτά.'},
+  giouvetsi:{en:'Lamb with Orzo',n:'Γιουβέτσι αρνί',e:'🍖',cats:['meat'],cal:540,time:100,srv:4,pop:1,cost:'~9€',cps:'~2.25€',
+    ing:['Αρνάκι 1kg','Κριθαράκι 300γρ','Ντομάτα τριμμένη 400γρ','Κρεμμύδι 1','Σκόρδο 2','Κανέλα','Κεφαλοτύρι'],
+    steps:['Ροδίζεις αρνί. Κρεμμύδι, σκόρδο, ντομάτα, μπαχαρικά. 180°C 50 λεπτά.','Κριθαράκι. 30 λεπτά ακόμα ανακατεύοντας.','Κεφαλοτύρι από πάνω.'],
+    wine:'Αγιωργίτικο Νεμέας.',beer:'Ελληνική lager.',plate:'Σε γαλατιέρα, άφθονο τυρί.'},
+  tsipoura:{en:'Baked Sea Bream',n:'Τσιπούρα στο φούρνο',e:'🐟',cats:['seafood'],cal:310,time:35,srv:2,pop:2,cost:'~9€',cps:'~4.50€',
+    ing:['Τσιπούρα 500γρ','Λεμόνι 1','Σκόρδο 3','Ελαιόλαδο 3 κ.σ.','Θυμάρι & ρίγανη','Αλάτι & πιπέρι','Πατάτες 300γρ'],
+    steps:['Χαράσσεις ψάρι. Αλάτι, πιπέρι, ρίγανη εντός/εκτός.','Λεμόνι + σκόρδο στην κοιλιά. Πατάτες στο ταψί.','200°C 25-30 λεπτά. Ελαιόλαδο, λεμόνι.'],
+    wine:'Ασύρτικο ή Μοσχοφίλερο.',beer:'Wheat beer ή Corona.',plate:'Ψάρι διαγώνια, πατάτες, θυμάρι.'},
+  kalamaria:{en:'Fried Calamari',n:'Καλαμάρια τηγανητά',e:'🦑',cats:['seafood'],cal:350,time:20,srv:2,pop:2,cost:'~6€',cps:'~3€',
+    ing:['Καλαμάρια 500γρ','Αλεύρι 1 κούπα','Αλάτι & πιπέρι','Ελαιόλαδο','Λεμόνι'],
+    steps:['Δαχτυλίδια, στεγνά πολύ καλά.','Αλεύρι, τινάζεις.','Βαθύ καυτό λάδι, 2-3 λεπτά, χρυσαφένια.'],
+    wine:'Ασύρτικο.',beer:'Κρύα pilsner.',plate:'Σε χαρτί τηγανητών, λεμόνι.'},
+  bakaliaro:{en:'Salt Cod with Garlic Sauce',n:'Μπακαλιάρος σκορδαλιά',e:'🐟',cats:['seafood'],cal:380,time:40,srv:4,pop:1,cost:'~8€',cps:'~2€',
+    ing:['Μπακαλιάρος παστός 600γρ','Αλεύρι 1 κούπα','Ελαιόλαδο','Πατάτες 3 (σκορδαλιά)','Σκόρδο 5','Ξύδι 2 κ.σ.'],
+    steps:['Μουλιάζεις 24-36 ώρες αλλάζοντας νερό. Στεγνώνεις.','Σκορδαλιά: πατάτες+σκόρδο+ελαιόλαδο+ξύδι.','Αλευρώνεις, τηγανίζεις 3-4 λεπτά ανά πλευρά.'],
+    wine:'Ασύρτικο.',beer:'Κρύα pilsner.',plate:'Μπακαλιάρος+σκορδαλιά, ελιές, χόρτα.'},
+  htapodi:{en:'Wine-Braised Octopus',n:'Χταπόδι κρασάτο',e:'🐙',cats:['seafood'],cal:290,time:60,srv:4,pop:2,cost:'~10€',cps:'~2.50€',
+    ing:['Χταπόδι 1kg','Κρεμμύδι 2','Σκόρδο 3','Κρασί κόκκινο 200ml','Ντομάτα τριμμένη 200γρ','Ελαιόλαδο','Δαφνόφυλλο'],
+    steps:['Βράζεις χταπόδι χωρίς νερό 30 λεπτά. Κόβεις.','Σοτάρεις κρεμμύδι. Σβήνεις με κρασί.','Ντομάτα, μπαχαρικά, χταπόδι. 20-25 λεπτά.'],
+    wine:'Ροζέ ή ελαφρύ κόκκινο.',beer:'Lager ή ούζο.',plate:'Πιατέλα, μαϊντανός, λεμόνι, παξιμάδι.'},
+  taramosalata:{en:'Taramosalata',n:'Ταραμοσαλάτα',e:'🫐',cats:['seafood'],cal:220,time:10,srv:6,pop:1,cost:'~4€',cps:'~0.70€',
+    ing:['Ταραμάς 100γρ','Ψωμί μπαγιάτικο 4 φέτες','Ελαιόλαδο 150ml','Χυμός λεμονιού 2 κ.σ.','Κρεμμύδι τριμμένο 1 μικρό'],
+    steps:['Μουλιάζεις ψωμί, στύβεις καλά.','Χτυπάς ταραμά + ψωμί στο μπλέντερ.','Βάζεις ελαιόλαδο σταδιακά + λεμόνι. Κρυώνεις.'],
+    wine:'Ούζο ή ξηρό λευκό.',beer:'Lager.',plate:'Μπολ, ελαιόλαδο, ελιές, λαγάνα δίπλα.'},
+  halvas:{en:'Semolina Halvas',n:'Χαλβάς σιμιγδαλένιος',e:'🟤',cats:['soups'],srv:8,cal:320,time:20,srv:8,pop:1,cost:'~3€',cps:'~0.40€',
+    ing:['Σιμιγδάλι χοντρό 1 κούπα','Ελαιόλαδο 1/2 κούπα','Ζάχαρη 2 κούπες','Νερό 3 κούπες','Κανέλα, σταφίδες, κουκουνάρι'],
+    steps:['Βράζεις νερό+ζάχαρη+κανέλα (1-2-3-4 αναλογία).','Σοτάρεις σιμιγδάλι σε ελαιόλαδο μέχρι χρυσαφένιο.','Σιρόπι στο σιμιγδάλι. Ανακατεύεις. 5 λεπτά. Φόρμα 15 λεπτά.'],
+    wine:'Ούζο ή γλυκό κρασί.',beer:'',plate:'Φόρμα αναποδογυρισμένη, κανέλα, σταφίδες.'},
+  lagana:{en:'Lagana (Fasting Flatbread)',n:'Λαγάνα',e:'🫓',cats:['soups'],srv:8,cal:180,time:90,srv:8,pop:1,cost:'~2€',cps:'~0.25€',
+    ing:['Αλεύρι 500γρ','Νερό χλιαρό 300ml','Μαγιά ξηρή 7γρ','Ελαιόλαδο 3 κ.σ.','Αλάτι','Σησάμι'],
+    steps:['Ζυμώνεις αλεύρι+μαγιά+νερό+ελαιόλαδο+αλάτι. Αφήνεις 1 ώρα.','Απλώνεις λεπτή και επίπεδη σε λαδόκολλα.','Σησάμι από πάνω. 220°C 20-25 λεπτά.'],
+    wine:'',beer:'',plate:'Σερβίρεις με ταραμοσαλάτα, ελιές και χαλβά.'},
+  psarosoupa:{en:'Greek Fish Soup',n:'Ψαρόσουπα αυγολέμονο',e:'🐠',cats:['seafood','soups'],cal:320,time:50,srv:4,pop:2,cost:'~12€',cps:'~3€',
+    ing:['Ψάρι σφυρίδα 1kg','Πατάτες 4','Καρότα 2','Κρεμμύδι 1','Σέλινο','Αυγά 2 & λεμόνι'],
+    steps:['Βράζεις ψάρι + λαχανικά 30 λεπτά. Ξεκοκκαλίζεις.','Σουρώνεις ζωμό. Ρύζι ή χυλοπίτες 15 λεπτά.','Αυγολέμονο: αυγά+λεμόνι αραιωμένα με ζωμό. Ρίχνεις.'],
+    wine:'Ασύρτικο.',beer:'Pilsner.',plate:'Βαθύ πιάτο, ψάρι μέσα, λεμόνι.'},
+  kotosopa:{en:'Chicken Avgolemono',n:'Κοτόσουπα αυγολέμονο',e:'🍜',cats:['meat','soups'],cal:340,time:60,srv:4,pop:1,cost:'~6.50€',cps:'~1.65€',
+    ing:['Κοτόπουλο 1','Ρύζι 100γρ','Αυγά 2','Λεμόνι 1','Καρότα 2','Σέλινο'],
+    steps:['Βράζεις κοτόπουλο + λαχανικά 45 λεπτά. Ξεκοκκαλίζεις.','Ρύζι στον ζωμό 15 λεπτά.','Αυγολέμονο, ρίχνεις στη σούπα.'],
+    wine:'Λευκό ξηρό.',beer:'Pilsner.',plate:'Βαθύ πιάτο, κοτόπουλο, άνηθος.'},
+  revythada:{en:'Chickpea Stew',n:'Ρεβυθάδα Σύρου',e:'🫘',cats:['legumes'],cal:360,time:180,srv:4,pop:3,cost:'~4€',cps:'~1€',
+    ing:['Ρεβύθια 500γρ','Κρεμμύδι 2','Ελαιόλαδο 6 κ.σ.','Δεντρολίβανο','Λεμόνι 1'],
+    steps:['Μουλιάζεις βραδύς. Βράζεις 10 λεπτά.','Κρεμμύδι, ελαιόλαδο, δεντρολίβανο, νερό. 160°C 2.5-3 ώρες.','Χυμός λεμονιού στο τέλος.'],
+    wine:'Ασύρτικο Κυκλαδίτικο.',beer:'Ελαφριά lager.',plate:'Βαθύ μπολ, ωμό ελαιόλαδο, δεντρολίβανο.'},
+  briami:{en:'Greek Roasted Vegetables',n:'Μπριάμ',e:'🥦',cats:['vegetables'],cal:270,time:75,srv:4,pop:2,cost:'~6€',cps:'~1.50€',
+    ing:['Κολοκυθάκια 3','Μελιτζάνες 2','Πατάτες 3','Πιπεριές 2','Ντομάτες 3','Κρεμμύδι 1','Σκόρδο 4','Ελαιόλαδο 6 κ.σ.'],
+    steps:['Κόβεις όλα σε ροδέλες. Βάζεις σε ταψί.','Ελαιόλαδο, αλάτι, πιπέρι, μυρωδικά. Ανακατεύεις.','190°C 60-70 λεπτά. Ανακατεύεις στη μέση.'],
+    wine:'Ελαφρύ ρόδινο.',beer:'Lager.',plate:'Πιατέλα, βασιλικός, φέτα.'},
+  dolmades:{en:'Stuffed Vine Leaves',n:'Ντολμαδάκια γιαλαντζί',e:'🌿',cats:['vegetables'],cal:240,time:70,srv:6,pop:2,cost:'~6€',cps:'~1.50€',
+    ing:['Αμπελόφυλλα 40-50','Ρύζι 250γρ','Κρεμμύδι 2','Μαϊντανός & δυόσμος','Ελαιόλαδο 5 κ.σ.','Λεμόνι 2'],
+    steps:['Ζεματίζεις αμπελόφυλλα. Γέμιση: ρύζι, κρεμμύδι, μυρωδικά, λεμόνι, ελαιόλαδο.','Τυλίγεις σφιχτά.','Κατσαρόλα σφιχτά, νερό+λεμόνι+ελαιόλαδο. 40-45 λεπτά.'],
+    wine:'Λευκό Αττικό.',beer:'Pilsner.',plate:'Κρύα ή ζεστά με γιαούρτι.'},
+  tzatziki_dish:{en:'Homemade Tzatziki',n:'Τζατζίκι σπιτικό',e:'🧄',cats:['salads','vegetables'],cal:120,time:15,srv:4,pop:1,cost:'~3€',cps:'~0.75€',
+    ing:['Γιαούρτι στραγγιστό 500γρ','Αγγούρι 1','Σκόρδο 2-3','Ελαιόλαδο 2 κ.σ.','Ξύδι 1 κ.γ.','Άνηθος','Αλάτι'],
+    steps:['Αγγούρι τριμμένο, αλάτι, στύβεις υγρά.','Γιαούρτι+σκόρδο+αγγούρι+ξύδι+αλάτι.','Άνηθος, ελαιόλαδο. 1 ώρα ψυγείο.'],
+    wine:'Λευκό ξηρό.',beer:'Lager.',plate:'Μπολ, ελαιόλαδο spiral, άνηθος.'},
+  gigantes:{en:'Giant Beans in Tomato Sauce',n:'Γίγαντες πλακί',e:'🫘',cats:['legumes','vegetables'],cal:310,time:90,srv:4,pop:2,cost:'~4€',cps:'~1€',
+    ing:['Γίγαντες 400γρ','Ντομάτα τριμμένη 400γρ','Κρεμμύδι 2','Σκόρδο 3','Καρότο 1','Μέλι 1 κ.γ.','Ελαιόλαδο 4 κ.σ.'],
+    steps:['Μουλιάζεις βραδύς. Βράζεις 30-40 λεπτά.','Σοτάρεις λαχανικά. Ντομάτα, μέλι.','Γίγαντες σε ταψί. 180°C 40-45 λεπτά.'],
+    wine:'Λευκό ξηρό.',beer:'Lager.',plate:'Με χοντρό ψωμί και ελιές.'},
+  fava:{en:'Santorini Split Pea Dip',n:'Φάβα Σαντορίνης',e:'🟡',cats:['legumes'],cal:260,time:45,srv:4,pop:2,cost:'~4€',cps:'~1€',
+    ing:['Φάβα Σαντορίνης 300γρ','Κρεμμύδι 1','Σκόρδο 2','Ελαιόλαδο 5 κ.σ.','Λεμόνι 1','Κρεμμυδάκι','Κάππαρη'],
+    steps:['Βράζεις φάβα με κρεμμύδι+σκόρδο 30-35 λεπτά.','Πουρέ με ελαιόλαδο, λεμόνι, αλάτι.','Ωμό ελαιόλαδο, κάππαρη, κρεμμυδάκι.'],
+    wine:'Ασύρτικο Σαντορίνης — αυθεντικό!',beer:'Lager ή ούζο.',plate:'Μπολ, ελαιόλαδο spiral, κάππαρη.'},
+  salata_rokka:{en:'Rocket & Parmesan Salad',n:'Σαλάτα ρόκα-παρμεζάνα',e:'🥗',cats:['salads'],cal:220,time:10,srv:2,pop:1,cost:'~4.50€',cps:'~2.25€',
+    ing:['Ρόκα 100γρ','Παρμεζάνα 60γρ','Ντοματίνια 100γρ','Βαλσάμικο 2 κ.σ.','Ελαιόλαδο 2 κ.σ.'],
+    steps:['Πλένεις ρόκα. Ντοματίνια στα δύο.','Τακτοποιείς σε πιατέλα.','Παρμεζάνα σε flakes, βαλσάμικο, ελαιόλαδο.'],
+    wine:'Pinot Grigio.',beer:'Lager.',plate:'Παρμεζάνα σε flakes — ποτέ τριμμένη!'},
+  giouvarlaakia:{en:'Meatball Avgolemono Soup',n:'Γιουβαρλάκια αυγολέμονο',e:'🍜',cats:['meat','soups'],cal:380,time:50,srv:4,pop:1,cost:'~7€',cps:'~1.75€',
+    ing:['Κιμάς 400γρ','Ρύζι 100γρ','Κρεμμύδι 1','Αυγά 3','Λεμόνια 2','Ζωμός 1.5λ'],
+    steps:['Κιμάς+ρύζι+κρεμμύδι+1 αυγό. Μπαλάκια.','Ζωμός, μπαλάκια. 25-30 λεπτά.','Αυγολέμονο αραιωμένο με ζωμό. Ρίχνεις.'],
+    wine:'Λευκό ξηρό.',beer:'Pilsner.',plate:'Βαθύ πιάτο, μαϊντανός, λεμόνι.'},
+  biftekia:{en:'Grilled Beef Burgers',n:'Μπιφτέκια σχάρας',e:'🍔',cats:['meat'],cal:400,time:30,srv:4,pop:1,cost:'~7€',cps:'~1.75€',
+    ing:['Κιμάς 600γρ','Κρεμμύδι τριμμένο 1','Σκόρδο 1','Μουστάρδα 1 κ.γ.','Ρίγανη','Αλάτι & πιπέρι'],
+    steps:['Ζυμώνεις. Ψυγείο 20 λεπτά.','Στρογγυλά/οβάλ, 2 εκ πάχος.','Καυτή σχάρα ή τηγάνι, 4-5 λεπτά ανά πλευρά.'],
+    wine:'Αγιωργίτικο.',beer:'Mythos.',plate:'Πατάτες φούρνου, τζατζίκι, σαλάτα.'},
+  arnaki_lemonato:{en:'Lemon Roast Lamb',n:'Αρνάκι λεμονάτο',e:'🍖',cats:['meat'],cal:480,time:90,srv:4,pop:2,cost:'~12€',cps:'~3€',
+    ing:['Αρνάκι μπούτι 1.5kg','Λεμόνια 3','Σκόρδο 6','Ελαιόλαδο 4 κ.σ.','Ρίγανη','Πατάτες 600γρ'],
+    steps:['Μαρινάρεις 2+ ώρες.','Ταψί με πατάτες. 190°C 75-80 λεπτά.','Στα 50 λεπτά γυρίζεις.'],
+    wine:'Αγιωργίτικο Νεμέας.',beer:'Mythos.',plate:'Αρνί+πατάτες, λεμόνι, ρίγανη.'},
+  anginaresPolita:{en:'Artichokes à la Polita',n:'Αγκινάρες αλά πολίτα',e:'🌿',cats:['vegetables'],cal:290,time:50,srv:4,pop:2,cost:'~7€',cps:'~1.75€',
+    ing:['Αγκινάρες 6','Αρακάς 300γρ','Καρότα 4','Πατάτες 4','Άνηθος','Λεμόνι 2','Ελαιόλαδο 4 κ.σ.'],
+    steps:['Καθαρίζεις αγκινάρες. Νερό με λεμόνι.','Σοτάρεις κρεμμύδι, όλα μαζί. Νερό+λεμόνι+ελαιόλαδο.','35-40 λεπτά.'],
+    wine:'Ασύρτικο.',beer:'Pilsner.',plate:'Βαθύ πιάτο, άνηθος, λεμόνι.'},
+  tartaFragola:{en:'Strawberry Tart',n:'Τάρτα φράουλας',e:'🍓',cats:['salads'],srv:8,cal:320,time:45,srv:8,pop:2,cost:'~8.50€',cps:'~1.10€',
+    ing:['Ζύμη τάρτας','Κρέμα ζαχαροπλαστικής','Φράουλες 400γρ','Γκλάς','Ζάχαρη άχνη'],
+    steps:['Τυφλό ψήσιμο 15 λεπτά, 180°C.','Κρέμα, φράουλες.','Γκλάς, ψύχεις 1 ώρα.'],
+    wine:'Prosecco.',beer:'Φρουτώδης μπύρα.',plate:'Ζάχαρη άχνη, φύλλα μέντας.'}
+};
+
+
+const SWEETS={
+  keik:[
+    {n:'Κέικ σοκολάτας',e:'🍫',srv:10,cal:380,ing:['Αλεύρι 250γρ','Κακάο 60γρ','Ζάχαρη 200γρ','Αυγά 3','Βούτυρο 150γρ','Γάλα 120ml','Μπέικιν πάουντερ'],steps:['Βούτυρο-ζάχαρη αφράτο, αυγά ένα-ένα.','Ξηρά εναλλάξ με γάλα.','175°C 45 λεπτά.'],q:'κέικ σοκολάτας'},
+    {n:'Κέικ λεμονιού',e:'🍋',srv:10,cal:290,ing:['Αλεύρι 250γρ','Ζάχαρη 180γρ','Αυγά 3','Ελαιόλαδο 100ml','Γιαούρτι 150γρ','Λεμόνι ξύσμα+χυμός','Μπέικιν'],steps:['Αυγά-ζάχαρη, ελαιόλαδο, γιαούρτι, ξύσμα.','Αλεύρι+μπέικιν ελαφρά.','175°C 40 λεπτά. Λούστρο λεμόνι.'],q:'κέικ λεμονιού'},
+    {n:'Κέικ πορτοκαλιού',e:'🍊',srv:10,cal:310,ing:['Αλεύρι 280γρ','Ζάχαρη 200γρ','Αυγά 4','Ελαιόλαδο 120ml','Χυμός πορτοκαλιού 150ml','Ξύσμα 2 πορτοκαλιών'],steps:['Αυγά-ζάχαρη, ελαιόλαδο, χυμό, ξύσμα.','Αλεύρι+μπέικιν.','180°C 45 λεπτά.'],q:'κέικ πορτοκαλιού'},
+    {n:'Κέικ μπανάνας',e:'🍌',srv:8,cal:280,ing:['Αλεύρι 230γρ','Ζάχαρη 150γρ','Αυγά 2','Βούτυρο 100γρ','Μπανάνες 3 ώριμες','Σόδα+μπέικιν'],steps:['Πολτοποιείς μπανάνες. Βούτυρο-ζάχαρη, αυγά, μπανάνα.','Ξηρά.','175°C 55 λεπτά.'],q:'κέικ μπανάνας'},
+    {n:'Κέικ καρότου',e:'🥕',srv:12,cal:350,ing:['Αλεύρι 250γρ','Ζάχαρη 200γρ','Αυγά 3','Ελαιόλαδο 150ml','Καρότα 300γρ τριμμένα','Κανέλα+μοσχοκάρυδο'],steps:['Αυγά-ζάχαρη-ελαιόλαδο, καρότα.','Ξηρά.','175°C 50 λεπτά. Frosting τυρί κρέμα.'],q:'κέικ καρότου'},
+    {n:'Marble Cake',e:'🎂',srv:12,cal:340,ing:['Αλεύρι 280γρ','Ζάχαρη 200γρ','Αυγά 4','Βούτυρο 180γρ','Γάλα 100ml','Κακάο 3 κ.σ.'],steps:['Βούτυρο-ζάχαρη, αυγά, αλεύρι+γάλα.','Χωρίζεις, κακάο στο ένα.','Εναλλάσσεις. 175°C 50 λεπτά.'],q:'marble cake μαρμπρέ'},
+    {n:'Κέικ φράουλας',e:'🍓',srv:8,cal:260,ing:['Αλεύρι 230γρ','Ζάχαρη 160γρ','Αυγά 2','Βούτυρο 100γρ','Γιαούρτι 120γρ','Φράουλες 200γρ'],steps:['Βούτυρο-ζάχαρη, αυγά, γιαούρτι.','Ξηρά+φράουλες.','175°C 45 λεπτά.'],q:'κέικ φράουλας'},
+    {n:'Κέικ μήλου κανέλας',e:'🍎',srv:10,cal:320,ing:['Αλεύρι 260γρ','Ζάχαρη 180γρ','Αυγά 3','Ελαιόλαδο 100ml','Γιαούρτι 130γρ','Μήλα 2 τριμμένα','Κανέλα 2 κ.γ.'],steps:['Υγρά: αυγά, ζάχαρη, ελαιόλαδο, γιαούρτι.','Ξηρά+μήλα.','175°C 50 λεπτά.'],q:'κέικ μήλου κανέλας'},
+  ],
+  koulourakia:[
+    {n:'Κουλουράκια πορτοκαλιού',e:'🍊',srv:45,cal:80,ing:['Αλεύρι 500γρ','Ζάχαρη 150γρ','Βούτυρο 150γρ','Αυγά 2','Χυμός πορτοκαλιού 80ml','Ξύσμα','Μπέικιν'],steps:['Βούτυρο-ζάχαρη, αυγά, χυμό, ξύσμα.','Αλεύρι+μπέικιν. Μαλακή ζύμη.','175°C 15-18 λεπτά.'],q:'κουλουράκια πορτοκαλιού'},
+    {n:'Κουλουράκια βουτύρου',e:'🧈',srv:50,cal:90,ing:['Αλεύρι 500γρ','Ζάχαρη 150γρ','Βούτυρο 200γρ','Αυγά 2','Γάλα 2 κ.σ.','Βανίλια'],steps:['Βούτυρο-ζάχαρη λευκό. Αυγά.','Αλεύρι.','Κορνέτα ή χέρι, 170°C 18-20 λεπτά.'],q:'κουλουράκια βουτύρου'},
+    {n:'Μπισκότα σοκολάτας',e:'🍪',srv:24,cal:110,ing:['Αλεύρι 200γρ','Σοκολάτα κομμάτια 200γρ','Βούτυρο 150γρ','Ζάχαρη καστανή 100γρ','Αυγό 1'],steps:['Λιωτό βούτυρο+ζάχαρη. Αυγό.','Αλεύρι+σόδα+σοκολάτα.','175°C 10-12 λεπτά — μαλακά!'],q:'μπισκότα chocolate chip'},
+    {n:'Κουλουράκια κακάο',e:'🍫',srv:40,cal:85,ing:['Αλεύρι 460γρ','Κακάο 40γρ','Ζάχαρη 150γρ','Βούτυρο 180γρ','Αυγά 2'],steps:['Βούτυρο-ζάχαρη. Αυγά.','Αλεύρι+κακάο.','175°C 15 λεπτά.'],q:'κουλουράκια κακάο'},
+    {n:'Κουλουράκια αμυγδάλου',e:'🌰',srv:40,cal:95,ing:['Αλεύρι 400γρ','Αλεσμένο αμύγδαλο 100γρ','Ζάχαρη 130γρ','Βούτυρο 160γρ','Αυγό 1'],steps:['Βούτυρο-ζάχαρη. Αυγό+αμύγδαλο.','Αλεύρι.','Αμύγδαλο φιλέ, 170°C 18 λεπτά.'],q:'κουλουράκια αμυγδάλου'},
+    {n:'Κουλουράκια μελιού',e:'🍯',srv:40,cal:70,ing:['Αλεύρι 450γρ','Μέλι 100ml','Ζάχαρη 80γρ','Βούτυρο 120γρ','Κανέλα+γαρίφαλο'],steps:['Ζεστό μέλι+βούτυρο, κρυώνεις.','Αλεύρι+μπαχαρικά+σόδα.','Μπαλάκια, 170°C 15 λεπτά.'],q:'κουλουράκια μελιού'},
+    {n:'Κουλουράκια βανίλιας',e:'🤍',srv:45,cal:75,ing:['Αλεύρι 480γρ','Ζάχαρη 130γρ','Βούτυρο 180γρ','Αυγά 2','Βανίλια'],steps:['Βούτυρο-ζάχαρη. Αυγά+βανίλια.','Αλεύρι.','170°C 15 λεπτά.'],q:'κουλουράκια βανίλιας'},
+    {n:'Παξιμαδάκια ελαιολάδου',e:'🫓',srv:40,cal:65,ing:['Αλεύρι 500γρ','Ελαιόλαδο 150ml','Ζάχαρη 100γρ','Αυγά 2','Χυμός πορτοκαλιού','Σησάμι'],steps:['Αυγά-ζάχαρη, ελαιόλαδο, χυμό.','Αλεύρι. Κορδόνια.','180°C 20 λεπτά, κόβεις, ξαναψήνεις 10 λεπτά.'],q:'παξιμαδάκια ελαιολάδου'},
+  ],
+  tiganites:[
+    {n:'American Pancakes',e:'🥞',srv:8,cal:280,ing:['Αλεύρι 200γρ','Γάλα 250ml','Αυγό 1','Ζάχαρη 2 κ.σ.','Μπέικιν 2 κ.γ.','Βούτυρο λιωμένο 2 κ.σ.'],steps:['Ξηρά + υγρά ξεχωριστά. Ανακατεύεις ελαφρά — να μείνουν σβόλοι!','5 λεπτά ξεκούραση. Μέτρια φωτιά.','1 κουτάλα, 2-3 λεπτά ανά πλευρά. Φουσκαλίτσες = γυρνάς!'],q:'american pancakes αέρινα'},
+    {n:'Pancakes μύρτιλα',e:'🫐',srv:8,cal:300,ing:['Βάση Pancakes','Μύρτιλα 150γρ','Μέλι','Βανίλια'],steps:['Φτιάχνεις βάση.','Ρίχνεις μύρτιλα ελαφρά.','Ψήνεις. Μέλι+extra μύρτιλα.'],q:'pancakes μύρτιλα'},
+    {n:'Pancakes μπανάνα',e:'🍌',srv:8,cal:270,ing:['Αλεύρι 180γρ','Μπανάνα 2 ώριμες','Αυγό 1','Γάλα 200ml','Μπέικιν 1.5 κ.γ.','Κανέλα'],steps:['Πολτός μπανάνας + αυγό + γάλα.','Αλεύρι+μπέικιν+κανέλα.','2-3 λεπτά ανά πλευρά. Μέλι.'],q:'pancakes μπανάνα'},
+    {n:'Κρέπες κλασικές',e:'🫔',srv:14,cal:180,ing:['Αλεύρι 250γρ','Γάλα 500ml','Αυγά 3','Βούτυρο 30γρ λιωμένο','Ζάχαρη 1 κ.σ.'],steps:['Αυγά-αλεύρι-ζάχαρη. Γάλα σταδιακά. Βούτυρο. 30 λεπτά ξεκούραση.','Ζεστό τηγάνι.','1-2 λεπτά, γυρνάς 30 δευτ.'],q:'κρέπες κλασικές'},
+    {n:'Κρέπες Nutella',e:'🍫',srv:4,cal:380,ing:['Βάση κρεπών','Nutella','Μπανάνα','Φράουλες','Ζάχαρη άχνη'],steps:['Κρέπες.','Nutella γενναιόδωρα.','Φρούτα, τρίγωνο, ζάχαρη άχνη.'],q:'κρέπες Nutella'},
+    {n:'Τηγανίτες ελληνικές',e:'🍩',srv:12,cal:220,ing:['Αλεύρι 300γρ','Γάλα 300ml','Αυγά 2','Μπέικιν','Ελαιόλαδο'],steps:['Αυγά+γάλα. Αλεύρι+μπέικιν.','Κουταλιές σε ελαιόλαδο. 2 λεπτά ανά πλευρά.','Μέλι, κανέλα ή γλυκό κουταλιού.'],q:'τηγανίτες ελληνικές'},
+    {n:'French Toast',e:'🍞',srv:4,cal:310,ing:['Ψωμί χωριάτικο 4 φέτες','Αυγά 3','Γάλα 80ml','Ζάχαρη 2 κ.σ.','Κανέλα','Βούτυρο'],steps:['Αυγά+γάλα+ζάχαρη+κανέλα. Βουτάς φέτες.','Βούτυρο, 2-3 λεπτά ανά πλευρά.','Σιρόπι σφενδάμου ή μέλι.'],q:'french toast'},
+    {n:'Waffle',e:'🧇',srv:4,cal:350,ing:['Αλεύρι 200γρ','Γάλα 300ml','Αυγά 2','Βούτυρο 80γρ λιωμένο','Ζάχαρη 2 κ.σ.','Μπέικιν 2 κ.γ.'],steps:['Χτυπάς ασπράδια σε μαρέγκα.','Ζύμη+μαρέγκα ελαφρά.','Waffle maker 3-4 λεπτά.'],q:'waffle συνταγή'},
+  ],
+  paradosiaka:[
+    {n:'Μπακλαβάς',e:'🍯',srv:24,cal:420,ing:['Φύλλο κρούστα 500γρ','Καρύδια 400γρ','Βούτυρο 200γρ','Κανέλα','Σιρόπι μελιού'],steps:['Φύλλα βουτυρωμένα εναλλάξ με καρύδι.','Ρόμβοι, 175°C 45-50 λεπτά.','Κρύο σιρόπι στον ζεστό.'],q:'μπακλαβάς παραδοσιακός'},
+    {n:'Γαλακτομπούρεκο',e:'🥧',srv:12,cal:380,ing:['Φύλλο κρούστα 500γρ','Γάλα 1λ','Αυγά 4','Σιμιγδάλι 100γρ','Ζάχαρη 200γρ','Βανίλια'],steps:['Κρέμα: γάλα+ζάχαρη+σιμιγδάλι+αυγά.','Φύλλα, κρέμα, φύλλα. 180°C 45 λεπτά.','Ζεστό σιρόπι στο κρύο.'],q:'γαλακτομπούρεκο παραδοσιακό'},
+    {n:'Λουκουμάδες',e:'🫧',srv:35,cal:60,ing:['Αλεύρι 300γρ','Νερό χλιαρό 350ml','Μαγιά ξηρή 7γρ','Αλάτι'],steps:['Ζύμη, αφήνεις 1 ώρα.','Καυτό βαθύ λάδι, κουταλιές 2-3 λεπτά.','Αμέσως με μέλι και κανέλα!'],q:'λουκουμάδες παραδοσιακοί'},
+    {n:'Ρεβανί',e:'🟡',srv:12,cal:310,ing:['Σιμιγδάλι 200γρ','Ζάχαρη 200γρ','Αυγά 4','Γιαούρτι 200γρ','Βούτυρο 100γρ'],steps:['Αυγά-ζάχαρη αφράτο. Γιαούρτι, βούτυρο.','Σιμιγδάλι+μπέικιν.','180°C 35-40 λεπτά. Κρύο σιρόπι.'],q:'ρεβανί παραδοσιακό'},
+    {n:'Χαλβάς σιμιγδαλένιος',e:'🟤',cal:320,ing:['Σιμιγδάλι 1 κούπα','Ελαιόλαδο 1/2 κούπα','Ζάχαρη 2 κούπες','Νερό 3 κούπες','Κανέλα'],steps:['Βράζεις σιρόπι (1-2-3-4).','Σοτάρεις σιμιγδάλι μέχρι χρυσαφένιο.','Σιρόπι μέσα, ανακατεύεις. Φόρμα.'],q:'χαλβάς σιμιγδαλένιος'},
+    {n:'Ρυζόγαλο',e:'🍚',srv:4,cal:210,ing:['Ρύζι 100γρ','Γάλα 1λ','Ζάχαρη 100γρ','Βανίλια','Κανέλα'],steps:['Ρύζι σε νερό 10 λεπτά. Στραγγίζεις.','Γάλα+ζάχαρη+βανίλια+ρύζι. 25-30 λεπτά ανακατεύοντας.','Κανέλα από πάνω.'],q:'ρυζόγαλο κρεμώδες'},
+    {n:'Κατάιφι',e:'🍮',srv:20,cal:350,ing:['Κατάιφι 500γρ','Καρύδια 300γρ','Βούτυρο 200γρ','Κανέλα','Σιρόπι'],steps:['Βουτυρωμένο κατάιφι, καρύδι+κανέλα.','Τυλίγεις, 175°C 50 λεπτά.','Κρύο σιρόπι.'],q:'κατάιφι παραδοσιακό'},
+    {n:'Σαμάλι',e:'⭐',srv:12,cal:290,ing:['Σιμιγδάλι 300γρ','Αλεύρι 100γρ','Ζάχαρη 200γρ','Γιαούρτι 200γρ','Αυγά 2'],steps:['Ανακατεύεις όλα.','180°C 35 λεπτά.','Ροδόνερο σιρόπι.'],q:'σαμάλι παραδοσιακό'},
+  ],
+  epochiaka:[
+    {n:'Μελομακάρονα',e:'🍪',srv:40,cal:180,ing:['Αλεύρι 500γρ','Ελαιόλαδο 150ml','Χυμός πορτοκαλιού 120ml','Ζάχαρη 100γρ','Κανέλα+γαρίφαλο','Καρύδια'],steps:['Ελαιόλαδο+χυμός+ζάχαρη+μπαχαρικά. Αλεύρι+σόδα.','Οβάλ, 180°C 20-25 λεπτά.','Μελόνερο, καρύδι.'],q:'μελομακάρονα παραδοσιακά'},
+    {n:'Κουραμπιέδες',e:'⬜',srv:35,cal:160,ing:['Αλεύρι 500γρ','Βούτυρο κλαριφιέ 250γρ','Ζάχαρη άχνη 100γρ','Κρόκο αυγού 1','Αμύγδαλα 100γρ'],steps:['Βούτυρο έως λευκό. Κρόκος, αλεύρι, αμύγδαλα.','Ημισφαίρια.','170°C 20 λεπτά. Ζάχαρη άχνη πλούσια.'],q:'κουραμπιέδες παραδοσιακοί'},
+    {n:'Βασιλόπιτα',e:'👑',srv:12,cal:290,ing:['Αλεύρι 500γρ','Ζάχαρη 200γρ','Βούτυρο 150γρ','Αυγά 3','Γάλα 150ml','Μαγιά 7γρ'],steps:['Ζυμώνεις, αφήνεις 1 ώρα.','Φλουρί. Στρογγυλό ταψί.','180°C 35-40 λεπτά.'],q:'βασιλόπιτα Πρωτοχρονιάς'},
+    {n:'Τσουρέκι πασχαλινό',e:'🧶',srv:12,cal:320,ing:['Αλεύρι δυνατό 750γρ','Γάλα 250ml','Βούτυρο 150γρ','Αυγά 3','Ζάχαρη 200γρ','Μαγιά 25γρ','Μαχλέπι & μαστίχα'],steps:['Προζύμι 30 λεπτά.','Ζυμώνεις 10 λεπτά. 2 ώρες ξεκούραση.','Πλέκεις, κόκκινο αυγό. 180°C 30-35 λεπτά.'],q:'τσουρέκι πασχαλινό'},
+    {n:'Λαγάνα',e:'🫓',cal:180,ing:['Αλεύρι 500γρ','Νερό 300ml','Μαγιά 7γρ','Ελαιόλαδο','Αλάτι','Σησάμι'],steps:['Ζυμώνεις, αφήνεις 1 ώρα.','Επίπεδη σε λαδόκολλα.','Σησάμι, 220°C 20-25 λεπτά.'],q:'λαγάνα Καθαράς Δευτέρας'},
+    {n:'Τάρτα φράουλας',e:'🍓',cal:320,ing:['Ζύμη τάρτας','Κρέμα ζαχαροπλαστικής','Φράουλες 400γρ'],steps:['Τυφλό ψήσιμο 15 λεπτά.','Κρέμα, φράουλες.','Γκλάς, ψύχεις 1 ώρα.'],q:'τάρτα φράουλας'},
+    {n:'Κρέμα καραμελέ',e:'🍮',srv:6,cal:250,ing:['Γάλα 500ml','Αυγά 3+κρόκοι 2','Ζάχαρη 150γρ','Βανίλια'],steps:['Καραμέλα στο καλούπι.','Κρέμα: αυγά+ζάχαρη+γάλα+βανίλια.','Μπεν μαρί 160°C 55 λεπτά. Ψύχεις 4 ώρες.'],q:'κρέμα καραμελέ'},
+    {n:'Κολοκυθόπιτα γλυκιά',e:'🎃',srv:10,cal:280,ing:['Κολοκύθα 500γρ','Αλεύρι 250γρ','Ζάχαρη 200γρ','Αυγά 3','Ελαιόλαδο 100ml','Κανέλα'],steps:['Τριμμένη κολοκύθα+αυγά+ζάχαρη+ελαιόλαδο.','Αλεύρι+κανέλα+μπέικιν.','175°C 50 λεπτά.'],q:'κολοκυθόπιτα γλυκιά'},
+  ]
+};
+
+const FESTIVE=[
+  {id:'kathari',e:'🪁',n:'Καθαρά Δευτέρα',d:'Φεβ/Μαρ',type:'fasting',tl:'Νηστεία αυστηρή',sub:'Αποκριάτικο νηστίσιμο τραπέζι',fn:'Χωρίς κρέας, γαλακτοκομικά, αυγά. Επιτρέπονται θαλασσινά χωρίς αίμα: χταπόδι, καλαμάρι, γαρίδες, μύδια.',menu:['🥖 Λαγάνα (υποχρεωτικά!)','🐙 Χταπόδι ξυδάτο','🫐 Ταραμοσαλάτα','🍬 Χαλβάς σιμιγδαλένιος','🫒 Ελιές & τουρσί','🦑 Καλαμαράκια τηγανητά'],wine:'Ούζο ή τσίπουρο!',wt:'Ούζο & τσίπουρο',tl2:['Πρωί — Εκδρομή με χαρταετό','12:00 — Χταπόδι στα κάρβουνα','13:00 — Ταραμοσαλάτα, ελιές, λαγάνα','14:00 — Χαλβάς & χαρταετός!']},
+  {id:'evangelismos',e:'🐟',n:'25η Μαρτίου',d:'25 Μαρτίου',type:'fish',tl:'Ψάρι επιτρέπεται',sub:'Εθνική εορτή — μπακαλιάρος σκορδαλιά!',fn:'Σαρακοστή αλλά επιτρέπεται ψάρι. Παραδοσιακό: ΜΠΑΚΑΛΙΑΡΟΣ ΣΚΟΡΔΑΛΙΑ!',menu:['🐟 Μπακαλιάρος σκορδαλιά','🥔 Σκορδαλιά με πατάτα','🌿 Σπανακόρυζο','🥗 Σαλάτα λάχανο-καρότο','🍬 Χαλβάς'],wine:'Λευκό Ασύρτικο.',wt:'Λευκό για μπακαλιάρο',tl2:['Παραμονή — Μουλιάζεις μπακαλιάρο 24 ώρες!','25/3 11:00 — Σκορδαλιά','12:30 — Τηγανίζεις μπακαλιάρο','13:00 — Τραπέζι με παρέλαση!']},
+  {id:'easter',e:'🐣',n:'Πάσχα',d:'Κυριακή Ανάστασης',type:'major',tl:'Μεγάλη εορτή',sub:'Το πιο σημαντικό τραπέζι του χρόνου',fn:null,menu:['🍲 Μαγειρίτσα (Μ. Σάββατο)','🥚 Τσουρέκι & κόκκινα αυγά','🥩 Αρνί στη σούβλα','🥩 Κοντοσούβλι','🥗 Χωριάτικη & τζατζίκι'],wine:'Αγιωργίτικο Νεμέας.',wt:'Κόκκινο για αρνί',tl2:['Μ. Σάββατο 22:00 — Μαγειρίτσα','Κυριακή 08:00 — Ανάβεις σούβλα','13:00 — Σαλάτες & τζατζίκι','14:00 — Χριστός Ανέστη!']},
+  {id:'protomagia',e:'🌸',n:'Πρωτομαγιά',d:'1 Μαΐου',type:'folk',tl:'Λαϊκή γιορτή',sub:'Εκδρομή, γκριλ & φύση',fn:null,menu:['🥩 Σουβλάκια & κεφτέδες','🧄 Τζατζίκι','🥗 Σαλάτες','🍺 Μπύρα παγωμένη'],wine:'Κρύα μπύρα & ούζο!',wt:'Μπύρα & ούζο',tl2:['Πρωί — Εκδρομή στη φύση','11:00 — Ανάβεις γκριλ','13:00 — Σουβλάκια & κεφτέδες','17:00 — Καρπούζι!']},
+  {id:'aug15',e:'🕊️',n:'Δεκαπενταύγουστος',d:'15 Αυγούστου',type:'fish',tl:'Ψάρι στην εορτή',sub:'Κοίμηση Θεοτόκου',fn:'Νηστεία 1-14 Αυγ. Στις 15 επιτρέπεται ψάρι.',menu:['🐟 Ψάρι ψητό ή πλακί','🦐 Γαρίδες σαγανάκι','🥗 Χωριάτικη','🫒 Ελιές Καλαμών'],wine:'Ασύρτικο Σαντορίνης.',wt:'Ασύρτικο Σαντορίνης',tl2:['Πρωί — Εκκλησία','12:00 — Ψάρι στο φούρνο','13:00 — Σαλάτες','14:00 — Μεγάλο καλοκαιρινό τραπέζι!']},
+  {id:'okt28',e:'🇬🇷',n:'28η Οκτωβρίου',d:'28 Οκτωβρίου',type:'national',tl:'Εθνική εορτή',sub:'ΟΧΙ — Παραδοσιακό εορταστικό τραπέζι',fn:null,menu:['🥩 Κοκκινιστό αρνί','🍚 Γιουβέτσι','🥗 Χωριάτικη','🍰 Γαλακτομπούρεκο'],wine:'Αγιωργίτικο.',wt:'Ελληνικό κόκκινο',tl2:['Πρωί — Παρέλαση','12:30 — Γιουβέτσι στο φούρνο','14:00 — Τραπέζι!','16:00 — Γαλακτομπούρεκο']},
+  {id:'xmas',e:'🎄',n:'Χριστούγεννα',d:'25 Δεκεμβρίου',type:'major',tl:'Μεγάλη εορτή',sub:'Γουρουνόπουλο & χριστουγεννιάτικα γλυκά',fn:null,menu:['🐟 Μπακαλιάρος (παραμονή)','🥩 Γουρουνόπουλο στο φούρνο','🥗 Ρόκα-παρμεζάνα','🍪 Μελομακάρονα & κουραμπιέδες'],wine:'Ξινόμαυρο ή Αγιωργίτικο.',wt:'Κόκκινο για γουρουνόπουλο',tl2:['24/12 πρωί — Μαρινάρεις','24/12 βράδυ — Μπακαλιάρος','25/12 09:00 — Φούρνος','14:00 — Καλά Χριστούγεννα!']},
+  {id:'newyear',e:'🥂',n:'Πρωτοχρονιά',d:'31 Δεκεμβρίου',type:'major',tl:'Μεγάλη εορτή',sub:'Γαλοπούλα, βασιλόπιτα & Champagne',fn:null,menu:['🥗 Σαλάτα με ρόδι','🦃 Γαλοπούλα γεμιστή','🎂 Βασιλόπιτα μεσάνυχτα','🥂 Champagne'],wine:'Champagne & Chardonnay!',wt:'Champagne',tl2:['14:00 — Γαλοπούλα στο φούρνο','20:00 — Κυρίως δείπνο','23:55 — Βασιλόπιτα','00:00 — Καλή Χρονιά!']},
+];
+
+// ── INIT ─────────────────────────────────────────────────────
+const DAYS=['Κυριακή','Δευτέρα','Τρίτη','Τετάρτη','Πέμπτη','Παρασκευή','Σάββατο'];
+const MONTHS=['Ιανουαρίου','Φεβρουαρίου','Μαρτίου','Απριλίου','Μαΐου','Ιουνίου','Ιουλίου','Αυγούστου','Σεπτεμβρίου','Οκτωβρίου','Νοεμβρίου','Δεκεμβρίου'];
+(function init(){
+  const nd=new Date();
+  document.getElementById('app-date').textContent=DAYS[nd.getDay()]+', '+nd.getDate()+' '+MONTHS[nd.getMonth()]+' '+nd.getFullYear();
+  const dc=getDefCat();
+  applyTheme(dc);
+  const catKeys=['all','pasta','seafood','meat','legumes','vegetables','salads','soups'];
+  document.querySelectorAll('#cat-row .cpill').forEach((p,i)=>p.classList.toggle('on',catKeys[i]===dc));
+  curCat=dc;
+  renderMeals(dc);
+  rendFest('all');
+  filtSw('keik');
+  if(curLang!=='el'){
+    document.getElementById('lb-el')?.classList.remove('on');
+    document.getElementById('lb-'+curLang)?.classList.add('on');
+    setLang(curLang);
+  }
+  if(localStorage.getItem('notif_on')==='true'&&Notification.permission==='granted'){
+    document.getElementById('bell').classList.add('on');
+    startNotifTimer();
+  }
+  if(window.speechSynthesis)speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();
+})();
+
+// ── STATE ────────────────────────────────────────────────────
+
+// ── HISTORY ──────────────────────────────────────────────────
+function getH(){return JSON.parse(localStorage.getItem('fd_h')||'[]');}
+function saveH(id){const h=getH(),i=h.findIndex(x=>x.id===id);if(i>=0)h.splice(i,1);h.unshift({id,ts:Date.now()});localStorage.setItem('fd_h',JSON.stringify(h.slice(0,40)));}
+function recIds(days){const c=Date.now()-days*86400000;return getH().filter(x=>x.ts>c).map(x=>x.id);}
+function dSince(id){const h=getH().find(x=>x.id===id);return h?Math.floor((Date.now()-h.ts)/86400000):999;}
+function getDefCat(){
+  const r=recIds(7),cats=['seafood','pasta','meat','legumes','vegetables','soups','salads'];
+  if(!r.length)return['seafood','vegetables','meat','pasta','legumes','soups','salads'][new Date().getDay()];
+  return cats.sort((a,b)=>{
+    const fa=Object.values(MEALS).filter(m=>m.cats.includes(a)).filter(m=>!r.includes(m.id||'')).length;
+    const fb=Object.values(MEALS).filter(m=>m.cats.includes(b)).filter(m=>!r.includes(m.id||'')).length;
+    return fb-fa;
+  })[0];
+}
+
+// ── NAVIGATION ───────────────────────────────────────────────
+function goSec(id,btn){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('show'));
+  document.getElementById('s-'+id).classList.add('show');
+  document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  curSec=id;
+  if(id!=='daily')applyTheme('all');
+}
+
+// ── MEALS RENDER ─────────────────────────────────────────────
+function selCat(cat,btn){
+  document.querySelectorAll('#cat-row .cpill').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  curCat=cat; applyTheme(cat); renderMeals(cat);
+}
+
+function mealName(m){return curLang==='en'&&m.en?m.en:m.n;}
+
+function catLabel(cat){return t('cl_'+cat)||cat;}
+
+function renderMeals(cat){
+  const rids=recIds(7);
+  const excl=['anginaresPolita','tartaFragola','taramosalata','halvas','lagana'];
+  let pool=Object.entries(MEALS).filter(([id])=>!excl.includes(id)).map(([id,m])=>({...m,id}));
+  if(cat!=='all')pool=pool.filter(m=>m.cats.includes(cat));
+  const fresh=pool.filter(m=>!rids.includes(m.id)).sort((a,b)=>(a.pop||2)-(b.pop||2)||(Math.random()-.5));
+  const old=pool.filter(m=>rids.includes(m.id));
+  const show=[...fresh,...old].slice(0,6);
+
+  const grid=document.getElementById('meals-grid');
+  grid.innerHTML=show.map(m=>{
+    const mc=m.cats[0];
+    const ds=dSince(m.id);
+    const bg=CAT_GRAD[mc]||CAT_GRAD.legumes;
+    const cl=CAT_CL[mc]||'b-legumes';
+    const freshBadge=ds>6?`<div class="mtop-fresh">${t('fresh')}</div>`:'';
+    return `<div class="mcard" onclick="openR('${m.id}')">
+      <div class="mtop" style="background:${bg}">
+        <img id="mi-${m.id}" alt="${m.n}" onload="this.classList.add('loaded')" onerror="this.style.display='none'">
+        <div class="memoji" id="me-${m.id}">${m.e}</div>
+        <div class="mtop-grad"></div>
+        <div class="mtop-badge"><span class="badge ${cl}">${catLabel(mc)}</span></div>
+        ${freshBadge}
+      </div>
+      <div class="mbtm">
+        <div class="mname">${mealName(m)}</div>
+        <div class="mmeta">⏱ ${m.time}' &nbsp;🔥 ${m.cal} &nbsp;💰 ${m.cps||'~2€'}${t('per_srv')}</div>
+        <div class="mhist">${ds<999?'📅 '+ds+' '+t('days_ago'):t('new_sug')}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Load images
+  show.forEach(m=>{
+    const img=document.getElementById('mi-'+m.id);
+    const emj=document.getElementById('me-'+m.id);
+    if(img&&PHOTOS[m.id]){
+      img.src=PHOTOS[m.id];
+      img.onload=()=>{img.classList.add('loaded');if(emj)emj.style.opacity='0';};
+      img.onerror=()=>{img.style.display='none';};
+    }
+  });
+
+  // Reminder
+  const rw=document.getElementById('remind-wrap');
+  const nf=!recIds(5).some(id=>MEALS[id]?.cats.includes('seafood'));
+  const nl=!recIds(5).some(id=>MEALS[id]?.cats.includes('legumes'));
+  rw.innerHTML=nf||nl
+    ?`<div class="remind">⚠️ <span style="font-size:13px;color:var(--pri);font-weight:500;">${t('remind')}</span>${nf?`<button class="rpill" onclick="selCat('seafood',null)">🐟</button>`:''} ${nl?`<button class="rpill" onclick="selCat('legumes',null)">🫘</button>`:''}</div>`
+    :'';
+}
+
+function reshuffle(){renderMeals(curCat);}
+
+// ── OVERLAY ──────────────────────────────────────────────────
+function openR(id){
+  const m=MEALS[id];if(!m)return;
+  saveH(id);_meal=m;
+  const mc=m.cats[0];
+  applyTheme(mc||'all');
+  // Hero
+  const hero=document.getElementById('ov-hero');
+  const bg=CAT_GRAD[mc]||CAT_GRAD.legumes;
+  hero.innerHTML=`
+    <button class="ovcls" onclick="closeOv()">✕</button>
+    <div class="ovhero-fb" style="background:${bg}"><span style="font-size:78px;filter:drop-shadow(0 6px 20px rgba(0,0,0,.15))">${m.e}</span></div>
+    <img id="ov-img" alt="${m.n}" onload="this.classList.add('loaded')" onerror="this.style.display='none'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s;">
+    <div class="ovhero-grad"></div>
+    <div class="ovtitle"><h2>${mealName(m)}</h2></div>`;
+  // Load overlay image from TheMealDB
+  const ovImg=document.getElementById('ov-img');
+  if(ovImg&&MDB_TERMS[id]){
+    if(IMG_CACHE[id]&&IMG_CACHE[id]!=='none'){
+      ovImg.src=IMG_CACHE[id];
+      ovImg.onload=()=>{ovImg.style.opacity='1';document.querySelector('.ovhero-fb').style.opacity='0';};
+    } else if(!IMG_CACHE[id]){
+      loadCardImg(id).then(()=>{
+        if(IMG_CACHE[id]&&IMG_CACHE[id]!=='none'){
+          ovImg.src=IMG_CACHE[id];
+          ovImg.onload=()=>{ovImg.style.opacity='1';document.querySelector('.ovhero-fb').style.opacity='0';};
+        }
+      });
+    }
+  }
+  // Stats
+  document.getElementById('ov-stats').innerHTML=`
+    <div class="ovstat"><label>${t('cal')}</label><span>${m.cal}</span></div>
+    <div class="ovstat"><label>${t('time')}</label><span>${m.time}'</span></div>
+    <div class="ovstat"><label>${t('srv')}</label><span>${m.srv}</span></div>
+    <div class="ovstat"><label>${t('cost')}</label><span style="color:var(--pri)">${m.cost||'~5€'}</span></div>`;
+  // Tabs content
+  buildIngTab(m);buildStepsTab(m);buildPairTab(m);
+  // TTS
+  document.getElementById('ov-tts-btn').textContent=t('tts_p');
+  document.getElementById('ov-tts-lbl').textContent=mealName(m);
+  ovTab('ing');
+  document.getElementById('overlay').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+
+function openSW(cat,idx){
+  const s=SWEETS[cat][idx];if(!s)return;
+  _meal=s;
+  const hero=document.getElementById('ov-hero');
+  hero.innerHTML=`
+    <button class="ovcls" onclick="closeOv()">✕</button>
+    <div class="ovhero-fb" style="background:linear-gradient(145deg,#FFF8E7,#FFE082)"><span style="font-size:78px">${s.e}</span></div>
+    <div class="ovhero-grad"></div>
+    <div class="ovtitle"><h2>${s.n}</h2></div>`;
+  document.getElementById('ov-stats').innerHTML=`<div class="ovstat"><label>${t('cal')}</label><span>${s.cal}</span></div><div class="ovstat"><label>${t('srv')}</label><span>${s.srv||'—'}</span></div>`;
+  buildIngTab(s);buildStepsTab(s);
+  document.getElementById('ot-pair').innerHTML=`<a class="ext-btn" href="https://www.google.com/search?q=${encodeURIComponent(s.q+' συνταγή')}" target="_blank">${t('ext')}</a>`;
+  document.getElementById('ov-tts-btn').textContent=t('tts_p');
+  document.getElementById('ov-tts-lbl').textContent=s.n;
+  ovTab('ing');
+  document.getElementById('overlay').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+
+function buildIngTab(m){
+  const items=m.ing.map((i,idx)=>`<div class="ing-item" onclick="this.classList.toggle('done');this.querySelector('.ing-chk').textContent=this.classList.contains('done')?'✓':''"><div class="ing-chk"></div><span>${i}</span></div>`).join('');
+  const note=m.cost?`<div class="cost-note">💰 ${m.cost} σύνολο · ${m.cps||''} ανά μερίδα &nbsp;<span style="color:var(--t3)">(${t('cost_yr')})</span></div>`:'';
+  document.getElementById('ot-ing').innerHTML=`<div class="ing-grid">${items}</div>${note}`;
+}
+
+function buildStepsTab(m){
+  document.getElementById('ot-steps').innerHTML=`<div class="step-list">${m.steps.map((s,i)=>`<div class="step-item" onclick="this.classList.toggle('done');this.querySelector('.step-num').textContent=this.classList.contains('done')?'✓':'${i+1}'"><div class="step-num">${i+1}</div><div class="step-txt">${s}</div></div>`).join('')}</div>`;
+}
+
+function buildPairTab(m){
+  if(!m.wine&&!m.beer&&!m.plate){document.getElementById('ot-pair').innerHTML='';return;}
+  document.getElementById('ot-pair').innerHTML=`
+    ${m.wine?`<div class="pair-box"><div class="pair-t">${t('wine')}</div><div class="pair-d">${m.wine}</div></div>`:''}
+    ${m.beer?`<div class="pair-box"><div class="pair-t">${t('beer')}</div><div class="pair-d">${m.beer}</div></div>`:''}
+    ${m.plate?`<div class="pair-box"><div class="pair-t">${t('plate')}</div><div class="pair-d">${m.plate}</div></div>`:''}
+    <a class="ext-btn" href="https://www.google.com/search?q=${encodeURIComponent((m.n||m.id)+' συνταγή')}" target="_blank">${t('ext')}</a>`;
+}
+
+function ovTab(tab){
+  ['ing','steps','pair'].forEach(t=>{const el=document.getElementById('ot-'+t);if(el)el.style.display=t===tab?'block':'none';});
+  document.querySelectorAll('.otab').forEach((b,i)=>b.classList.toggle('on',['ing','steps','pair'][i]===tab));
+}
+
+function closeOv(){
+  document.getElementById('overlay').classList.remove('show');
+  document.body.style.overflow='';
+  stopTTS();
+}
+
+function ovBgClick(e){if(e.target===document.getElementById('overlay'))closeOv();}
+
+// ── TTS ───────────────────────────────────────────────────────
+function buildTTSText(m){return (m.n||'')+(m.ing?'. Υλικά: '+m.ing.join(', '):'')+(m.steps?'. '+m.steps.map((s,i)=>'Βήμα '+(i+1)+': '+s).join(' '):'');}
+function toggleTTS(){isTTS?stopTTS():startTTS();}
+function startTTS(){
+  if(!_meal||!window.speechSynthesis)return;stopTTS();
+  const u=new SpeechSynthesisUtterance(buildTTSText(_meal));
+  u.lang='el-GR';u.rate=0.88;
+  const gv=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.startsWith('el'));if(gv)u.voice=gv;
+  u.onstart=()=>{isTTS=true;document.getElementById('ov-tts-btn').textContent=t('tts_s');};
+  u.onend=u.onerror=()=>{isTTS=false;document.getElementById('ov-tts-btn').textContent=t('tts_p');};
+  speechSynthesis.speak(u);
+}
+function stopTTS(){if(window.speechSynthesis)speechSynthesis.cancel();isTTS=false;const b=document.getElementById('ov-tts-btn');if(b)b.textContent=t('tts_p');}
+
+// ── FESTIVE ───────────────────────────────────────────────────
+// Map festive menu text → meal ID
+function findMealByMenuText(text){
+  const clean=text.replace(/^[\s\S]{0,3}? /,'').replace(/^[^\w\u0370-\u03FF\u1F00-\u1FFF]*/,'').trim();
+  // Direct ID map
+  const map={
+    'Λαγάνα':'lagana','Χταπόδι ξυδάτο':'htapodi','Χταπόδι':'htapodi',
+    'Ταραμοσαλάτα':'taramosalata','Χαλβάς σιμιγδαλένιος':'halvas','Χαλβάς':'halvas',
+    'Καλαμαράκια τηγανητά':'kalamaria','Καλαμάρια τηγανητά':'kalamaria',
+    'Μπακαλιάρος σκορδαλιά':'bakaliaro','Μπακαλιάρος τηγανητός':'bakaliaro',
+    'Σπανακόρυζο':'spanakoryzo','Χωριάτικη':'horiatiki','Χωριάτικη σαλάτα':'horiatiki',
+    'Τζατζίκι':'tzatziki_dish','Κεφτέδες':'keftedes','Σουβλάκια':'souvlakia',
+    'Αρνί στη σούβλα':'arnaki_lemonato','Κοντοσούβλι':'souvlakia',
+    'Μαγειρίτσα':'kotosopa','Γαλοπούλα γεμιστή':'kotopoulo',
+    'Γιουβέτσι':'giouvetsi','Γιουβέτσι αρνί-κριθαράκι':'giouvetsi',
+    'Κοκκινιστό αρνί':'arnaki_lemonato','Στιφάδο αρνί':'arnaki_lemonato','Στιφάδο κουνελιού':'arnaki_lemonato',
+    'Ντολμαδάκια':'dolmades','Γίγαντες πλακί':'gigantes',
+    'Γουρουνόπουλο στο φούρνο':'biftekia','Χοιρινό παραδοσιακό':'souvlakia',
+    'Κουνέλι στιφάδο':'arnaki_lemonato','Σκορδαλιά με πατάτα':'tzatziki_dish',
+    'Μύδια σαγανάκι':'mydia','Γαρίδες σαγανάκι':'garides',
+    'Φακές σκέτες':'fakes','Σαλάτα με ρόδι':'salata_rokka',
+    'Φέτα Σαντορίνης':'horiatiki'
+  };
+  for(const[k,v] of Object.entries(map)){
+    if(clean.includes(k)||k.includes(clean))return v;
+  }
+  for(const[id,m] of Object.entries(MEALS)){
+    if(clean.includes(m.n)||m.n.includes(clean))return id;
+  }
+  return null;
+}
+
+function rendFest(f){
+  const list=f==='all'?FESTIVE:FESTIVE.filter(x=>x.type===f);
+  document.getElementById('fest-grid').innerHTML=list.map(x=>`
+    <div class="fcard ${['fasting','fish'].includes(x.type)?x.type:''}" onclick="showFD('${x.id}')">
+      <div class="fe">${x.e}</div>
+      <div class="fn">${x.n}</div>
+      <div class="fd">${x.d}</div>
+      <span class="ftag ft-${x.type}">${x.tl}</span>
+    </div>`).join('');
+}
+
+function filtFest(f,btn){
+  document.querySelectorAll('#fest-filter-row .cpill').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  curFestF=f;rendFest(f);
+}
+
+function showFD(id){
+  const f=FESTIVE.find(x=>x.id===id);if(!f)return;
+  document.getElementById('fest-main').style.display='none';
+  document.getElementById('fest-det').style.display='block';
+  document.getElementById('fd-t').textContent=f.e+' '+f.n;
+  document.getElementById('fd-s').textContent=f.sub;
+  document.getElementById('fd-fn').innerHTML=f.fn?`<div class="fn-box"><div class="fn-t">🌿 Νηστεία</div><div class="fn-d">${f.fn}</div></div>`:'';
+
+  // Clickable menu items
+  document.getElementById('fd-menu').innerHTML=f.menu.map(item=>{
+    const mealId=findMealByMenuText(item);
+    if(mealId&&MEALS[mealId]){
+      const m=MEALS[mealId];
+      return `<div class="fmenu-item clickable" onclick="openR('${mealId}')">
+        <div class="fmdot"></div>
+        <div class="fmname">${item}</div>
+        <div class="fmbadge">⏱ ${m.time}' &nbsp;🔥 ${m.cal}</div>
+        <div class="fmarrow">→</div>
+      </div>`;
+    }
+    return `<div class="fmenu-item"><div class="fmdot"></div><div class="fmname">${item}</div></div>`;
+  }).join('');
+
+  document.getElementById('fd-wine').innerHTML=`<div class="pair-box"><div class="pair-t">${t('wine')} — ${f.wt}</div><div class="pair-d">${f.wine}</div></div>`;
+  document.getElementById('fd-tl').innerHTML=f.tl2.map((tx,i,a)=>`
+    <div class="tl-row">
+      <div style="display:flex;flex-direction:column;align-items:center;margin-right:11px;">
+        <div class="tl-dot"></div>
+        ${i<a.length-1?'<div style="flex:1;width:1px;background:#EDE8DE;margin-top:2px;"></div>':''}
+      </div>
+      <div style="padding-bottom:11px"><div class="tl-txt">${tx}</div></div>
+    </div>`).join('');
+}
+
+function backFest(){
+  document.getElementById('fest-main').style.display='block';
+  document.getElementById('fest-det').style.display='none';
+}
+
+// ── SWEETS ────────────────────────────────────────────────────
+function filtSw(cat,btn){
+  if(btn){document.querySelectorAll('#sw-cats .cpill').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
+  curSwCat=cat;
+  document.getElementById('sw-grid').innerHTML=SWEETS[cat].map((s,i)=>`
+    <div class="swcard" onclick="openSW('${cat}',${i})">
+      <div class="swebox" style="background:linear-gradient(145deg,#FFF8E7,#FFE082)">${s.e}</div>
+      <div class="swinfo"><div class="swname">${s.n}</div><div class="swcal">🔥 ${s.cal} θερμ. &nbsp;·&nbsp; 🍽️ ${s.srv||"—"} μερ.</div></div>
+    </div>`).join('');
+}
+
+// ── FRIDGE ────────────────────────────────────────────────────
+function addTag(){
+  const inp=document.getElementById('fridge-inp');
+  const v=inp.value.trim();if(!v)return;
+  const tag=document.createElement('div');tag.className='tag';
+  tag.innerHTML=v+` <button onclick="this.parentElement.remove();smartFridge()">×</button>`;
+  document.getElementById('tags').appendChild(tag);
+  inp.value='';smartFridge();
+}
+document.getElementById('fridge-inp').addEventListener('keydown',e=>{if(e.key==='Enter')addTag();});
+
+function smartFridge(){
+  const tags=Array.from(document.querySelectorAll('#tags .tag')).map(x=>x.textContent.replace('×','').trim().toLowerCase());
+  const res=document.getElementById('fridge-res');
+  if(!tags.length){res.innerHTML='';return;}
+  const scored=Object.entries(MEALS)
+    .map(([id,m])=>{
+      const ingAll=m.ing.join(' ').toLowerCase();
+      const matched=tags.filter(tg=>ingAll.includes(tg)||tg.split(' ').some(w=>w.length>2&&ingAll.includes(w)));
+      if(!matched.length)return null;
+      const missing=m.ing.filter(i=>!tags.some(tg=>i.toLowerCase().includes(tg)&&tg.length>2)).slice(0,3);
+      const pct=Math.min(100,Math.round(matched.length/Math.max(tags.length,m.ing.length*0.35)*100));
+      return{id,m,score:matched.length,pct,matched,missing};
+    })
+    .filter(Boolean)
+    .sort((a,b)=>b.score-a.score||(a.m.pop||2)-(b.m.pop||2))
+    .slice(0,5);
+  if(!scored.length){
+    res.innerHTML=`<div class="fridge-empty"><div style="font-size:38px">🤔</div>Δεν βρέθηκαν συνταγές. Δοκίμασε: κρεμμύδι, ντομάτα, ελαιόλαδο...</div>`;
+    return;
+  }
+  res.innerHTML=`<div style="font-size:13px;font-weight:600;color:var(--t2);margin:1rem 0 .75rem">🎯 ${scored.length} ${t('f_found')}</div>`+
+    scored.map(({id,m,score,pct,matched,missing})=>{
+      const sc=pct>=70?'hi':pct>=40?'mid':'lo';
+      const sl=pct>=70?t('s_hi'):pct>=40?t('s_mid'):t('s_lo');
+      const cl=CAT_CL[m.cats[0]]||'b-legumes';
+      const missBox=missing.length
+        ?`<div class="fres-miss"><strong>${t('f_miss')}</strong> ${missing.join(' · ')}</div>`
+        :`<div class="fres-miss" style="color:#16A34A">${t('f_ok')}</div>`;
+      return `<div class="fres-card" onclick="openR('${id}')">
+        <div class="fres-top">
+          <div class="fres-e">${m.e}</div>
+          <div class="fres-info">
+            <div class="fres-name">${mealName(m)}</div>
+            <div class="fres-meta">⏱ ${m.time}' &nbsp;🔥 ${m.cal} &nbsp;💰 ${m.cost||'~5€'} &nbsp;<span class="badge ${cl}">${catLabel(m.cats[0])}</span></div>
+            <span class="fscore ${sc}">🎯 ${score}/${tags.length} υλικά · ${sl}</span>
+          </div>
+        </div>
+        ${missBox}
+        <div class="fres-btn">${t('f_open')}</div>
+      </div>`;
+    }).join('');
+}
+
+// ── GUESTS ────────────────────────────────────────────────────
+function genGuests(){
+  const n=document.getElementById('g-num').value;
+  const o=document.getElementById('g-occ').value;
+  const d=Array.from(document.querySelectorAll('.dpill.on')).map(p=>p.textContent);
+  window.open('https://www.google.com/search?q='+encodeURIComponent('μεσογειακό μενού για '+n+' άτομα '+o+(d.length?' '+d.join(' '):'')+' συνταγές'),'_blank');
+}
+
+// ── i18n ─────────────────────────────────────────────────────
+function setLang(lang){
+  curLang=lang;localStorage.setItem('fd_lang',lang);
+  document.querySelectorAll('.lbtn').forEach(b=>b.classList.remove('on'));
+  const lb=document.getElementById('lb-'+lang);if(lb)lb.classList.add('on');
+  // Nav
+  document.querySelectorAll('.ntab').forEach((b,i)=>{const k='n'+i;if(TR[lang][k])b.textContent=TR[lang][k];});
+  // Cats
+  document.querySelectorAll('#cat-row .cpill').forEach((b,i)=>{const k='c'+i;if(TR[lang][k])b.textContent=TR[lang][k];});
+  // Sweets cats
+  const swc=TR[lang].sw||TR.el.sw;
+  document.querySelectorAll('#sw-cats .cpill').forEach((b,i)=>{if(swc[i])b.textContent=swc[i];});
+  // Fest filter
+  const ffl=[t('f_all'),t('f_fasting'),t('f_fish'),t('f_major'),t('f_nat'),t('f_folk')];
+  document.querySelectorAll('#fest-filter-row .cpill').forEach((b,i)=>{if(ffl[i])b.textContent=ffl[i];});
+  // Labels
+  const dl=document.getElementById('daily-lbl');if(dl)dl.textContent=t('daily_lbl');
+  const vs=document.getElementById('vst');if(vs)vs.textContent=t('vst');
+  const fi=document.getElementById('fridge-inp');if(fi)fi.placeholder=t('fridge_ph');
+  const rb=document.querySelector('.reshuffle');if(rb)rb.textContent=t('reshuf');
+  const bt=document.querySelector('.bal-t');if(bt)bt.textContent=t('bal_t');
+  // Re-render
+  renderMeals(curCat);
+  filtSw(curSwCat);
+  rendFest(curFestF);
+}
+
+// ── VOICE ─────────────────────────────────────────────────────
+const VCMDS=[
+  {kw:['κουλουράκια'],f(){goSec('sweets');filtSw('koulourakia');}},
+  {kw:['κέικ','κεικ'],f(){goSec('sweets');filtSw('keik');}},
+  {kw:['τηγανίτες','pancakes','κρέπες'],f(){goSec('sweets');filtSw('tiganites');}},
+  {kw:['γλυκά'],f(){goSec('sweets');filtSw('keik');}},
+  {kw:['ζυμαρικά','μακαρόνια'],f(){goSec('daily');selCat('pasta',null);}},
+  {kw:['θαλασσινά','ψάρι'],f(){goSec('daily');selCat('seafood',null);}},
+  {kw:['κρέας','κρεατικά'],f(){goSec('daily');selCat('meat',null);}},
+  {kw:['νηστεία'],f(){goSec('festive');filtFest('fasting');}},
+  {kw:['εορτές'],f(){goSec('festive');rendFest('all');}},
+  {kw:['πάσχα'],f(){goSec('festive');setTimeout(()=>showFD('easter'),50);}},
+  {kw:['χριστούγεννα'],f(){goSec('festive');setTimeout(()=>showFD('xmas'),50);}},
+  {kw:['καθαρά','λαγάνα'],f(){goSec('festive');setTimeout(()=>showFD('kathari'),50);}},
+  {kw:['ψυγείο'],f(){goSec('fridge');}},
+  {kw:['καλεσμένοι'],f(){goSec('guests');}},
+  {kw:['σταμάτα','παύση'],f(){stopTTS();}},
+  {kw:['άκου','διάβασε'],f(){if(_meal&&document.getElementById('overlay').classList.contains('show'))startTTS();}},
+];
+function setVS(msg){const el=document.getElementById('vst');if(el)el.textContent=msg;}
+function procVoice(txt){const l=txt.toLowerCase();for(const c of VCMDS){if(c.kw.some(k=>l.includes(k))){c.f();setVS('✓ OK');setTimeout(()=>setVS(t('vst')),2500);return;}}setVS('"'+txt+'" — ?');setTimeout(()=>setVS(t('vst')),2500);}
+function toggleVoice(){isLis?stopVoice():startVoice();}
+function startVoice(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){setVS('Chrome/Edge μόνο');return;}
+  recog=new SR();recog.lang='el-GR';recog.interimResults=false;
+  recog.onstart=()=>{isLis=true;document.getElementById('mic').classList.add('on');setVS('🎤 Ακούω...');};
+  recog.onresult=e=>{procVoice(e.results[0][0].transcript);stopVoice();};
+  recog.onerror=recog.onend=()=>stopVoice();
+  recog.start();
+}
+function stopVoice(){if(recog){try{recog.stop();}catch(e){}recog=null;}isLis=false;document.getElementById('mic').classList.remove('on');}
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────
+function openNmod(){
+  document.getElementById('nmod').classList.add('show');
+  const on=localStorage.getItem('notif_on')==='true';
+  document.getElementById('ntog').classList.toggle('on',on);
+  document.getElementById('bell').classList.toggle('on',on);
+  document.getElementById('ntime').value=localStorage.getItem('notif_time')||'09:00';
+}
+function closeNmod(){document.getElementById('nmod').classList.remove('show');}
+async function toggleNotif(){
+  const tog=document.getElementById('ntog');
+  if(!tog.classList.contains('on')){
+    if(!('Notification' in window)){alert('Browser δεν υποστηρίζει ειδοποιήσεις.');return;}
+    const p=await Notification.requestPermission();
+    if(p==='granted'){tog.classList.add('on');document.getElementById('bell').classList.add('on');localStorage.setItem('notif_on','true');startNotifTimer();showToast('✓ Ειδοποιήσεις ενεργοποιήθηκαν!');}
+    else showToast('⚠️ Δεν δόθηκε άδεια');
+  } else {tog.classList.remove('on');document.getElementById('bell').classList.remove('on');localStorage.setItem('notif_on','false');showToast('Απενεργοποιήθηκαν');}
+}
+function testNotif(){if(Notification.permission!=='granted'){toggleNotif();return;}sendNotif();}
+function sendNotif(){
+  const rids=recIds(7);
+  const pool=Object.values(MEALS).filter(m=>!rids.includes(m.id||''));
+  const m=(pool.length?pool:Object.values(MEALS))[Math.floor(Math.random()*(pool.length||Object.keys(MEALS).length))];
+  if(!m)return;
+  try{new Notification('🫒 FoodDaily — Πρόταση Μέρας',{body:`${m.e} ${m.n}  |  ⏱ ${m.time}'  |  🔥 ${m.cal}  |  💰 ${m.cost||'~5€'}`,tag:'fd-meal'});}catch(e){}
+}
+let _notifInt=null;
+function startNotifTimer(){
+  if(_notifInt)clearInterval(_notifInt);
+  _notifInt=setInterval(()=>{
+    if(localStorage.getItem('notif_on')!=='true'||Notification.permission!=='granted')return;
+    const nd=new Date(),t2=(localStorage.getItem('notif_time')||'09:00').split(':');
+    if(nd.getHours()===+t2[0]&&nd.getMinutes()===+t2[1]){
+      const ld=localStorage.getItem('notif_last');
+      if(ld!==nd.toDateString()){sendNotif();localStorage.setItem('notif_last',nd.toDateString());}
+    }
+  },60000);
+}
+function showToast(msg){
+  let el=document.getElementById('toast');
+  if(!el){el=document.createElement('div');el.id='toast';el.style.cssText='position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1C1A17;color:#fff;padding:9px 18px;border-radius:26px;font-size:13px;z-index:500;transition:opacity .3s;white-space:nowrap;';document.body.appendChild(el);}
+  el.textContent=msg;el.style.opacity='1';clearTimeout(el._t);el._t=setTimeout(()=>el.style.opacity='0',2500);
+}
+
+</script>
+<script>if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));</script>
+</body>
+</html>
