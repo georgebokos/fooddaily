@@ -2,14 +2,14 @@
 <html lang="el">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="application-name" content="FoodDaily">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <meta name="theme-color" content="#3A7558">
+<title>FoodDaily</title>
 <link rel="manifest" href="manifest.json">
-<title>FoodDaily — Μεσογειακές Συνταγές</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
+
 :root{--bg:#F7F5EE;--pri:#3A7558;--lt:#DFF2E8;--em:#E8F6EE;--bd:#BEE0CE;
   --w:#FFF;--tx:#1C1A17;--t2:#5C5650;--t3:#9A9490;
   --sh:0 2px 14px rgba(0,0,0,.07);--shl:0 8px 32px rgba(0,0,0,.15);--r:18px;--rs:12px;}
@@ -24,7 +24,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .hdr-r{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
 .hdr-btns{display:flex;gap:7px;align-items:center;}
 .lang-sw{display:flex;gap:3px;background:var(--lt);border:1.5px solid var(--bd);border-radius:20px;padding:3px 5px;transition:all .5s;}
-.lbtn{width:32px;height:24px;border:none;background:transparent;font-size:11.5px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;border-radius:12px;opacity:.5;transition:all .2s;padding:0;letter-spacing:.03em;}
+.lbtn{width:28px;height:20px;border:none;background:transparent;font-size:13px;cursor:pointer;border-radius:12px;opacity:.5;transition:all .2s;padding:0;}
 .lbtn:hover{opacity:.85}
 .lbtn.on{background:var(--w);opacity:1;box-shadow:0 1px 4px rgba(0,0,0,.12);}
 .mic{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--bd);background:var(--lt);font-size:17px;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;}
@@ -146,6 +146,21 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .tl-row{display:flex;gap:11px;padding-bottom:11px;}
 .tl-dot{width:10px;height:10px;border-radius:50%;background:#16A34A;flex-shrink:0;margin-top:4px;}
 .tl-txt{font-size:13px;color:var(--tx);}
+
+/* Search overlay */
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--lt);border-radius:26px;padding:8px 14px;margin:0 1rem 10px;border:1.5px solid var(--bd);}
+.search-bar input{flex:1;border:none;background:transparent;font-size:15px;color:var(--t1);outline:none;font-family:inherit;}
+.search-bar input::placeholder{color:var(--t3);}
+.search-results{padding:0 1rem;}
+.search-res-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--w);border:1.5px solid var(--bd);border-radius:14px;margin-bottom:8px;cursor:pointer;transition:all .2s;}
+.search-res-item:hover{background:var(--lt);transform:translateY(-1px);}
+.search-res-emoji{font-size:32px;}
+.search-res-info{flex:1;}
+.search-res-name{font-size:15px;font-weight:600;color:var(--t1);}
+.search-res-cat{font-size:12px;color:var(--t3);margin-top:2px;}
+.search-empty{text-align:center;padding:30px;color:var(--t3);font-size:15px;}
+.search-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--t3);padding:4px;}
+
 .back-btn{display:flex;align-items:center;gap:6px;padding:5px 0;margin-bottom:.875rem;background:none;border:none;cursor:pointer;color:var(--t2);font-size:13.5px;font-family:'Inter',sans-serif;}
 .back-btn:hover{color:var(--pri);}
 /* SWEETS */
@@ -213,91 +228,97 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .tog.on::after{transform:translateX(19px);}
 .tpick{padding:7px 11px;border:1.5px solid #DDD;border-radius:var(--rs);font-size:13.5px;font-family:'Inter',sans-serif;color:var(--tx);background:#fff;outline:none;}
 .tpick:focus{border-color:var(--pri);}
+
+.meal-grid-sm{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:12px;}
+.mcard-sm{background:var(--lt);border-radius:12px;padding:12px;text-align:center;cursor:pointer;font-size:13px;font-weight:600;}
+.guest-info{padding:12px 16px;font-size:15px;color:var(--t2);}
 </style>
 </head>
 <body>
 
 <div class="hdr">
-  <div><h1 class="serif">🫒 FoodDaily</h1><p id="app-date"></p></div>
-  <div class="hdr-r">
-    <div class="hdr-btns">
+  <div class="hdr-inner">
+    <div class="logo">🫒 <span>FoodDaily</span></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button id="search-btn" class="icon-btn" onclick="openSearch()" title="Αναζήτηση">🔍</button>
+      <button id="bell" class="icon-btn" onclick="openNotif()">🔔</button>
       <div class="lang-sw">
         <button class="lbtn on" id="lb-el" onclick="setLang('el')">ΕΛ</button>
         <button class="lbtn" id="lb-en" onclick="setLang('en')">EN</button>
       </div>
-      <button class="bell" id="bell" onclick="openNmod()" title="Ειδοποιήσεις">🔔</button>
-      <button class="mic" id="mic" onclick="toggleVoice()">🎤</button>
     </div>
-    <div class="vst" id="vst">Φωνητική εντολή</div>
   </div>
 </div>
 
 <div class="nav">
-  <button class="ntab on" onclick="goSec('daily',this)">☀️ Σήμερα</button>
-  <button class="ntab" onclick="goSec('festive',this)">⭐ Εορτές</button>
-  <button class="ntab" onclick="goSec('sweets',this)">🍯 Γλυκά</button>
-  <button class="ntab" onclick="goSec('fridge',this)">🧊 Ψυγείο</button>
-  <button class="ntab" onclick="goSec('guests',this)">👥 Καλεσμένοι</button>
-  <button class="ntab" onclick="goSec('seasonal',this)">🌿 Εποχιακά</button>
+  <button class="ntab on" onclick="showSec('daily',this)">☀️ Σήμερα</button>
+  <button class="ntab" onclick="showSec('festive',this)">⭐ Εορτές</button>
+  <button class="ntab" onclick="showSec('sweets',this)">🍯 Γλυκά</button>
+  <button class="ntab" onclick="showSec('fridge',this)">🧊 Ψυγείο</button>
+  <button class="ntab" onclick="showSec('guests',this)">👥 Καλεσμένοι</button>
+  <button class="ntab" onclick="showSec('seasonal',this)">🌿 Εποχιακά</button>
 </div>
 
 <!-- DAILY -->
-<div id="s-daily" class="sec show">
-  <div class="cats">
-    <div style="display:inline-flex;gap:8px;white-space:nowrap;" id="cat-row">
-      <button class="cpill on" onclick="selCat('all',this)">🌿 Όλα</button>
-      <button class="cpill" onclick="selCat('pasta',this)">🍝 Ζυμαρικά</button>
-      <button class="cpill" onclick="selCat('seafood',this)">🐟 Θαλασσινά</button>
-      <button class="cpill" onclick="selCat('meat',this)">🥩 Κρεατικά</button>
-      <button class="cpill" onclick="selCat('legumes',this)">🫘 Όσπρια</button>
-      <button class="cpill" onclick="selCat('vegetables',this)">🥦 Λαχανικά</button>
-      <button class="cpill" onclick="selCat('salads',this)">🥗 Σαλάτες</button>
-      <button class="cpill" onclick="selCat('soups',this)">🍲 Σούπες</button>
+<div class="sec show" id="s-daily">
+  <div class="sec-head">
+    <div class="cat-row-wrap">
+      <div class="cat-row" id="cat-row">
+        <button class="cpill on" onclick="selCat('all',this)">🌿 Όλα</button>
+        <button class="cpill" onclick="selCat('pasta',this)">🍝 Ζυμαρικά</button>
+        <button class="cpill" onclick="selCat('seafood',this)">🐟 Θαλασσινά</button>
+        <button class="cpill" onclick="selCat('meat',this)">🥩 Κρεατικά</button>
+        <button class="cpill" onclick="selCat('legumes',this)">🫘 Όσπρια</button>
+        <button class="cpill" onclick="selCat('vegetables',this)">🥦 Λαχανικά</button>
+        <button class="cpill" onclick="selCat('salads',this)">🥗 Σαλάτες</button>
+        <button class="cpill" onclick="selCat('soups',this)">🍲 Σούπες</button>
+      </div>
+    </div>
+    <div class="daily-meta">
+      <div id="daily-lbl" class="daily-lbl-txt">Προτάσεις για σήμερα</div>
+      <button class="reshuffle" onclick="renderMeals(curCat)">🔀 Νέες προτάσεις</button>
     </div>
   </div>
-  <div id="remind-wrap"></div>
-  <div style="font-size:11.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin-bottom:.875rem;" id="daily-lbl">Προτάσεις για σήμερα</div>
-  <div class="mgrid" id="meals-grid"></div>
-  <div class="balance">
-    <div><div class="bal-t">Εβδομαδιαία ισορροπία</div><div class="bal-s" id="bal-s">🐟 2× ψάρι · 🫘 2× όσπρια ανά εβδομάδα</div></div>
-    <span style="font-size:24px">📊</span>
+  <div class="search-bar" id="search-bar" style="display:none">
+    <span>🔍</span>
+    <input type="text" id="search-inp" placeholder="Αναζήτηση συνταγής..." oninput="doSearch(this.value)">
+    <button class="search-close" onclick="closeSearch()">✕</button>
   </div>
-  <button class="reshuffle" onclick="reshuffle()">🔀 Νέες προτάσεις</button>
+  <div id="search-results" style="display:none"></div>
+  <div class="meal-grid" id="meals-grid"></div>
+  <div id="remind-wrap"><div class="balance-bar" id="balance-bar"></div><div class="remind-bar" id="remind-bar"></div></div>
 </div>
 
 <!-- FESTIVE -->
-<div id="s-festive" class="sec">
-  <div id="fest-main">
-    <div class="cats" style="padding-left:0;padding-right:0">
-      <div style="display:inline-flex;gap:8px;white-space:nowrap;" id="fest-filter-row">
-        <button class="cpill on" onclick="filtFest('all',this)">Όλες</button>
-        <button class="cpill" onclick="filtFest('fasting',this)">🌿 Νηστεία</button>
-        <button class="cpill" onclick="filtFest('fish',this)">🐟 Ψάρι</button>
-        <button class="cpill" onclick="filtFest('major',this)">⭐ Μεγάλες</button>
-        <button class="cpill" onclick="filtFest('national',this)">🇬🇷 Εθνικές</button>
-        <button class="cpill" onclick="filtFest('folk',this)">🎭 Λαϊκές</button>
-      </div>
-    </div>
-    <div class="fgrid" id="fest-grid"></div>
+<div class="sec" id="s-festive">
+  <div class="fest-filters">
+    <button class="cpill on" data-i18n="ff_all" onclick="rendFest('all',this)">🌟 Όλες</button>
+    <button class="cpill" data-i18n="ff_fasting" onclick="rendFest('fasting',this)">🌿 Νηστεία</button>
+    <button class="cpill" data-i18n="ff_fish" onclick="rendFest('fish',this)">🐟 Ψάρι</button>
+    <button class="cpill" data-i18n="ff_major" onclick="rendFest('major',this)">🎉 Μεγάλες</button>
+    <button class="cpill" data-i18n="ff_national" onclick="rendFest('national',this)">🇬🇷 Εθνικές</button>
+    <button class="cpill" data-i18n="ff_folk" onclick="rendFest('folk',this)">🌸 Λαϊκές</button>
   </div>
-  <div id="fest-det" style="display:none">
-    <button class="back-btn" onclick="backFest()">← Πίσω</button>
-    <div style="font-size:22px;font-weight:700;font-family:'Playfair Display',serif;margin-bottom:4px;" id="fd-t"></div>
-    <div style="font-size:13px;color:var(--t2);margin-bottom:.875rem;" id="fd-s"></div>
-    <div id="fd-fn"></div>
-    <div class="sec-lbl">Παραδοσιακό Μενού — πάτα για συνταγή</div>
-    <div id="fd-menu"></div>
-    <div class="sec-lbl" style="margin-top:.875rem">Κρασί & Ποτά</div>
-    <div id="fd-wine"></div>
-    <div class="sec-lbl">Χρονοδιάγραμμα</div>
-    <div id="fd-tl"></div>
+  <div id="festive-list">
+    <div id="fest-main">
+      <div id="fest-grid"></div>
+    </div>
+    <div id="fest-det" style="display:none">
+      <button class="back-btn" data-i18n="back" onclick="document.getElementById('fest-det').style.display='none';document.getElementById('fest-main').style.display='block';">← Πίσω</button>
+      <div id="fd-t" class="fd-title"></div>
+      <div id="fd-s" class="fd-sub"></div>
+      <div id="fd-fn" class="fd-fn"></div>
+      <div id="fd-menu" class="fd-menu-list"></div>
+      <div id="fd-wine" class="fd-wine"></div>
+      <div id="fd-tl" class="fd-timeline"></div>
+    </div>
   </div>
 </div>
 
 <!-- SWEETS -->
-<div id="s-sweets" class="sec">
-  <div class="cats" style="padding-left:0;padding-right:0;margin-bottom:.875rem">
-    <div style="display:inline-flex;gap:8px;white-space:nowrap;" id="sw-cats">
+<div class="sec" id="s-sweets">
+  <div class="cat-row-wrap">
+    <div class="cat-row" id="sw-cats">
       <button class="cpill on" onclick="filtSw('keik',this)">🎂 Κέικ</button>
       <button class="cpill" onclick="filtSw('koulourakia',this)">🍪 Κουλουράκια</button>
       <button class="cpill" onclick="filtSw('tiganites',this)">🥞 Τηγανίτες</button>
@@ -305,65 +326,73 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
       <button class="cpill" onclick="filtSw('epochiaka',this)">🌸 Εποχιακά</button>
     </div>
   </div>
-  <div class="swgrid" id="sw-grid"></div>
+  <div class="sw-grid" id="sw-grid"></div>
 </div>
 
 <!-- FRIDGE -->
-<div id="s-fridge" class="sec">
-  <div style="font-size:15px;font-weight:600;font-family:'Playfair Display',serif;margin-bottom:4px">🧊 Τι έχεις στο ψυγείο;</div>
-  <div style="font-size:13px;color:var(--t2);margin-bottom:11px">Βάλε υλικά και θα βρω τι να μαγειρέψεις!</div>
-  <div class="inp-row">
-    <input type="text" id="fridge-inp" placeholder="π.χ. κιμάς, ντομάτα, τυρί...">
-    <button class="wide-btn" style="width:auto;margin:0;padding:10px 18px" onclick="addTag()">+</button>
+<div class="sec" id="s-fridge">
+  <div class="fridge-hero">
+    <div class="fridge-t" id="fridge-t" data-i18n="fridge_t2">🧊 Τι έχεις στο ψυγείο;</div>
+    <div class="fridge-s" data-i18n="fridge_sub">Βάλε υλικά και θα βρω τι να μαγειρέψεις!</div>
+    <div class="fridge-inp-row">
+      <input type="text" id="fridge-inp" placeholder="π.χ. κιμάς, ντομάτα, τυρί..."
+        onkeydown="if(event.key==='Enter')addTag()">
+      <button class="fbtn-add" onclick="addTag()">＋</button>
+    </div>
+    <div class="tags" id="tags">
+      <div class="tag">κολοκυθάκια <button onclick="this.parentElement.remove();smartFridge()">×</button></div>
+      <div class="tag">αυγά <button onclick="this.parentElement.remove();smartFridge()">×</button></div>
+      <div class="tag">φέτα <button onclick="this.parentElement.remove();smartFridge()">×</button></div>
+    </div>
+    <button class="fridge-btn" id="fridge-btn" data-i18n="fridge_btn" onclick="smartFridge()">🔍 Βρες μου συνταγές!</button>
   </div>
-  <div class="tags" id="tags">
-    <div class="tag">κολοκυθάκια <button onclick="this.parentElement.remove();smartFridge()">×</button></div>
-    <div class="tag">αυγά <button onclick="this.parentElement.remove();smartFridge()">×</button></div>
-    <div class="tag">φέτα <button onclick="this.parentElement.remove();smartFridge()">×</button></div>
-  </div>
-  <button class="wide-btn" onclick="smartFridge()">🔍 Βρες μου συνταγές!</button>
   <div id="fridge-res"></div>
 </div>
 
 <!-- GUESTS -->
-<div id="s-guests" class="sec">
-  <div style="font-size:13px;color:var(--t2);margin-bottom:12px">Σχεδίασε δείπνο για καλεσμένους</div>
-  <div class="form-row">
-    <div class="fgrp"><label>Αριθμός ατόμων</label><input type="number" id="g-num" value="6" min="2" max="30"></div>
-    <div class="fgrp"><label>Περίσταση</label><select id="g-occ">
-      <option>Κυριακάτικο τραπέζι</option><option>Γενέθλια</option><option>Επέτειος</option><option>Επαγγελματικό δείπνο</option><option>Ανεπίσημο γεύμα</option>
-    </select></div>
-  </div>
-  <div class="fgrp"><label>Διατροφικές ανάγκες</label>
-    <div class="dpills">
-      <button class="dpill" onclick="this.classList.toggle('on')">Χορτοφάγος</button>
-      <button class="dpill" onclick="this.classList.toggle('on')">Vegan</button>
-      <button class="dpill" onclick="this.classList.toggle('on')">Κοιλιοκάκη</button>
-      <button class="dpill" onclick="this.classList.toggle('on')">Νηστεία</button>
-      <button class="dpill" onclick="this.classList.toggle('on')">Χωρίς γλουτένη</button>
+<div class="sec" id="s-guests">
+  <div class="guest-wrap">
+    <div class="guest-lbl"><span data-i18n="g_people">Άτομα:</span> <span id="g-num">4</span></div>
+    <div id="g-occ" class="guest-occ"></div>
+    <div class="guest-btns">
+      <button class="gpill" onclick="selGuest(2,this)">2</button>
+      <button class="gpill on" onclick="selGuest(4,this)">4</button>
+      <button class="gpill" onclick="selGuest(6,this)">6</button>
+      <button class="gpill" onclick="selGuest(8,this)">8</button>
+      <button class="gpill" onclick="selGuest(10,this)">10+</button>
     </div>
+    <div id="guest-res"></div>
   </div>
-  <button class="wide-btn" onclick="genGuests()">🪄 Δημιούργησε μενού & λίστα αγορών</button>
 </div>
 
 <!-- SEASONAL -->
-<div id="s-seasonal" class="sec">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px">
-    <div style="font-size:13px;color:var(--t2)">Εποχιακά — Μάιος 2026</div>
-    <span style="font-size:11.5px;color:#166534;background:#DCFCE7;padding:3px 10px;border-radius:10px">Φρέσκα τώρα</span>
+<div class="sec" id="s-seasonal">
+  <div class="season-grid">
+    <div class="season-card" onclick="openR('anginaresPolita')">
+      <div class="sc-top" style="background:linear-gradient(145deg,#E8F5E9,#A5D6A7)"><span style="font-size:52px">🌿</span></div>
+      <div class="sc-info"><div class="sc-n">Αγκινάρες αλά πολίτα</div><div class="sc-s">🌸 Άνοιξη</div></div>
+    </div>
+    <div class="season-card" onclick="openR('gigantes')">
+      <div class="sc-top" style="background:linear-gradient(145deg,#F1F8E9,#C5E1A5)"><span style="font-size:52px">🫘</span></div>
+      <div class="sc-info"><div class="sc-n">Γίγαντες πλακί</div><div class="sc-s">🍂 Χειμώνας</div></div>
+    </div>
+    <div class="season-card" onclick="openR('tartaFragola')">
+      <div class="sc-top" style="background:linear-gradient(145deg,#FCE4EC,#F48FB1)"><span style="font-size:52px">🍓</span></div>
+      <div class="sc-info"><div class="sc-n">Τάρτα φράουλας</div><div class="sc-s">🌸 Άνοιξη</div></div>
+    </div>
+    <div class="season-card" onclick="openR('htapodi')">
+      <div class="sc-top" style="background:linear-gradient(145deg,#E3F2FD,#90CAF9)"><span style="font-size:52px">🐙</span></div>
+      <div class="sc-info"><div class="sc-n">Χταπόδι κρασάτο</div><div class="sc-s">☀️ Καλοκαίρι</div></div>
+    </div>
+    <div class="season-card" onclick="openR('revythada')">
+      <div class="sc-top" style="background:linear-gradient(145deg,#FFF8E7,#FFE082)"><span style="font-size:52px">🫘</span></div>
+      <div class="sc-info"><div class="sc-n">Ρεβυθάδα Σύρου</div><div class="sc-s">❄️ Χειμώνας</div></div>
+    </div>
+    <div class="season-card" onclick="openR('briami')">
+      <div class="sc-top" style="background:linear-gradient(145deg,#F4FBF4,#A0D8B0)"><span style="font-size:52px">🥦</span></div>
+      <div class="sc-info"><div class="sc-n">Μπριάμ</div><div class="sc-s">☀️ Καλοκαίρι</div></div>
+    </div>
   </div>
-  <div class="sea-grid">
-    <div class="sea-item"><span class="sea-e">🌿</span><div style="font-size:13px;font-weight:500">Αγκινάρες</div><div style="font-size:11.5px;color:var(--t3)">Ιδανική εποχή</div></div>
-    <div class="sea-item"><span class="sea-e">🍒</span><div style="font-size:13px;font-weight:500">Κεράσια</div><div style="font-size:11.5px;color:var(--t3)">Φρέσκα τώρα</div></div>
-    <div class="sea-item"><span class="sea-e">🥒</span><div style="font-size:13px;font-weight:500">Κολοκυθάκια</div><div style="font-size:11.5px;color:var(--t3)">Πολύ φθηνά</div></div>
-    <div class="sea-item"><span class="sea-e">🌱</span><div style="font-size:13px;font-weight:500">Σπαράγγια</div><div style="font-size:11.5px;color:var(--t3)">Τελ. εβδομάδες</div></div>
-    <div class="sea-item"><span class="sea-e">🍓</span><div style="font-size:13px;font-weight:500">Φράουλες</div><div style="font-size:11.5px;color:var(--t3)">Αιχμή εποχής</div></div>
-    <div class="sea-item"><span class="sea-e">🥬</span><div style="font-size:13px;font-weight:500">Κουκιά</div><div style="font-size:11.5px;color:var(--t3)">Φρέσκα τώρα</div></div>
-  </div>
-  <div style="font-size:11.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin:.875rem 0 .625rem">Προτεινόμενες συνταγές</div>
-  <div class="rrow" onclick="openR('anginaresPolita')"><div class="rrn">Αγκινάρες αλά πολίτα</div><div class="rrm">Εποχιακό · 290 θερμ. · 50'</div></div>
-  <div class="rrow" onclick="openR('gigantes')"><div class="rrn">Γίγαντες πλακί</div><div class="rrm">Εποχιακό · 310 θερμ. · 90'</div></div>
-  <div class="rrow" onclick="openR('tartaFragola')"><div class="rrn">Τάρτα φράουλας</div><div class="rrm">Γλυκό εποχής · 320 θερμ. · 45'</div></div>
 </div>
 
 <!-- OVERLAY -->
@@ -372,188 +401,68 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
     <div class="ovhdl"></div>
     <div class="ovhero" id="ov-hero"></div>
     <div class="ovstats" id="ov-stats"></div>
-    <div class="ttsbar">
-      <span style="font-size:16px">🔊</span>
-      <span style="font-size:12.5px;color:#1D4ED8;flex:1" id="ov-tts-lbl">Εκφώνηση</span>
-      <button class="ttsbtn" id="ov-tts-btn" onclick="toggleTTS()">▶ Άκου</button>
-    </div>
     <div class="ovtabs">
-      <button class="otab on" id="otab-ing" onclick="ovTab('ing')">Υλικά</button>
-      <button class="otab" id="otab-steps" onclick="ovTab('steps')">Εκτέλεση</button>
-      <button class="otab" id="otab-pair" onclick="ovTab('pair')">Ταίριασμα</button>
+      <button class="otab on" id="otab-ing" data-i18n="ot_ing" onclick="ovTab('ing')">Υλικά</button>
+      <button class="otab" id="otab-steps" data-i18n="ot_steps" onclick="ovTab('steps')">Εκτέλεση</button>
+      <button class="otab" id="otab-pair" data-i18n="ot_pair" onclick="ovTab('pair')">Ταίριασμα</button>
     </div>
     <div class="ovbody">
       <div id="ot-ing"></div>
       <div id="ot-steps" style="display:none"></div>
       <div id="ot-pair" style="display:none"></div>
     </div>
+    <div class="ov-tts-row">
+      <button class="tts-btn" id="ov-tts-btn" onclick="toggleTTS()">
+        <span id="ov-tts-lbl">▶ Άκου</span>
+      </button>
+      <button id="vst" class="icon-btn" style="display:none">
+        <span id="mic">🎤</span>
+      </button>
+    </div>
   </div>
 </div>
 
-<!-- NOTIF MODAL -->
-<div class="nmod" id="nmod" onclick="if(event.target===this)closeNmod()">
-  <div class="nsh">
-    <div class="nhdl"></div>
-    <div style="font-size:18px;font-weight:700;font-family:'Playfair Display',serif;margin-bottom:.5rem">🔔 Ειδοποιήσεις</div>
-    <div style="font-size:13px;color:var(--t2);margin-bottom:1.25rem">Λάβε καθημερινή πρόταση φαγητού στην ώρα που θέλεις.</div>
-    <div class="nrow">
-      <div><div class="nrow-l">Ενεργοποίηση</div><div class="nrow-s">Χρειάζεται άδεια browser</div></div>
-      <button class="tog" id="ntog" onclick="toggleNotif()"></button>
+<!-- TOAST -->
+<div id="toast" class="toast" style="display:none"></div>
+
+<!-- NOTIFICATION MODAL -->
+<div class="nmod" id="nmod" style="display:none">
+  <div class="nmod-inner">
+    <div class="nmod-t">🔔 Υπενθυμίσεις</div>
+    <div class="nmod-row">
+      <label>Ενεργοποίηση</label>
+      <input type="checkbox" id="ntog">
     </div>
-    <div class="nrow">
-      <div><div class="nrow-l">Ώρα αποστολής</div><div class="nrow-s">Κάθε μέρα στην ώρα αυτή</div></div>
-      <input class="tpick" type="time" id="ntime" value="09:00" onchange="localStorage.setItem('notif_time',this.value)">
+    <div class="nmod-row">
+      <label>Ώρα</label>
+      <input type="time" id="ntime" value="12:00">
+      <input type="time" id="nt1" value="08:00" style="display:none">
+      <input type="time" id="nt2" value="12:00" style="display:none">
+      <input type="time" id="nt3" value="18:00" style="display:none">
     </div>
-    <div style="margin-top:1rem;padding:11px;background:#FFF9F0;border-radius:10px;font-size:12.5px;color:#9A6010">⚠️ Λειτουργεί μόνο από web server (GitHub Pages) — όχι από αρχείο.</div>
-    <button class="wide-btn" style="margin-top:1rem;margin-bottom:.5rem" onclick="testNotif()">📣 Δοκιμή τώρα</button>
-    <button class="wide-btn ghost" style="margin-bottom:0" onclick="closeNmod()">Κλείσιμο</button>
+    <div class="nmod-btns">
+      <button class="nmod-save" onclick="saveNotif()">Αποθήκευση</button>
+      <button class="nmod-cls" onclick="closeNotif()">Άκυρο</button>
+    </div>
   </div>
 </div>
 
 <script>
-let curCat='all',curSec='daily',curSwCat='keik',curFestF='all',_meal=null,isTTS=false,recog=null,isLis=false,curLang=localStorage.getItem('fd_lang')||'el';
-// ── THEMES ──────────────────────────────────────────────────────
-const TH={
-  all:{bg:'#F7F5EE',pri:'#3A7558',lt:'#DFF2E8',em:'#E8F6EE',bd:'#BEE0CE'},
-  pasta:{bg:'#FFFBEF',pri:'#B87818',lt:'#FEF0C4',em:'#FEF4D0',bd:'#EDD888'},
-  seafood:{bg:'#F2F8FF',pri:'#2465A8',lt:'#D4E8FF',em:'#D8EEFF',bd:'#A8CCEE'},
-  meat:{bg:'#FFF0EE',pri:'#C02020',lt:'#FFD0CC',em:'#FFCCCA',bd:'#E89898'},
-  legumes:{bg:'#F3FAF6',pri:'#2E7A54',lt:'#CCEEDC',em:'#D4F0E0',bd:'#A4D8B8'},
-  vegetables:{bg:'#F4FBF4',pri:'#388054',lt:'#C8ECD0',em:'#D4F0DA',bd:'#A0D8B0'},
-  salads:{bg:'#F0FAFA',pri:'#28888A',lt:'#C4E8E8',em:'#CCE8E8',bd:'#8AD0D0'},
-  soups:{bg:'#FFF9F0',pri:'#9A6010',lt:'#FFE5B4',em:'#FFEECC',bd:'#EED088'}
-};
-function applyTheme(c){
-  const t=TH[c]||TH.all,s=document.documentElement.style;
-  s.setProperty('--bg',t.bg);s.setProperty('--pri',t.pri);
-  s.setProperty('--lt',t.lt);s.setProperty('--em',t.em);s.setProperty('--bd',t.bd);
-}
-// ── i18n ──────────────────────────────────────────────────────
-const TR={
-  el:{sub:'Μεσογειακές Συνταγές',
-    n0:'☀️ Σήμερα',n1:'⭐ Εορτές',n2:'🍯 Γλυκά',n3:'🧊 Ψυγείο',n4:'👥 Καλεσμένοι',n5:'🌿 Εποχιακά',
-    c0:'🌿 Όλα',c1:'🍝 Ζυμαρικά',c2:'🐟 Θαλασσινά',c3:'🥩 Κρεατικά',
-    c4:'🫘 Όσπρια',c5:'🥦 Λαχανικά',c6:'🥗 Σαλάτες',c7:'🍲 Σούπες',
-    cl_pasta:'Ζυμαρικό',cl_seafood:'Θαλασσινό',cl_meat:'Κρεατικό',cl_legumes:'Όσπριο',
-    cl_vegetables:'Λαχανικό',cl_salads:'Σαλάτα',cl_soups:'Σούπα',
-    daily_lbl:'Προτάσεις για σήμερα',fresh:'✦ Φρέσκο',
-    new_sug:'✨ Νέα πρόταση',days_ago:'μέρες πριν',
-    remind:'Έχεις καιρό χωρίς:',bal_t:'Εβδομαδιαία ισορροπία',
-    reshuf:'🔀 Νέες προτάσεις',cal:'Θερμίδες',time:'Χρόνος',srv:'Μερίδες',
-    cost:'Κόστος υλικών',per_srv:'/μερ.',cost_yr:'τιμές 2026',
-    t_ing:'Υλικά',t_steps:'Εκτέλεση',t_pair:'Ταίριασμα',
-    tts_p:'▶ Άκου',tts_s:'⏸ Παύση',
-    ext:'🔍 Αναλυτική συνταγή ↗',
-    wine:'🍷 Κρασί',beer:'🍺 Μπύρα',plate:'🍽️ Στήσιμο πιάτου',
-    fridge_t:'🧊 Τι έχεις στο ψυγείο;',
-    fridge_s:'Βάλε υλικά και θα βρω τι να μαγειρέψεις!',
-    fridge_ph:'π.χ. κιμάς, ντομάτα, τυρί...',
-    fridge_btn:'🔍 Βρες μου συνταγές!',
-    f_found:'συνταγές με αυτά που έχεις:',
-    f_miss:'Λείπουν:',f_ok:'✅ Έχεις όλα τα κύρια υλικά!',f_open:'📖 Άνοιξε τη συνταγή →',
-    s_hi:'Τέλεια ταιριαστό!',s_mid:'Καλό ταίριασμα',s_lo:'Χρειάζεται λίγα ακόμα',
-    guests_t:'Σχεδίασε δείπνο για καλεσμένους',
-    g_num:'Αριθμός ατόμων',g_occ:'Περίσταση',g_diet:'Διατροφικές ανάγκες',
-    g_btn:'🪄 Δημιούργησε μενού & λίστα αγορών',
-    occ:['Κυριακάτικο τραπέζι','Γενέθλια','Επέτειος','Επαγγελματικό δείπνο','Ανεπίσημο γεύμα'],
-    diet:['Χορτοφάγος','Vegan','Κοιλιοκάκη','Νηστεία','Χωρίς γλουτένη'],
-    sea_lbl:'Εποχιακά — Μάιος 2026',sea_fr:'Φρέσκα τώρα',sea_title:'Προτεινόμενες συνταγές',
-    sw:['🎂 Κέικ','🍪 Κουλουράκια','🥞 Τηγανίτες','🍯 Παραδοσιακά','🌸 Εποχιακά'],
-    vst:'Φωνητική εντολή',f_all:'Όλες',
-    f_fasting:'🌿 Νηστεία',f_fish:'🐟 Ψάρι',f_major:'⭐ Μεγάλες',f_nat:'🇬🇷 Εθνικές',f_folk:'🎭 Λαϊκές',
-    clickable_recipe:'Πάτα για συνταγή →'
-  },
-  en:{sub:'Mediterranean Recipes',
-    n0:'☀️ Today',n1:'⭐ Feasts',n2:'🍯 Sweets',n3:'🧊 Fridge',n4:'👥 Guests',n5:'🌿 Seasonal',
-    c0:'🌿 All',c1:'🍝 Pasta',c2:'🐟 Seafood',c3:'🥩 Meat',
-    c4:'🫘 Legumes',c5:'🥦 Vegetables',c6:'🥗 Salads',c7:'🍲 Soups',
-    cl_pasta:'Pasta',cl_seafood:'Seafood',cl_meat:'Meat',cl_legumes:'Legume',
-    cl_vegetables:'Vegetable',cl_salads:'Salad',cl_soups:'Soup',
-    daily_lbl:"Today's suggestions",fresh:'✦ New',
-    new_sug:'✨ New suggestion',days_ago:'days ago',
-    remind:"Haven't had in a while:",bal_t:'Weekly balance',
-    reshuf:'🔀 New suggestions',cal:'Calories',time:'Time',srv:'Servings',
-    cost:'Ingredient cost',per_srv:'/serv.',cost_yr:'prices 2026',
-    t_ing:'Ingredients',t_steps:'Instructions',t_pair:'Pairing',
-    tts_p:'▶ Listen',tts_s:'⏸ Pause',
-    ext:'🔍 Full recipe online ↗',
-    wine:'🍷 Wine',beer:'🍺 Beer',plate:'🍽️ Plating tips',
-    fridge_t:"🧊 What's in your fridge?",
-    fridge_s:"Add ingredients and I'll find what you can cook!",
-    fridge_ph:'e.g. tomato, onion, cheese...',
-    fridge_btn:'🔍 Find me recipes!',
-    f_found:'recipes with what you have:',
-    f_miss:'Missing:',f_ok:"✅ You have all main ingredients!",f_open:'📖 Open recipe →',
-    s_hi:'Perfect match!',s_mid:'Good match',s_lo:'Needs a few more',
-    guests_t:'Plan a dinner for guests',
-    g_num:'Number of people',g_occ:'Occasion',g_diet:'Dietary needs',
-    g_btn:'🪄 Generate menu & shopping list',
-    occ:['Sunday family lunch','Birthday','Anniversary','Business dinner','Casual meal'],
-    diet:['Vegetarian','Vegan','Celiac','Fasting','Gluten-free'],
-    sea_lbl:'Seasonal — May 2026',sea_fr:'Fresh now',sea_title:'Suggested recipes',
-    sw:['🎂 Cakes','🍪 Cookies','🥞 Pancakes','🍯 Traditional','🌸 Seasonal'],
-    vst:'Voice command',f_all:'All',
-    f_fasting:'🌿 Fasting',f_fish:'🐟 Fish',f_major:'⭐ Major',f_nat:'🇬🇷 National',f_folk:'🎭 Folk',
-    clickable_recipe:'Tap for recipe →'
-  }
-};
-function t(k){return TR[curLang]?.[k]||TR.el[k]||k;}
+let curCat='all',curSec='daily',curSwCat='keik',curFestF='all',
+    _meal=null,isTTS=false,recog=null,isLis=false,
+    curLang=localStorage.getItem('fd_lang')||'el';
 
-// ── PHOTOS (Unsplash CDN confirmed IDs) ──────────────────────
-// Food images — loremflickr (Creative Commons, hotlink-friendly)
-// Format: https://loremflickr.com/640/420/keyword1,keyword2
-const LF='https://loremflickr.com/640/420/';
-const FOOD_IMGS={
-  fasolada:LF+'greek,bean,soup',
-  tsipoura:LF+'grilled,fish,mediterranean',
-  gemista:LF+'stuffed,tomatoes,greek',
-  horiatiki:LF+'greek,salad,feta',
-  aglio:LF+'spaghetti,garlic,pasta',
-  garides:LF+'shrimp,prawn,saganaki',
-  kotopoulo:LF+'lemon,chicken,roasted',
-  keftedes:LF+'meatballs,greek,plate',
-  fakes:LF+'lentil,soup,bowl',
-  kima:LF+'spaghetti,bolognese,meat',
-  gemista:LF+'stuffed,peppers,greek',
-  spanakoryzo:LF+'spinach,rice,greek',
-  moussaka:LF+'moussaka,greek,casserole',
-  souvlakia:LF+'souvlaki,grilled,meat',
-  pastitsio:LF+'pastitsio,greek,pasta',
-  giouvetsi:LF+'lamb,orzo,greek',
-  tsipoura:LF+'sea,bream,grilled',
-  kalamaria:LF+'calamari,fried,seafood',
-  bakaliaro:LF+'fish,fried,plate',
-  htapodi:LF+'octopus,grilled,greek',
-  mydia:LF+'mussels,seafood,plate',
-  sardeles:LF+'sardines,grilled,fish',
-  taramosalata:LF+'greek,dip,food',
-  psarosoupa:LF+'fish,soup,bowl',
-  kotosopa:LF+'chicken,soup,bowl',
-  revythada:LF+'chickpea,stew,bowl',
-  briami:LF+'roasted,vegetables,greek',
-  dolmades:LF+'stuffed,vine,leaves',
-  tzatziki_dish:LF+'tzatziki,greek,dip',
-  gigantes:LF+'giant,beans,tomato',
-  fava:LF+'yellow,pea,dip,greek',
-  salata_rokka:LF+'rocket,parmesan,salad',
-  giouvarlaakia:LF+'meatball,soup,bowl',
-  biftekia:LF+'burger,grilled,meat',
-  arnaki_lemonato:LF+'roast,lamb,lemon',
-  anginaresPolita:LF+'artichoke,stew,greek',
-  tartaFragola:LF+'strawberry,tart,pastry',
-  mageiritsa:LF+'greek,lamb,soup',
-  skordalia:LF+'garlic,dip,greek',
-  gourounopoulo:LF+'roast,pork,christmas',
-  galopoula:LF+'stuffed,turkey,roast',
-  stifado:LF+'rabbit,stew,greek',
-  salata_rodi:LF+'pomegranate,salad,spinach',
-  psari_plaki:LF+'baked,fish,tomato',
-  eliestoursi:LF+'olives,mediterranean,appetizer',
-  kokkinisto:LF+'lamb,red,wine,stew',
-  halvas:LF+'halva,semolina,greek',
-  lagana:LF+'flatbread,sesame,bread',
+
+const TH={
+  all:{bg:'#F7F5EE',pri:'#3A7558',lt:'#DFF2E8',bd:'#BEE0CE'},
+  pasta:{bg:'#FFFBEF',pri:'#B87818',lt:'#FEF0C4',bd:'#EDD888'},
+  seafood:{bg:'#F2F8FF',pri:'#2465A8',lt:'#D4E8FF',bd:'#A8CCEE'},
+  meat:{bg:'#FFF0EE',pri:'#C02020',lt:'#FFD0CC',bd:'#E89898'},
+  legumes:{bg:'#F3FAF6',pri:'#2E7A54',lt:'#CCEEDC',bd:'#A4D8B8'},
+  vegetables:{bg:'#F4FBF4',pri:'#388054',lt:'#C8ECD0',bd:'#A0D8B0'},
+  salads:{bg:'#F0FAFA',pri:'#28888A',lt:'#C4E8E8',bd:'#8AD0D0'},
+  soups:{bg:'#FFF9F0',pri:'#9A6010',lt:'#FFE5B4',bd:'#EED088'}
 };
-const IMG_CACHE={};
 const CAT_GRAD={
   pasta:'linear-gradient(145deg,#FFF8E7,#FFE082)',
   seafood:'linear-gradient(145deg,#E3F2FD,#90CAF9)',
@@ -563,146 +472,375 @@ const CAT_GRAD={
   salads:'linear-gradient(145deg,#E0F7FA,#80DEEA)',
   soups:'linear-gradient(145deg,#FFFDE7,#FFF176)'
 };
-const CAT_CL={pasta:'b-pasta',seafood:'b-seafood',meat:'b-meat',legumes:'b-legumes',vegetables:'b-vegetables',salads:'b-salads',soups:'b-soups'};
+const CAT_CL={pasta:'b-pasta',seafood:'b-seafood',meat:'b-meat',
+  legumes:'b-legumes',vegetables:'b-vegetables',salads:'b-salads',soups:'b-soups'};
+
+function applyTheme(c){
+  const t=TH[c]||TH.all,s=document.documentElement.style;
+  s.setProperty('--bg',t.bg);s.setProperty('--pri',t.pri);
+  s.setProperty('--lt',t.lt);s.setProperty('--bd',t.bd);
+}
+
+const TR={
+  el:{sub:'Μεσογειακές Συνταγές',
+    n0:'☀️ Σήμερα',n1:'⭐ Εορτές',n2:'🍯 Γλυκά',n3:'🧊 Ψυγείο',n4:'👥 Καλεσμένοι',n5:'🌿 Εποχιακά',
+    c0:'🌿 Όλα',c1:'🍝 Ζυμαρικά',c2:'🐟 Θαλασσινά',c3:'🥩 Κρεατικά',
+    c4:'🫘 Όσπρια',c5:'🥦 Λαχανικά',c6:'🥗 Σαλάτες',c7:'🍲 Σούπες',
+    cl_pasta:'Ζυμαρικό',cl_seafood:'Θαλασσινό',cl_meat:'Κρεατικό',cl_legumes:'Όσπριο',
+    cl_vegetables:'Λαχανικό',cl_salads:'Σαλάτα',cl_soups:'Σούπα',
+    daily_lbl:'Προτάσεις για σήμερα',fresh:'✦ Φρέσκο',new_sug:'✨ Νέα πρόταση',days_ago:'μέρες πριν',
+    remind:'Έχεις καιρό χωρίς:',bal_t:'Εβδομαδιαία ισορροπία',reshuf:'🔀 Νέες προτάσεις',
+    cal:'Θερμίδες',time:'Χρόνος',srv:'Μερίδες',cost:'Κόστος υλικών',per_srv:'/μερ.',cost_yr:'τιμές 2026',
+    t_ing:'Υλικά',t_steps:'Εκτέλεση',t_pair:'Ταίριασμα',tts_p:'▶ Άκου',tts_s:'⏸ Παύση',
+    ext:'🔍 Αναλυτική συνταγή ↗',wine:'🍷 Κρασί',beer:'🍺 Μπύρα',plate:'🍽️ Στήσιμο πιάτου',
+    fridge_t:'🧊 Τι έχεις στο ψυγείο;',fridge_s:'Βάλε υλικά και θα βρω τι να μαγειρέψεις!',
+    fridge_ph:'π.χ. κιμάς, ντομάτα, τυρί...',fridge_btn:'🔍 Βρες μου συνταγές!',
+    f_found:'συνταγές με αυτά που έχεις:',f_miss:'Λείπουν:',f_ok:'✅ Έχεις όλα τα κύρια υλικά!',
+    f_open:'📖 Άνοιξε →',s_hi:'Τέλεια!',s_mid:'Καλό ταίριασμα',s_lo:'Λίγα ακόμα',
+    sw:['🎂 Κέικ','🍪 Κουλουράκια','🥞 Τηγανίτες','🍯 Παραδοσιακά','🌸 Εποχιακά'],
+    vst:'Φωνητική εντολή',
+    ot_ing:'Υλικά',ot_steps:'Εκτέλεση',ot_pair:'Ταίριασμα',
+    fridge_t2:'🧊 Τι έχεις στο ψυγείο;',
+    fridge_sub:'Βάλε υλικά και θα βρω τι να μαγειρέψεις!',
+    fridge_btn:'🔍 Βρες μου συνταγές!',
+    ff_all:'🌟 Όλες',ff_fasting:'🌿 Νηστεία',ff_fish:'🐟 Ψάρι',
+    ff_major:'🎉 Μεγάλες',ff_national:'🇬🇷 Εθνικές',ff_folk:'🌸 Λαϊκές',
+    back:'← Πίσω',g_people:'Άτομα:',
+  },
+  en:{sub:'Mediterranean Recipes',
+    n0:'☀️ Today',n1:'⭐ Feasts',n2:'🍯 Sweets',n3:'🧊 Fridge',n4:'👥 Guests',n5:'🌿 Seasonal',
+    c0:'🌿 All',c1:'🍝 Pasta',c2:'🐟 Seafood',c3:'🥩 Meat',
+    c4:'🫘 Legumes',c5:'🥦 Vegetables',c6:'🥗 Salads',c7:'🍲 Soups',
+    cl_pasta:'Pasta',cl_seafood:'Seafood',cl_meat:'Meat',cl_legumes:'Legume',
+    cl_vegetables:'Vegetable',cl_salads:'Salad',cl_soups:'Soup',
+    daily_lbl:"Today's suggestions",fresh:'✦ New',new_sug:'✨ New',days_ago:'days ago',
+    remind:"Haven't had recently:",bal_t:'Weekly balance',reshuf:'🔀 New suggestions',
+    cal:'Calories',time:'Time',srv:'Servings',cost:'Ingredient cost',per_srv:'/serv.',cost_yr:'prices 2026',
+    t_ing:'Ingredients',t_steps:'Instructions',t_pair:'Pairing',tts_p:'▶ Listen',tts_s:'⏸ Pause',
+    ext:'🔍 Full recipe ↗',wine:'🍷 Wine',beer:'🍺 Beer',plate:'🍽️ Plating',
+    fridge_t:"🧊 What's in your fridge?",fridge_s:"Add ingredients and I'll find recipes!",
+    fridge_ph:'e.g. tomato, onion, cheese...',fridge_btn:'🔍 Find recipes!',
+    f_found:'recipes with what you have:',f_miss:'Missing:',f_ok:'✅ You have all main ingredients!',
+    f_open:'📖 Open →',s_hi:'Perfect!',s_mid:'Good match',s_lo:'Needs a few more',
+    sw:['🎂 Cakes','🍪 Cookies','🥞 Pancakes','🍯 Traditional','🌸 Seasonal'],
+    vst:'Voice command',
+    ot_ing:'Ingredients',ot_steps:'Instructions',ot_pair:'Pairing',
+    fridge_t2:'🧊 What\'s in your fridge?',
+    fridge_sub:'Add ingredients and I\'ll find what to cook!',
+    fridge_btn:'🔍 Find me recipes!',
+    ff_all:'🌟 All',ff_fasting:'🌿 Fasting',ff_fish:'🐟 Fish',
+    ff_major:'🎉 Major feasts',ff_national:'🇬🇷 National',ff_folk:'🌸 Folk',
+    back:'← Back',g_people:'People:',
+  }
+};
+function t(k){return TR[curLang]?.[k]||TR.el[k]||k;}
+function mealName(m){return curLang==='en'&&m.en?m.en:m.n;}
+function catLabel(cat){return t('cl_'+cat)||cat;}
+
+function setLang(lang){
+  curLang=lang;localStorage.setItem('fd_lang',lang);
+  document.querySelectorAll('.lbtn').forEach(b=>b.classList.remove('on'));
+  const lb=document.getElementById('lb-'+lang);if(lb)lb.classList.add('on');
+  document.querySelectorAll('.ntab').forEach((b,i)=>{const k='n'+i;if(TR[lang]&&TR[lang][k])b.textContent=TR[lang][k];});
+  document.querySelectorAll('#cat-row .cpill').forEach((b,i)=>{const k='c'+i;if(TR[lang]&&TR[lang][k])b.textContent=TR[lang][k];});
+  const swc=TR[lang]&&TR[lang].sw?TR[lang].sw:TR.el.sw;
+  document.querySelectorAll('#sw-cats .cpill').forEach((b,i)=>{if(swc[i])b.textContent=swc[i];});
+  const dl=document.getElementById('daily-lbl');if(dl)dl.textContent=t('daily_lbl');
+  const vs=document.getElementById('vst');if(vs)vs.textContent=t('vst');
+  const fi=document.getElementById('fridge-inp');if(fi)fi.placeholder=t('fridge_ph');
+  const rb=document.querySelector('.reshuffle');if(rb)rb.textContent=t('reshuf');
+  // Update ALL data-i18n elements
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key=el.getAttribute('data-i18n');
+    const val=t(key);
+    if(val&&val!==key)el.textContent=val;
+  });
+  renderMeals(curCat);filtSw(curSwCat);rendFest(curFestF);
+}
+
 
 const MEALS={
   fasolada:{en:'Greek Bean Soup',n:'Φασολάδα',e:'🫘',cats:['legumes','soups'],cal:320,time:50,srv:4,pop:1,cost:'~5€',cps:'~1.25€',
     ing:['Φασόλια λευκά 500γρ','Καρότα 2','Σέλινο 2 κλαδιά','Κρεμμύδι 1','Ντομάτα τριμμένη 200γρ','Ελαιόλαδο 4 κ.σ.','Αλάτι, πιπέρι','Δαφνόφυλλο 2'],
-    steps:['Μουλιάζεις τα φασόλια σε άφθονο κρύο νερό όλη τη νύχτα. Την επόμενη μέρα τα στραγγίζεις, τα βράζεις σε καθαρό νερό για 10 λεπτά και ξαφρίζεις καλά τον αφρό που σχηματίζεται.','Προσθέτεις το κρεμμύδι ψιλοκομμένο, τα καρότα σε ροδέλες, το σέλινο και τα δαφνόφυλλα. Σιγοβράζεις σε χαμηλή φωτιά για 30 λεπτά μέχρι τα φασόλια να αρχίσουν να μαλακώνουν.','Ρίχνεις την τριμμένη ντομάτα, το ελαιόλαδο, αλάτι και φρεσκοαλεσμένο πιπέρι. Συνεχίζεις τον βρασμό για άλλα 20 λεπτά μέχρι τα φασόλια να μαλακώσουν εντελώς και η σούπα να αποκτήσει βελούδινη υφή.','Σερβίρεις ζεστή με μια ροή ωμού ελαιολάδου στη μέση, μερικές ελιές Καλαμών και χωριάτικο ψωμί για συνοδεία.'],
-    wine:'Ξινόμαυρο ή Νεμέα.',beer:'Mythos.',plate:'Πιατέλα, λεμόνι, μαϊντανός. Τζατζίκι δίπλα.'},
+    steps:['Μουλιάζεις τα φασόλια όλη τη νύχτα. Στραγγίζεις, βράζεις σε καθαρό νερό 10 λεπτά και ξαφρίζεις.','Προσθέτεις κρεμμύδι, καρότα, σέλινο, δαφνόφυλλα και σιγοβράζεις 30 λεπτά.','Ρίχνεις ντομάτα, ελαιόλαδο, αλάτι και πιπέρι. Συνεχίζεις άλλα 20 λεπτά μέχρι να μαλακώσουν τελείως.','Σερβίρεις με ωμό ελαιόλαδο, ελιές Καλαμών και χωριάτικο ψωμί.'],
+    wine:'Ασύρτικο Σαντορίνης ή Ροδίτης.',beer:'Mythos ή ελαφριά pilsner.',plate:'Βαθύ πιάτο, ωμό ελαιόλαδο, 2-3 ελιές.'},
+  horiatiki:{en:'Greek Salad',n:'Χωριάτικη σαλάτα',e:'🥗',cats:['salads'],cal:280,time:10,srv:2,pop:1,cost:'~5€',cps:'~2.50€',
+    ing:['Ντομάτες 3 μεγάλες','Αγγούρι 1','Κρεμμύδι 1','Πιπεριά πράσινη 1','Φέτα 150γρ','Ελιές Καλαμών 80γρ','Ελαιόλαδο 3 κ.σ.','Ρίγανη & αλάτι'],
+    steps:['Κόβεις ντομάτες χοντρά, αγγούρι ροδέλες, κρεμμύδι λεπτές φέτες, πιπεριά ροδέλες.','Τακτοποιείς σε πιατέλα. Φέτα ΟΛΟΚΛΗΡΗ στη μέση — ποτέ τριμμένη!','Ελιές γύρω, ελαιόλαδο, αλάτι, άφθονη ρίγανη. ΔΕΝ ανακατεύεται πριν σερβιριστεί.'],
+    wine:'Ξηρό λευκό Σαντορίνης.',beer:'Fix ή Mythos, κρύα.',plate:'Φέτα ολόκληρη σαν νησί.'},
+  kotopoulo:{en:'Lemon Roast Chicken',n:'Κοτόπουλο λεμονάτο',e:'🍗',cats:['meat'],cal:420,time:70,srv:4,pop:1,cost:'~8.50€',cps:'~2.10€',
+    ing:['Κοτόπουλο 1.5kg κομμάτια','Λεμόνια 2','Σκόρδο 4','Ελαιόλαδο 4 κ.σ.','Ρίγανη & θυμάρι','Πατάτες 600γρ','Αλάτι & πιπέρι'],
+    steps:['Μαρινάρεις κοτόπουλο με χυμό λεμονιού, ξύσμα, ελαιόλαδο, σκόρδο, ρίγανη τουλάχιστον 1 ώρα.','Βάζεις κοτόπουλο και πατάτες σε σφήνες σε ταψί. Περιχύνεις με μαρινάδα.','Ψήνεις 200°C για 55-60 λεπτά. Στα 40 λεπτά γυρνάς για ομοιόμορφο ψήσιμο.'],
+    wine:'Αγιωργίτικο Νεμέας.',beer:'Mythos.',plate:'Κομμάτια με πατάτες, ξύσμα λεμονιού, ρίγανη.'},
+  keftedes:{en:'Greek Meatballs',n:'Κεφτέδες',e:'🧆',cats:['meat'],cal:380,time:40,srv:4,pop:1,cost:'~7.50€',cps:'~1.90€',
+    ing:['Κιμάς μοσχαρίσιος 500γρ','Κρεμμύδι τριμμένο 1','Ψωμί μπαγιάτικο 2 φέτες','Αυγό 1','Μαϊντανός','Μέντα 1 κ.γ.','Αλάτι & πιπέρι'],
+    steps:['Μουλιάζεις ψωμί σε νερό, στύβεις καλά. Ανακατεύεις με κιμά, κρεμμύδι, αυγό, μαϊντανό, μέντα, αλάτι και πιπέρι.','Ζυμώνεις 2-3 λεπτά. Αφήνεις στο ψυγείο 30 λεπτά.','Πλάθεις κεφτέδες και τηγανίζεις σε ελαιόλαδο 3-4 λεπτά ανά πλευρά μέχρι χρυσαφένιοι.'],
+    wine:'Ξινόμαυρο ή Νεμέα.',beer:'Mythos.',plate:'Πιατέλα, λεμόνι, μαϊντανός, τζατζίκι δίπλα.'},
   aglio:{en:'Spaghetti Aglio e Olio',n:'Σπαγγέτι αλιό ε ολιό',e:'🍝',cats:['pasta'],cal:490,time:20,srv:2,pop:1,cost:'~3.50€',cps:'~1.75€',
     ing:['Σπαγγέτι 200γρ','Σκόρδο 5 σκελίδες','Ελαιόλαδο ε.π. 60ml','Μαϊντανός φρέσκος','Πεπερόνσινο 1-2','Αλάτι','Παρμεζάνα'],
-    steps:['Βράζεις τα σπαγγέτι σε άφθονο αλατισμένο νερό μέχρι να γίνουν al dente. Πριν τα στραγγίσεις, κρατάς 1 κούπα από το νερό βρασίματος — αυτό είναι το μυστικό της συνταγής!','Ζεσταίνεις το ελαιόλαδο σε μεγάλο τηγάνι σε χαμηλή φωτιά. Σοτάρεις το λεπτοκομμένο σκόρδο και το πεπερόνσινο για 2-3 λεπτά μέχρι το σκόρδο να γίνει χρυσαφένιο. Προσοχή: ΔΕΝ το αφήνεις να καεί!','Στραγγίζεις τα σπαγγέτι και τα ρίχνεις στο τηγάνι. Ανακατεύεις δυνατά, προσθέτοντας σταδιακά το νερό ζυμαρικών για να δέσει η σάλτσα. Ρίχνεις τον ψιλοκομμένο μαϊντανό και σερβίρεις αμέσως με τριμμένη παρμεζάνα.'],
-    steps:['Κόβεις καπάκια, αδειάζεις. Γέμιση: ρύζι, κρεμμύδι, μυρωδικά, ελαιόλαδο, χυμοί.','Γεμίζεις στα 3/4. Ταψί με νεράκι.','180°C 60-70 λεπτά.'],
+    steps:['Βράζεις σπαγγέτι al dente. Κρατάς 1 κούπα νερό βρασίματος — είναι το μυστικό της συνταγής!','Σοτάρεις σκόρδο και πεπερόνσινο σε χαμηλή φωτιά 2-3 λεπτά. ΔΕΝ το αφήνεις να καεί.','Σπαγγέτι στο τηγάνι, λίγο νερό βρασίματος, ανακατεύεις δυνατά. Μαϊντανός, παρμεζάνα.'],
+    wine:'Pinot Grigio ή Vermentino.',beer:'Ελαφριά lager.',plate:'Φωλιά σπαγγέτι, μαϊντανός, παρμεζάνα.'},
+  garides:{en:'Shrimp Saganaki',n:'Γαρίδες σαγανάκι',e:'🦐',cats:['seafood'],cal:380,time:25,srv:2,pop:2,cost:'~12€',cps:'~6€',
+    ing:['Γαρίδες ωμές 500γρ','Ντομάτα τριμμένη 200γρ','Φέτα 100γρ','Ούζο 2 κ.σ.','Σκόρδο 2','Ελαιόλαδο','Μαϊντανός','Ρίγανη'],
+    steps:['Σοτάρεις γαρίδες 1-2 λεπτά ανά πλευρά μέχρι να ροδίσουν. Τις βγάζεις.','Στο ίδιο τηγάνι: σκόρδο, ντομάτα, ρίγανη. Σιγοβράζεις 5 λεπτά.','Σβήνεις με ούζο. Ξαναβάζεις γαρίδες, σκορπίζεις φέτα. Γκριλ 3-4 λεπτά.'],
+    wine:'Ασύρτικο Σαντορίνης.',beer:'Lager ή ούζο.',plate:'Σαγανάκι κατευθείαν, μαϊντανός, ψωμί.'},
+  fakes:{en:'Greek Lentil Soup',n:'Φακές σούπα',e:'🍲',cats:['legumes','soups'],cal:290,time:40,srv:4,pop:1,cost:'~3€',cps:'~0.75€',
+    ing:['Φακές 400γρ','Κρεμμύδι 1','Καρότα 2','Σκόρδο 2','Ντομάτα τριμμένη 150γρ','Ελαιόλαδο 3 κ.σ.','Δαφνόφυλλο','Ξύδι 1 κ.σ.'],
+    steps:['Σοτάρεις κρεμμύδι, καρότα, σκόρδο 5 λεπτά. Προσθέτεις ντομάτα και μυρωδικά.','Ρίχνεις φακές και νερό να σκεπάζονται. Βράζεις 30-35 λεπτά.','Ξύδι στο τέλος — το κλασικό ελληνικό μυστικό! Αλάτι, πιπέρι.'],
+    wine:'Ξηρό ρόδινο.',beer:'Pilsner.',plate:'Βαθύ πιάτο, ωμό ελαιόλαδο, ξύδι, ελιές.'},
+  kima:{en:'Pasta with Meat Sauce',n:'Μακαρόνια με κιμά',e:'🍝',cats:['pasta','meat'],cal:520,time:45,srv:4,pop:1,cost:'~10€',cps:'~2.50€',
+    ing:['Μακαρόνια 400γρ','Κιμάς μοσχαρίσιος 500γρ','Ντομάτα τριμμένη 400γρ','Κρεμμύδι 1','Σκόρδο 2','Κρασί κόκκινο 100ml','Κανέλα, μπαχάρι','Κεφαλοτύρι'],
+    steps:['Σοτάρεις κρεμμύδι. Ροδίζεις κιμά. Σβήνεις με κρασί.','Ντομάτα, κανέλα, μπαχάρι, αλάτι. Σιγοβράζεις 25-30 λεπτά.','Βράζεις μακαρόνια al dente. Σερβίρεις με άφθονο κεφαλοτύρι.'],
+    wine:'Αγιωργίτικο.',beer:'Mythos.',plate:'Βαθύ πιάτο, σάλτσα πλούσια, τριμμένο τυρί.'},
+  gemista:{en:'Stuffed Tomatoes & Peppers',n:'Γεμιστά',e:'🍅',cats:['vegetables'],cal:420,time:90,srv:6,pop:1,cost:'~6€',cps:'~1€',
+    ing:['Ντομάτες 6','Πιπεριές 4','Ρύζι 300γρ','Κρεμμύδι 2','Μαϊντανός & δυόσμος','Ελαιόλαδο 5 κ.σ.','Ζάχαρη 1 κ.γ.'],
+    steps:['Κόβεις καπάκια, αδειάζεις, κρατάς χυμούς. Τοποθετείς σε ταψί.','Γέμιση: ρύζι, κρεμμύδι, μυρωδικά, ελαιόλαδο, χυμοί, ζάχαρη. Γεμίζεις στα 3/4.','Βάζεις καπάκια, λίγο νερό στον πάτο. 180°C για 60-70 λεπτά.'],
     wine:'Αγιωργίτικο ή ροζέ.',beer:'Lager.',plate:'Με καπάκια, βασιλικός, ελαιόλαδο.'},
   spanakoryzo:{en:'Spinach Rice',n:'Σπανακόρυζο',e:'🌿',cats:['vegetables'],cal:310,time:35,srv:4,pop:1,cost:'~4.50€',cps:'~1.15€',
     ing:['Σπανάκι 600γρ','Ρύζι 150γρ','Κρεμμύδι 1','Κρεμμυδάκια 4','Ελαιόλαδο 4 κ.σ.','Άνηθος','Λεμόνι 1'],
-    steps:['Σοτάρεις το ψιλοκομμένο κρεμμύδι και τα φρέσκα κρεμμυδάκια σε γενναιόδωρη ποσότητα ελαιολάδου, μέχρι να μαλακώσουν και να αρωματίσουν.','Προσθέτεις το φρέσκο σπανάκι και ανακατεύεις μέχρι να μαραθεί. Ρίχνεις το ρύζι, 350ml νερό και αλάτι. Σιγοβράζεις με σκεπαστό καπάκι για 18-20 λεπτά μέχρι το ρύζι να απορροφήσει όλο το νερό.','Λίγο πριν σερβίρεις, στύβεις φρέσκο χυμό λεμονιού και ρίχνεις ψιλοκομμένο άνηθο. Σερβίρεις ζεστό με μαλακή φέτα στο πλάι.'],
+    steps:['Σοτάρεις κρεμμύδια σε ελαιόλαδο. Σπανάκι μαραίνεται.','Ρύζι, 350ml νερό, αλάτι. Σιγοβράζεις 18-20 λεπτά με καπάκι.','Χυμός λεμονιού, άνηθος. Φέτα στο πλάι.'],
+    wine:'Μαλαγουζιά.',beer:'Ελαφριά lager.',plate:'Βαθύ πιάτο, λεμόνι, φέτα στο πλάι.'},
+  moussaka:{en:'Moussaka',n:'Μουσακάς',e:'🍆',cats:['meat','vegetables'],cal:560,time:100,srv:6,pop:1,cost:'~10€',cps:'~2.50€',
+    ing:['Μελιτζάνες 3','Κιμάς μοσχαρίσιος 500γρ','Πατάτες 3','Ντομάτα τριμμένη 300γρ','Κρεμμύδι 1','Γάλα 800ml','Αλεύρι 4 κ.σ.','Βούτυρο 80γρ','Κεφαλοτύρι','Κανέλα'],
+    steps:['Μελιτζάνες και πατάτες σε φέτες, αλάτισμα, ψήσιμο στους 200°C. Κιμάς: κρεμμύδι, κιμάς, ντομάτα, κανέλα, 20 λεπτά.','Βεσαμέλ: βούτυρο+αλεύρι+γάλα+αυγά+τυρί — ανακατεύεις συνεχώς.','Στρώσεις: πατάτες, μελιτζάνες, κιμάς, βεσαμέλ. 180°C για 50-60 λεπτά. Κρυώνεις 20 λεπτά.'],
+    wine:'Αγιωργίτικο.',beer:'Mythos.',plate:'Τετράγωνα κομμάτια αφού κρυώσει.'},
+  souvlakia:{en:'Pork Souvlaki',n:'Σουβλάκια χοιρινά',e:'🥩',cats:['meat'],cal:350,time:30,srv:4,pop:1,cost:'~7€',cps:'~1.75€',
+    ing:['Χοιρινό λαιμό 600γρ','Ελαιόλαδο 3 κ.σ.','Ρίγανη','Χυμός λεμονιού','Σκόρδο 2','Αλάτι & πιπέρι'],
+    steps:['Κύβοι 2-3 εκ. Μαρινάρεις τουλάχιστον 1 ώρα.','Σουβλάκια. Σχάρα ή γκριλ 10-12 λεπτά, γυρνάς τακτικά.','Σερβίρεις σε πίτα με τζατζίκι, ντομάτα, κρεμμύδι.'],
+    wine:'Ξινόμαυρο.',beer:'Mythos παγωμένη!',plate:'Πίτα ή πιάτο με πατάτες.'},
+  pastitsio:{en:'Greek Pasta Bake',n:'Παστίτσιο',e:'🥘',cats:['pasta','meat'],cal:580,time:90,srv:6,pop:1,cost:'~9€',cps:'~2.25€',
+    ing:['Μακαρόνια χοντρά 500γρ','Κιμάς μοσχαρίσιος 500γρ','Ντομάτα τριμμένη 300γρ','Κρεμμύδι 1','Γάλα 1λ','Αλεύρι 4 κ.σ.','Βούτυρο 80γρ','Κεφαλοτύρι 150γρ','Κανέλα'],
+    steps:['Κιμάς: κρεμμύδι, κιμάς, ντομάτα, κανέλα, 20 λεπτά. Βράζεις μακαρόνια al dente.','Βεσαμέλ: βούτυρο+αλεύρι+γάλα ανακατεύοντας. Αποσύρεις, αυγά+τυρί.','Στρώσεις: μακαρόνια, κιμάς, μακαρόνια, βεσαμέλ+τυρί. 180°C για 45-50 λεπτά.'],
+    wine:'Αγιωργίτικο.',beer:'Mythos.',plate:'Τετράγωνα κομμάτια, κρυώνεις 15 λεπτά.'},
+  giouvetsi:{en:'Lamb with Orzo',n:'Γιουβέτσι αρνί',e:'🍖',cats:['meat'],cal:540,time:100,srv:4,pop:1,cost:'~9€',cps:'~2.25€',
+    ing:['Αρνάκι 1kg κομμάτια','Κριθαράκι 300γρ','Ντομάτα τριμμένη 400γρ','Κρεμμύδι 1','Σκόρδο 2','Κανέλα','Κεφαλοτύρι'],
+    steps:['Ροδίζεις αρνί. Σοτάρεις κρεμμύδι, σκόρδο. Ντομάτα, μπαχαρικά, νερό. 180°C για 50 λεπτά.','Ρίχνεις κριθαράκι, ανακατεύεις. 30 λεπτά ακόμα ανακατεύοντας μία φορά.','Σερβίρεις αμέσως με άφθονο κεφαλοτύρι.'],
     wine:'Αγιωργίτικο Νεμέας.',beer:'Ελληνική lager.',plate:'Σε γαλατιέρα, άφθονο τυρί.'},
   tsipoura:{en:'Baked Sea Bream',n:'Τσιπούρα στο φούρνο',e:'🐟',cats:['seafood'],cal:310,time:35,srv:2,pop:2,cost:'~9€',cps:'~4.50€',
     ing:['Τσιπούρα 500γρ','Λεμόνι 1','Σκόρδο 3','Ελαιόλαδο 3 κ.σ.','Θυμάρι & ρίγανη','Αλάτι & πιπέρι','Πατάτες 300γρ'],
-    steps:['Καθαρίζεις το ψάρι και χαράζεις 2-3 διαγώνιες τομές σε κάθε πλευρά. Τρίβεις εντός και εκτός με αλάτι, πιπέρι και ρίγανη ώστε να μπουν τα αρώματα.','Γεμίζεις την κοιλιά με φέτες λεμονιού και σκόρδο. Τοποθετείς τις πατάτες σε φέτες στον πάτο του ταψιού και ακουμπάς το ψάρι από πάνω.','Σκορπίζεις τα ντοματίνια, ραντίζεις γενναιόδωρα με ελαιόλαδο και χυμό λεμονιού. Ψήνεις στους 200°C για 25-30 λεπτά μέχρι το ψάρι να ροδίσει και οι πατάτες να μαλακώσουν.'],srv:8,cal:320,time:20,srv:8,pop:1,cost:'~3€',cps:'~0.40€',
+    steps:['Χαράζεις ψάρι. Αλάτι, πιπέρι, ρίγανη εντός και εκτός.','Λεμόνι + σκόρδο στην κοιλιά. Πατάτες στο ταψί, ψάρι από πάνω.','Ελαιόλαδο, λεμόνι. 200°C για 25-30 λεπτά.'],
+    wine:'Ασύρτικο ή Μοσχοφίλερο.',beer:'Wheat beer.',plate:'Ψάρι διαγώνια, πατάτες, θυμάρι.'},
+  kalamaria:{en:'Fried Calamari',n:'Καλαμάρια τηγανητά',e:'🦑',cats:['seafood'],cal:350,time:20,srv:2,pop:2,cost:'~6€',cps:'~3€',
+    ing:['Καλαμάρια 500γρ','Αλεύρι 1 κούπα','Αλάτι & πιπέρι','Ελαιόλαδο για τηγάνισμα','Λεμόνι'],
+    steps:['Δαχτυλίδια καλαμαριού. Στεγνώνεις πολύ καλά με χαρτί — κρίσιμο για τραγανό αποτέλεσμα.','Αλεύρι, αλάτι, πιπέρι. Αλευρώνεις και τινάζεις το περίσσιο.','Βαθύ καυτό λάδι, 2-3 λεπτά, χρυσαφένια. Χαρτί κουζίνας, λεμόνι.'],
+    wine:'Ασύρτικο.',beer:'Κρύα pilsner.',plate:'Σε χαρτί τηγανητών, λεμόνι.'},
+  bakaliaro:{en:'Salt Cod with Garlic Sauce',n:'Μπακαλιάρος σκορδαλιά',e:'🐟',cats:['seafood'],cal:380,time:40,srv:4,pop:1,cost:'~8€',cps:'~2€',
+    ing:['Μπακαλιάρος παστός 600γρ','Αλεύρι 1 κούπα','Ελαιόλαδο','Πατάτες 3 (σκορδαλιά)','Σκόρδο 5','Ξύδι 2 κ.σ.'],
+    steps:['Μουλιάζεις 24-36 ώρες αλλάζοντας νερό. Στεγνώνεις.','Σκορδαλιά: πατάτες βρασμένες + σκόρδο + ελαιόλαδο + ξύδι — λειαίνεις μέχρι κρεμώδης.','Αλευρώνεις, τηγανίζεις 3-4 λεπτά ανά πλευρά. Σερβίρεις με σκορδαλιά, ελιές.'],
+    wine:'Ασύρτικο.',beer:'Κρύα pilsner.',plate:'Μπακαλιάρος + σκορδαλιά, ελιές, χόρτα.'},
+  htapodi:{en:'Wine-Braised Octopus',n:'Χταπόδι κρασάτο',e:'🐙',cats:['seafood'],cal:290,time:60,srv:4,pop:2,cost:'~10€',cps:'~2.50€',
+    ing:['Χταπόδι 1kg','Κρεμμύδι 2','Σκόρδο 3','Κρασί κόκκινο 200ml','Ντομάτα τριμμένη 200γρ','Ελαιόλαδο','Δαφνόφυλλο'],
+    steps:['Βράζεις χταπόδι χωρίς νερό, στα δικά του υγρά, 30 λεπτά. Κόβεις σε μπουκιές.','Σοτάρεις κρεμμύδι. Σβήνεις με κρασί.','Ντομάτα, μπαχαρικά, χταπόδι. 20-25 λεπτά μέχρι η σάλτσα να δέσει.'],
+    wine:'Ροζέ ή ελαφρύ κόκκινο.',beer:'Lager ή ούζο.',plate:'Πιατέλα, μαϊντανός, λεμόνι, παξιμάδι.'},
+  taramosalata:{en:'Taramosalata',n:'Ταραμοσαλάτα',e:'🫐',cats:['seafood'],cal:220,time:10,srv:6,pop:1,cost:'~4€',cps:'~0.70€',
+    ing:['Ταραμάς 100γρ','Ψωμί μπαγιάτικο 4 φέτες','Ελαιόλαδο 150ml','Χυμός λεμονιού 2 κ.σ.','Κρεμμύδι τριμμένο 1 μικρό'],
+    steps:['Μουλιάζεις ψωμί, στύβεις καλά.','Χτυπάς ταραμά + ψωμί + κρεμμύδι στο μπλέντερ.','Ελαιόλαδο σε λεπτή ροή εναλλάξ με λεμόνι μέχρι αφράτο. Κρυώνεις.'],
+    wine:'Ούζο ή ξηρό λευκό.',beer:'Lager.',plate:'Μπολ, ελαιόλαδο, ελιές, λαγάνα δίπλα.'},
+  halvas:{en:'Semolina Halvas',n:'Χαλβάς σιμιγδαλένιος',e:'🟤',cats:['soups'],cal:320,time:20,srv:8,pop:1,cost:'~3€',cps:'~0.40€',
     ing:['Σιμιγδάλι χοντρό 1 κούπα','Ελαιόλαδο 1/2 κούπα','Ζάχαρη 2 κούπες','Νερό 3 κούπες','Κανέλα, σταφίδες, κουκουνάρι'],
-    steps:['Βράζεις νερό+ζάχαρη+κανέλα (1-2-3-4 αναλογία).','Σοτάρεις σιμιγδάλι σε ελαιόλαδο μέχρι χρυσαφένιο.','Σιρόπι στο σιμιγδάλι. Ανακατεύεις. 5 λεπτά. Φόρμα 15 λεπτά.'],
+    steps:['Βράζεις νερό+ζάχαρη+κανέλα — αναλογία 1-2-3-4. Κρατάς ζεστό.','Σοτάρεις σιμιγδάλι σε ελαιόλαδο ανακατεύοντας μέχρι χρυσαφένιο.','Σιρόπι στο σιμιγδάλι. Ανακατεύεις 5 λεπτά. Φόρμα, 15 λεπτά, αναποδογυρίζεις.'],
     wine:'Ούζο ή γλυκό κρασί.',beer:'',plate:'Φόρμα αναποδογυρισμένη, κανέλα, σταφίδες.'},
-  lagana:{en:'Lagana (Fasting Flatbread)',n:'Λαγάνα',e:'🫓',cats:['soups'],srv:8,cal:180,time:90,srv:8,pop:1,cost:'~2€',cps:'~0.25€',
+  lagana:{en:'Fasting Flatbread',n:'Λαγάνα',e:'🫓',cats:['soups'],cal:180,time:90,srv:8,pop:1,cost:'~2€',cps:'~0.25€',
     ing:['Αλεύρι 500γρ','Νερό χλιαρό 300ml','Μαγιά ξηρή 7γρ','Ελαιόλαδο 3 κ.σ.','Αλάτι','Σησάμι'],
-    steps:['Ανακατεύεις το αλεύρι με τη μαγιά, το χλιαρό νερό, το ελαιόλαδο και το αλάτι. Ζυμώνεις για 5-7 λεπτά μέχρι η ζύμη να γίνει ομαλή και ελαστική. Σκεπάζεις και αφήνεις να φουσκώσει σε ζεστό μέρος για 1 ώρα.','Απλώνεις τη ζύμη σε λαδόκολλα σχηματίζοντας επίπεδο, λεπτό ορθογώνιο. Πατάς με τα δάχτυλα σε όλη την επιφάνεια δημιουργώντας τα χαρακτηριστικά βαθουλώματα της λαγάνας.','Πασπαλίζεις γενναιόδωρα με σησάμι και ψήνεις σε πολύ ζεστό φούρνο, 220°C, για 20-25 λεπτά μέχρι να αποκτήσει χρυσαφένια, τραγανή κρούστα. Σερβίρεις ζεστή με ταραμοσαλάτα, ελιές και χαλβά.'],cal:240,time:70,srv:6,pop:2,cost:'~6€',cps:'~1.50€',
+    steps:['Ζυμώνεις αλεύρι+μαγιά+νερό+ελαιόλαδο+αλάτι. Αφήνεις να φουσκώσει 1 ώρα.','Απλώνεις λεπτή και επίπεδη σε λαδόκολλα. Βαθουλώματα με τα δάχτυλα.','Σησάμι από πάνω. 220°C για 20-25 λεπτά μέχρι χρυσαφένια κρούστα.'],
+    wine:'',beer:'',plate:'Με ταραμοσαλάτα, ελιές και χαλβά.'},
+  psarosoupa:{en:'Greek Fish Soup',n:'Ψαρόσουπα αυγολέμονο',e:'🐠',cats:['seafood','soups'],cal:320,time:50,srv:4,pop:2,cost:'~12€',cps:'~3€',
+    ing:['Ψάρι σφυρίδα 1kg','Πατάτες 4','Καρότα 2','Κρεμμύδι 1','Σέλινο','Αυγά 2','Λεμόνι 2'],
+    steps:['Βράζεις ψάρι + λαχανικά 30 λεπτά. Βγάζεις, ξεκοκκαλίζεις.','Σουρώνεις ζωμό. Ρύζι ή χυλοπίτες 15 λεπτά.','Αυγολέμονο: αυγά+λεμόνι αραιωμένα με ζωμό. Ρίχνεις εκτός φωτιάς.'],
+    wine:'Ασύρτικο.',beer:'Pilsner.',plate:'Βαθύ πιάτο, ψάρι μέσα, λεμόνι.'},
+  kotosopa:{en:'Chicken Avgolemono',n:'Κοτόσουπα αυγολέμονο',e:'🍜',cats:['meat','soups'],cal:340,time:60,srv:4,pop:1,cost:'~6.50€',cps:'~1.65€',
+    ing:['Κοτόπουλο ολόκληρο 1','Ρύζι 100γρ','Αυγά 2','Λεμόνι 1','Καρότα 2','Σέλινο'],
+    steps:['Βράζεις κοτόπουλο + λαχανικά 45 λεπτά. Βγάζεις, ξεκοκκαλίζεις.','Ρύζι στον ζωμό 15 λεπτά.','Αυγολέμονο αραιωμένο με ζωμό. Ρίχνεις εκτός φωτιάς. Άνηθος.'],
+    wine:'Λευκό ξηρό.',beer:'Pilsner.',plate:'Βαθύ πιάτο, κοτόπουλο, άνηθος.'},
+  revythada:{en:'Chickpea Stew',n:'Ρεβυθάδα Σύρου',e:'🫘',cats:['legumes'],cal:360,time:180,srv:4,pop:3,cost:'~4€',cps:'~1€',
+    ing:['Ρεβύθια 500γρ','Κρεμμύδι 2','Ελαιόλαδο 6 κ.σ.','Δεντρολίβανο','Λεμόνι 1'],
+    steps:['Μουλιάζεις βραδύς. Βράζεις 10 λεπτά.','Κρεμμύδι, ελαιόλαδο, δεντρολίβανο, νερό. 160°C για 2.5-3 ώρες.','Χυμός λεμονιού στο τέλος.'],
+    wine:'Ασύρτικο Κυκλαδίτικο.',beer:'Ελαφριά lager.',plate:'Βαθύ μπολ, ωμό ελαιόλαδο, δεντρολίβανο.'},
+  briami:{en:'Greek Roasted Vegetables',n:'Μπριάμ',e:'🥦',cats:['vegetables'],cal:270,time:75,srv:4,pop:2,cost:'~6€',cps:'~1.50€',
+    ing:['Κολοκυθάκια 3','Μελιτζάνες 2','Πατάτες 3','Πιπεριές 2','Ντομάτες 3','Κρεμμύδι 1','Σκόρδο 4','Ελαιόλαδο 6 κ.σ.'],
+    steps:['Κόβεις όλα σε ροδέλες. Βάζεις σε ταψί.','Ελαιόλαδο, αλάτι, πιπέρι, μυρωδικά. Ανακατεύεις καλά.','190°C για 60-70 λεπτά. Στα μισά ανακατεύεις. Σερβίρεις με φέτα.'],
+    wine:'Ελαφρύ ρόδινο.',beer:'Lager.',plate:'Πιατέλα, βασιλικός, φέτα.'},
+  dolmades:{en:'Stuffed Vine Leaves',n:'Ντολμαδάκια γιαλαντζί',e:'🌿',cats:['vegetables'],cal:240,time:70,srv:6,pop:2,cost:'~6€',cps:'~1.50€',
     ing:['Αμπελόφυλλα 40-50','Ρύζι 250γρ','Κρεμμύδι 2','Μαϊντανός & δυόσμος','Ελαιόλαδο 5 κ.σ.','Λεμόνι 2'],
-    steps:['Ζεματίζεις αμπελόφυλλα. Γέμιση: ρύζι, κρεμμύδι, μυρωδικά, λεμόνι, ελαιόλαδο.','Τυλίγεις σφιχτά.','Κατσαρόλα σφιχτά, νερό+λεμόνι+ελαιόλαδο. 40-45 λεπτά.'],
+    steps:['Ζεματίζεις αμπελόφυλλα. Γέμιση: ρύζι, κρεμμύδι, μυρωδικά, λεμόνι, ελαιόλαδο.','Τυλίγεις σφιχτά σε ρολό.','Κατσαρόλα σφιχτά, νερό+λεμόνι+ελαιόλαδο. 40-45 λεπτά.'],
     wine:'Λευκό Αττικό.',beer:'Pilsner.',plate:'Κρύα ή ζεστά με γιαούρτι.'},
   tzatziki_dish:{en:'Homemade Tzatziki',n:'Τζατζίκι σπιτικό',e:'🧄',cats:['salads','vegetables'],cal:120,time:15,srv:4,pop:1,cost:'~3€',cps:'~0.75€',
-    ing:['Γιαούρτι στραγγιστό 500γρ','Αγγούρι 1','Σκόρδο 2-3','Ελαιόλαδο 2 κ.σ.','Ξύδι 1 κ.γ.','Άνηθος','Αλάτι'],
-    steps:['Τρίβεις το αγγούρι χοντρά, το πασπαλίζεις με αλάτι και το αφήνεις 10 λεπτά. Στύβεις πολύ καλά με τα χέρια σου για να φύγουν όλα τα υγρά — αυτό είναι το μυστικό για σφιχτό τζατζίκι.','Ανακατεύεις σε μπολ το στραγγιστό γιαούρτι με το λιωμένο σκόρδο, το αγγούρι, το ξύδι και αλάτι.','Προσθέτεις τον ψιλοκομμένο άνηθο και το ελαιόλαδο. Σκεπάζεις και κρυώνεις στο ψυγείο για τουλάχιστον 1 ώρα. Σερβίρεις με επιπλέον ελαιόλαδο σε σπιράλ και φρέσκο άνηθο.'],cal:400,time:30,srv:4,pop:1,cost:'~7€',cps:'~1.75€',
-    ing:['Κιμάς 600γρ','Κρεμμύδι τριμμένο 1','Σκόρδο 1','Μουστάρδα 1 κ.γ.','Ρίγανη','Αλάτι & πιπέρι'],
+    ing:['Γιαούρτι στραγγιστό 500γρ','Αγγούρι 1 μεγάλο','Σκόρδο 2-3 σκελίδες','Ελαιόλαδο 2 κ.σ.','Ξύδι 1 κ.γ.','Άνηθος','Αλάτι'],
+    steps:['Τρίβεις αγγούρι, αλάτισμα 10 λεπτά. Στύβεις πολύ καλά — αυτό κάνει το τζατζίκι σφιχτό.','Γιαούρτι + σκόρδο λιωμένο + αγγούρι + ξύδι + αλάτι. Ανακατεύεις.','Άνηθος, ελαιόλαδο. 1 ώρα στο ψυγείο πριν σερβίρεις.'],
+    wine:'Λευκό ξηρό.',beer:'Lager.',plate:'Μπολ, ελαιόλαδο spiral, άνηθος.'},
+  gigantes:{en:'Giant Beans in Tomato',n:'Γίγαντες πλακί',e:'🫘',cats:['legumes','vegetables'],cal:310,time:90,srv:4,pop:2,cost:'~4€',cps:'~1€',
+    ing:['Γίγαντες 400γρ','Ντομάτα τριμμένη 400γρ','Κρεμμύδι 2','Σκόρδο 3','Καρότο 1','Μέλι 1 κ.γ.','Ελαιόλαδο 4 κ.σ.'],
+    steps:['Μουλιάζεις βραδύς. Βράζεις 30-40 λεπτά.','Σοτάρεις λαχανικά. Ντομάτα, μέλι, μπαχαρικά.','Γίγαντες σε ταψί. 180°C για 40-45 λεπτά.'],
+    wine:'Λευκό ξηρό.',beer:'Lager.',plate:'Με χοντρό ψωμί και ελιές.'},
+  fava:{en:'Santorini Split Pea Dip',n:'Φάβα Σαντορίνης',e:'🟡',cats:['legumes'],cal:260,time:45,srv:4,pop:2,cost:'~4€',cps:'~1€',
+    ing:['Φάβα Σαντορίνης 300γρ','Κρεμμύδι 1','Σκόρδο 2','Ελαιόλαδο 5 κ.σ.','Λεμόνι 1','Κρεμμυδάκι','Κάππαρη'],
+    steps:['Βράζεις φάβα με κρεμμύδι+σκόρδο 30-35 λεπτά μέχρι να λιώσει.','Μπλέντερ με ελαιόλαδο, λεμόνι, αλάτι — βελούδινη υφή.','Ωμό ελαιόλαδο, κάππαρη, κρεμμυδάκι. Αυθεντική Σαντορίνη!'],
+    wine:'Ασύρτικο Σαντορίνης!',beer:'Lager ή ούζο.',plate:'Μπολ, ελαιόλαδο spiral, κάππαρη.'},
+  salata_rokka:{en:'Rocket & Parmesan Salad',n:'Σαλάτα ρόκα-παρμεζάνα',e:'🥗',cats:['salads'],cal:220,time:10,srv:2,pop:1,cost:'~4.50€',cps:'~2.25€',
+    ing:['Ρόκα 100γρ','Παρμεζάνα 60γρ','Ντοματίνια 100γρ','Βαλσάμικο 2 κ.σ.','Ελαιόλαδο 2 κ.σ.'],
+    steps:['Πλένεις ρόκα. Ντοματίνια στα δύο. Τακτοποιείς σε πιατέλα.','Παρμεζάνα σε λεπτά flakes με αποφλοιωτή — ποτέ τριμμένη!','Βαλσάμικο, ελαιόλαδο, φρεσκοαλεσμένο πιπέρι.'],
+    wine:'Pinot Grigio.',beer:'Lager.',plate:'Παρμεζάνα flakes — αυτό κάνει τη διαφορά!'},
+  giouvarlaakia:{en:'Meatball Avgolemono',n:'Γιουβαρλάκια αυγολέμονο',e:'🍜',cats:['meat','soups'],cal:380,time:50,srv:4,pop:1,cost:'~7€',cps:'~1.75€',
+    ing:['Κιμάς μοσχαρίσιος 400γρ','Ρύζι 100γρ','Κρεμμύδι τριμμένο 1','Αυγά 3','Λεμόνια 2','Ζωμός κοτόπουλου 1.5λ'],
+    steps:['Κιμάς+ρύζι+κρεμμύδι+1 αυγό+αλάτι. Μπαλάκια μεγέθους καρυδιού.','Ζωμός βρασμός. Μπαλάκια μέσα, 25-30 λεπτά.','Αυγολέμονο (2 αυγά+λεμόνι αραιωμένο με ζωμό). Εκτός φωτιάς.'],
+    wine:'Λευκό ξηρό.',beer:'Pilsner.',plate:'Βαθύ πιάτο, μαϊντανός, λεμόνι.'},
+  biftekia:{en:'Grilled Burgers',n:'Μπιφτέκια σχάρας',e:'🍔',cats:['meat'],cal:400,time:30,srv:4,pop:1,cost:'~7€',cps:'~1.75€',
+    ing:['Κιμάς μοσχαρίσιος 600γρ','Κρεμμύδι τριμμένο 1','Σκόρδο 1','Μουστάρδα 1 κ.γ.','Ρίγανη','Αλάτι & πιπέρι'],
     steps:['Ζυμώνεις. Ψυγείο 20 λεπτά.','Στρογγυλά/οβάλ, 2 εκ πάχος.','Καυτή σχάρα ή τηγάνι, 4-5 λεπτά ανά πλευρά.'],
     wine:'Αγιωργίτικο.',beer:'Mythos.',plate:'Πατάτες φούρνου, τζατζίκι, σαλάτα.'},
   arnaki_lemonato:{en:'Lemon Roast Lamb',n:'Αρνάκι λεμονάτο',e:'🍖',cats:['meat'],cal:480,time:90,srv:4,pop:2,cost:'~12€',cps:'~3€',
     ing:['Αρνάκι μπούτι 1.5kg','Λεμόνια 3','Σκόρδο 6','Ελαιόλαδο 4 κ.σ.','Ρίγανη','Πατάτες 600γρ'],
-    steps:['Ετοιμάζεις τη μαρινάδα: αναμειγνύεις χυμό και ξύσμα λεμονιού, ελαιόλαδο, λιωμένο σκόρδο και ρίγανη. Μαρινάρεις το αρνί για τουλάχιστον 2 ώρες, ιδανικά από τη νύχτα πριν.','Τοποθετείς το αρνί σε μεγάλο ταψί με τις πατάτες σε σφήνες γύρω-γύρω. Ρίχνεις 1 ποτήρι νερό στον πάτο και σκεπάζεις με αλουμινόχαρτο.','Ψήνεις στους 190°C για 75-80 λεπτά. Στα 50 λεπτά αφαιρείς το αλουμινόχαρτο, γυρνάς το αρνί και αφήνεις να ροδίσει. Είναι έτοιμο όταν το κρέας ξεκολλάει εύκολα από το κόκαλο.'],
-    wine:'Αγιωργίτικο ή Ξινόμαυρο.',beer:'Mythos.',plate:'Αρνί+πατάτες, λεμόνι, ρίγανη.'},
-  stifado:{en:'Rabbit Stifado',n:'Στιφάδο κουνελιού',e:'🥘',cats:['meat'],cal:420,time:120,srv:4,pop:2,cost:'~9€',cps:'~2.25€',
-    ing:['Κουνέλι 1kg κομμάτια','Κρεμμυδάκια στρογγυλά 500γρ','Κόκκινο κρασί 200ml','Ντομάτα τριμμένη 200γρ','Σκόρδο 5','Κανέλα, γαρίφαλο, μπαχάρι','Ξύδι 2 κ.σ.','Ελαιόλαδο'],
-    steps:['Ροδίζεις τα κομμάτια κουνελιού καλά από όλες τις πλευρές σε καυτό ελαιόλαδο. Μόλις αποκτήσουν ωραίο χρώμα, σβήνεις με το κρασί και το ξύδι και αφήνεις να εξατμιστεί λίγο το αλκοόλ.','Προσθέτεις την τριμμένη ντομάτα, το σκόρδο, τα μπαχαρικά — κανέλα, γαρίφαλο, μπαχάρι — και αλάτι. Σιγοβράζεις σε χαμηλή φωτιά για 45 λεπτά.','Προσθέτεις τα κρεμμυδάκια ολόκληρα. Συνεχίζεις για άλλα 30 λεπτά μέχρι τα κρεμμυδάκια να μαλακώσουν τελείως και η σάλτσα να γίνει πλούσια και αρωματική.'],
-    wine:'Αγιωργίτικο ή Ξινόμαυρο.',beer:'Mythos.',plate:'Βαθύ πιάτο, σάλτσα πλούσια, μακαρόνια ή ψωμί.'},
+    steps:['Μαρινάρεις 2+ ώρες με λεμόνι, ελαιόλαδο, σκόρδο, ρίγανη.','Ταψί με πατάτες. 190°C για 75-80 λεπτά.','Στα 50 λεπτά γυρνάς. Έτοιμο όταν το κρέας ξεκολλάει από το κόκαλο.'],
+    wine:'Αγιωργίτικο Νεμέας.',beer:'Mythos.',plate:'Αρνί+πατάτες, λεμόνι, ρίγανη.'},
+
+  arni_souvia:{en:'Easter Spit-Roasted Lamb',n:'Αρνί στη σούβλα',e:'🥩',cats:['meat'],cal:520,time:240,srv:10,pop:2,cost:'~25€',cps:'~2.50€',
+    ing:['Αρνί ολόκληρο 10-12kg','Ελαιόλαδο 200ml','Λεμόνια 4','Σκόρδο 10 σκελίδες','Ρίγανη & θυμάρι άφθονα','Αλάτι χοντρό & πιπέρι'],
+    steps:['Το βράδυ πριν: ανοίγεις αρνί, τρίβεις παντού με αλάτι, πιπέρι, ρίγανη, σκόρδο, λεμόνι, ελαιόλαδο. Δένεις σφιχτά στη σούβλα.','Πρωί 8:00: ανάβεις φωτιά με κάρβουνα. Αρχίζεις γυρίσματα. Το αρνί κρατά απόσταση ~30εκ από φωτιά.','3-4 ώρες αργότερα, σε ~3.5 ώρες: ροδίζει ομοιόμορφα. Κόβεις ένα κομμάτι — αν βγαίνουν καθαροί χυμοί, είναι έτοιμο!'],
+    wine:'Αγιωργίτικο Νεμέας.',beer:'Mythos παγωμένη!',plate:'Ολόκληρο αρνί, λεμόνι, ρίγανη. Πασχαλινή παράδοση!'},
+  kontosouvi:{en:'Kontosouvi Mixed Spit Meats',n:'Κοντοσούβλι',e:'🍖',cats:['meat'],cal:480,time:180,srv:8,pop:2,cost:'~20€',cps:'~2.50€',
+    ing:['Χοιρινό σπάλα 1kg','Χοιρινά πλευρά 1kg','Κοτόπουλο μπούτια 4','Λουκάνικα χωριάτικα 4','Ελαιόλαδο 100ml','Ρίγανη & μπαχαρικά','Αλάτι & πιπέρι'],
+    steps:['Κόβεις κρέατα σε μπουκιές. Μαρινάρεις με ελαιόλαδο, ρίγανη, αλάτι, πιπέρι για 2+ ώρες.','Περνάς εναλλάξ χοιρινό, κοτόπουλο, λουκάνικο στη μεγάλη σούβλα. Σφίγγεις καλά.','Ψήνεις 2-2.5 ώρες σε μέτρια φωτιά, γυρνώντας συχνά. Σερβίρεις με πίτες, τζατζίκι, κρεμμύδι.'],
+    wine:'Ξινόμαυρο ή Αγιωργίτικο.',beer:'Mythos παγωμένη!',plate:'Πλατό με πίτες, τζατζίκι, ντομάτα. Πανηγύρι!'},
   anginaresPolita:{en:'Artichokes à la Polita',n:'Αγκινάρες αλά πολίτα',e:'🌿',cats:['vegetables'],cal:290,time:50,srv:4,pop:2,cost:'~7€',cps:'~1.75€',
     ing:['Αγκινάρες 6','Αρακάς 300γρ','Καρότα 4','Πατάτες 4','Άνηθος','Λεμόνι 2','Ελαιόλαδο 4 κ.σ.'],
-    steps:['Καθαρίζεις τις αγκινάρες αφαιρώντας τα σκληρά εξωτερικά φύλλα και τρίβεις τις κομμένες επιφάνειες με λεμόνι. Τις βάζεις αμέσως σε νερό με χυμό λεμονιού για να μην μαυρίσουν.','Σοτάρεις το κρεμμύδι σε ελαιόλαδο. Προσθέτεις τα καρότα, τις πατάτες σε κομμάτια, τον αρακά, τις αγκινάρες, νερό, ελαιόλαδο και χυμό λεμονιού.','Σιγοβράζεις για 35-40 λεπτά μέχρι τα λαχανικά να μαλακώσουν και να δέσουν οι γεύσεις. Σερβίρεις με φρέσκο άνηθο και επιπλέον λεμόνι.'],
+    steps:['Καθαρίζεις αγκινάρες. Νερό με λεμόνι για να μη μαυρίσουν.','Σοτάρεις κρεμμύδι. Όλα μαζί με νερό+λεμόνι+ελαιόλαδο.','35-40 λεπτά. Σερβίρεις με άνηθο και λεμόνι.'],
     wine:'Ασύρτικο.',beer:'Pilsner.',plate:'Βαθύ πιάτο, άνηθος, λεμόνι.'},
   tartaFragola:{en:'Strawberry Tart',n:'Τάρτα φράουλας',e:'🍓',cats:['salads'],cal:320,time:45,srv:8,pop:2,cost:'~8.50€',cps:'~1.10€',
-    ing:['Ζύμη τάρτας','Κρέμα ζαχαροπλαστικής','Φράουλες 400γρ','Γκλάς','Ζάχαρη άχνη'],
-    steps:['Απλώνεις τη ζύμη σε φόρμα, τη σκεπάζεις με λαδόκολλα, γεμίζεις με βαρίδια και τυφλοψήνεις στους 180°C για 15 λεπτά. Αφαιρείς τα βαρίδια, ψήνεις άλλα 5 λεπτά και αφήνεις να κρυώσει.','Απλώνεις ομοιόμορφα την κρέμα ζαχαροπλαστικής και τοποθετείς τις φράουλες αισθητικά.','Βάζεις γκλάς φρούτων, κρυώνεις 1 ώρα στο ψυγείο. Πασπαλίζεις ζάχαρη άχνη και διακοσμείς με μέντα.'],
+    ing:['Ζύμη τάρτας','Κρέμα ζαχαροπλαστικής','Φράουλες 400γρ','Γκλάς φρούτων','Ζάχαρη άχνη'],
+    steps:['Τυφλό ψήσιμο 15+5 λεπτά 180°C. Κρυώνεις.','Κρέμα, φράουλες αισθητικά.','Γκλάς, ψύχεις 1 ώρα. Ζάχαρη άχνη, μέντα.'],
     wine:'Prosecco.',beer:'Φρουτώδης μπύρα.',plate:'Ζάχαρη άχνη, φύλλα μέντας.'},
+  mageiritsa:{en:'Easter Lamb Soup',n:'Μαγειρίτσα',e:'🍲',cats:['soups','meat'],cal:380,time:90,srv:6,pop:2,cost:'~8€',cps:'~1.35€',
+    ing:['Αρνίσια εντόσθια 500γρ','Κρεμμυδάκια φρέσκα 8','Ρύζι 100γρ','Άνηθος φρέσκος','Μαρουλόφυλλα 6','Αυγά 3','Λεμόνι 2','Βούτυρο 2 κ.σ.'],
+    steps:['Βράζεις εντόσθια 10 λεπτά, στραγγίζεις. Ψιλοκόβεις.','Σοτάρεις κρεμμυδάκια σε βούτυρο. Εντόσθια, ρύζι, μαρούλι, άνηθος, ζωμός. 20 λεπτά.','Αυγολέμονο εκτός φωτιάς. Σερβίρεις μετά την Ανάσταση!'],
+    wine:'Λευκό ξηρό.',beer:'',plate:'Βαθύ πιάτο, άνηθος.'},
+  skordalia:{en:'Garlic Potato Dip',n:'Σκορδαλιά',e:'🧄',cats:['vegetables'],cal:180,time:20,srv:6,pop:1,cost:'~2€',cps:'~0.35€',
+    ing:['Πατάτες 4 μεγάλες','Σκόρδο 6-8 σκελίδες','Ελαιόλαδο 150ml','Ξύδι 2 κ.σ.','Αλάτι'],
+    steps:['Βράζεις πατάτες. Ξεφλουδίζεις ζεστές.','Λιώνεις με σκόρδο και αλάτι σε γουδί ή μπλέντερ.','Ελαιόλαδο + ξύδι εναλλάξ μέχρι κρεμώδης.'],
+    wine:'Ούζο!',beer:'Κρύα pilsner.',plate:'Μπολ, ελαιόλαδο, ελιές. Με μπακαλιάρο.'},
+  gourounopoulo:{en:'Christmas Roast Pork',n:'Γουρουνόπουλο φούρνου',e:'🥩',cats:['meat'],cal:520,time:180,srv:8,pop:2,cost:'~20€',cps:'~2.50€',
+    ing:['Γουρουνόπουλο 3-4kg','Ελαιόλαδο 100ml','Λεμόνια 3','Σκόρδο 8','Ρίγανη & θυμάρι','Αλάτι χοντρό','Πατάτες 1kg'],
+    steps:['Βράδυ πριν: μαρινάρεις με ελαιόλαδο, λεμόνι, σκόρδο, ρίγανη.','180°C για 2.5-3 ώρες. Πατάτες γύρω. Περιχύνεις κάθε 45 λεπτά.','Τελευταία 30 λεπτά 220°C για τραγανό φλούδι. Ξεκούραση 15 λεπτά.'],
+    wine:'Αγιωργίτικο ή Ξινόμαυρο.',beer:'Mythos.',plate:'Τραγανό φλούδι, πατάτες, σαλάτα.'},
+  galopoula:{en:'Stuffed Turkey',n:'Γαλοπούλα γεμιστή',e:'🦃',cats:['meat'],cal:480,time:240,srv:10,pop:2,cost:'~25€',cps:'~2.50€',
+    ing:['Γαλοπούλα 4-5kg','Κιμάς μοσχαρίσιος 400γρ','Καστανά 300γρ','Ρύζι 200γρ','Σταφίδες 100γρ','Βούτυρο 100γρ','Κρεμμύδι 1','Κρασί 100ml'],
+    steps:['Γέμιση: σοτάρεις κιμά με κρεμμύδι. Ρύζι, καστανά, σταφίδες, κρασί, 15 λεπτά.','Γεμίζεις, ράβεις ή δένεις. Βούτυρο παντού. Αλατοπίπερο.','160°C για 3.5-4 ώρες. Περιχύνεις κάθε 45 λεπτά.'],
+    wine:'Chardonnay ή Viognier.',beer:'',plate:'Γέμιση δίπλα, σάλτσα από ζουμιά.'},
+  stifado:{en:'Rabbit Stifado',n:'Στιφάδο κουνελιού',e:'🥘',cats:['meat'],cal:420,time:120,srv:4,pop:2,cost:'~9€',cps:'~2.25€',
+    ing:['Κουνέλι 1kg κομμάτια','Κρεμμυδάκια στρογγυλά 500γρ','Κόκκινο κρασί 200ml','Ντομάτα τριμμένη 200γρ','Σκόρδο 5','Κανέλα, γαρίφαλο, μπαχάρι','Ξύδι 2 κ.σ.'],
+    steps:['Ροδίζεις κουνέλι. Σβήνεις με κρασί+ξύδι.','Ντομάτα, μπαχαρικά, σκόρδο. 45 λεπτά.','Κρεμμυδάκια ολόκληρα. 30 λεπτά ακόμα.'],
+    wine:'Ξινόμαυρο Ναούσης.',beer:'Σκούρα ale.',plate:'Βαθύ πιάτο, κρεμμυδάκια, θυμάρι.'},
+  salata_rodi:{en:'Pomegranate Salad',n:'Σαλάτα με ρόδι',e:'🔴',cats:['salads'],cal:160,time:15,srv:4,pop:2,cost:'~5€',cps:'~1.25€',
+    ing:['Σπανάκι baby 100γρ','Ρόδι 1','Καρύδια 60γρ','Φέτα 80γρ','Βαλσάμικο 2 κ.σ.','Μέλι 1 κ.γ.','Ελαιόλαδο 2 κ.σ.'],
+    steps:['Πλένεις σπανάκι. Βγάζεις σπόρους ροδιού.','Ψήνεις καρύδια σε ξηρό τηγάνι 5 λεπτά.','Ντρέσιγκ: βαλσάμικο+μέλι+ελαιόλαδο. Φέτα θρυμματισμένη.'],
+    wine:'Ροζέ Σαντορίνης.',beer:'Lager.',plate:'Σπόροι ροδιού, φέτα, καρύδια.'},
+  psari_plaki:{en:'Baked Fish Plaki',n:'Ψάρι πλακί',e:'🐟',cats:['seafood'],cal:320,time:55,srv:4,pop:2,cost:'~9€',cps:'~2.25€',
+    ing:['Ψάρι (λαβράκι ή μπακαλιάρος) 800γρ','Ντομάτες 3','Κρεμμύδι 2','Σκόρδο 4','Ελαιόλαδο 5 κ.σ.','Σέλινο','Μαϊντανός'],
+    steps:['Σοτάρεις κρεμμύδι, σκόρδο, σέλινο. Ντομάτες, αλάτι, 10 λεπτά.','Ψάρι σε ταψί. Σάλτσα από πάνω. Ελαιόλαδο, λεμόνι.','180°C για 35-40 λεπτά. Μαϊντανός.'],
+    wine:'Ασύρτικο.',beer:'Pilsner.',plate:'Σε ταψί, άφθονη σάλτσα, μαϊντανός.'},
+  eliestoursi:{en:'Olives & Pickles',n:'Ελιές & τουρσί',e:'🫒',cats:['salads'],cal:80,time:5,srv:6,pop:1,cost:'~3€',cps:'~0.50€',
+    ing:['Ελιές Καλαμών 200γρ','Τουρσί ανάμεικτο 200γρ','Ελαιόλαδο 2 κ.σ.','Ρίγανη','Ξύδι 1 κ.γ.','Σκόρδο 1'],
+    steps:['Στραγγίζεις ελιές και τουρσί.','Ανακατεύεις με ελαιόλαδο, ρίγανη, σκόρδο, ξύδι.','Σερβίρεις αμέσως ή 30 λεπτά παύσης για γεύση. Με ούζο & λαγάνα!'],
+    wine:'Ούζο ή τσίπουρο.',beer:'Lager.',plate:'Μικρή πιατέλα, ελαιόλαδο, ρίγανη.'},
+  kokkinisto:{en:'Red Wine Lamb',n:'Κοκκινιστό αρνί',e:'🍖',cats:['meat'],cal:460,time:110,srv:4,pop:2,cost:'~12€',cps:'~3€',
+    ing:['Αρνί 1kg κομμάτια','Κρεμμύδι 2','Σκόρδο 4','Ντομάτα τριμμένη 400γρ','Κόκκινο κρασί 150ml','Κανέλα & μπαχάρι','Ελαιόλαδο'],
+    steps:['Ροδίζεις αρνί. Σοτάρεις κρεμμύδι, σκόρδο.','Σβήνεις με κρασί. Ντομάτα, μπαχαρικά, αλάτι.','Σιγοβράζεις 70-80 λεπτά μέχρι το κρέας να μαλακώσει.'],
+    wine:'Αγιωργίτικο ή Ξινόμαυρο.',beer:'Mythos.',plate:'Βαθύ πιάτο, σάλτσα πλούσια, ψωμί.'},
 };
+
+
 const SWEETS={
   keik:[
-    {n:'Κέικ σοκολάτας',e:'🍫',srv:10,cal:380,ing:['Αλεύρι 250γρ','Κακάο 60γρ','Ζάχαρη 200γρ','Αυγά 3','Βούτυρο 150γρ','Γάλα 120ml','Μπέικιν πάουντερ'],steps:['Χτυπάς βούτυρο και ζάχαρη μέχρι να αφρατέψουν. Προσθέτεις τα αυγά ένα-ένα συνεχίζοντας το χτύπημα.','Κοσκινίζεις και προσθέτεις αλεύρι, κακάο και μπέικιν εναλλάξ με το γάλα, ανακατεύοντας απαλά.','Ψήνεις σε βουτυρωμένη φόρμα στους 175°C για 45 λεπτά. Ελέγχεις με οδοντογλυφίδα.'],q:'κέικ σοκολάτας'},
-    {n:'Κέικ λεμονιού',e:'🍋',srv:10,cal:290,ing:['Αλεύρι 250γρ','Ζάχαρη 180γρ','Αυγά 3','Ελαιόλαδο 100ml','Γιαούρτι 150γρ','Λεμόνι ξύσμα+χυμός','Μπέικιν'],steps:['Χτυπάς αυγά και ζάχαρη μέχρι να αφρατέψουν. Προσθέτεις ελαιόλαδο, γιαούρτι, ξύσμα και χυμό λεμονιού.','Κοσκινίζεις αλεύρι και μπέικιν και τα αναδεύεις απαλά.','Ψήνεις στους 175°C για 40 λεπτά. Βγάζεις και περιχύνεις με λούστρο λεμονιού.'],q:'κέικ λεμονιού'},
-    {n:'Κέικ πορτοκαλιού',e:'🍊',srv:10,cal:310,ing:['Αλεύρι 280γρ','Ζάχαρη 200γρ','Αυγά 4','Ελαιόλαδο 120ml','Χυμός πορτοκαλιού 150ml','Ξύσμα 2 πορτοκαλιών'],steps:['Χτυπάς αυγά και ζάχαρη μέχρι να τριπλασιαστεί ο όγκος. Προσθέτεις σταδιακά ελαιόλαδο, χυμό και ξύσμα.','Κοσκινίζεις αλεύρι και μπέικιν και τα ενσωματώνεις απαλά.','Ψήνεις στους 180°C για 45 λεπτά. Αφήνεις να κρυώσει 10 λεπτά πριν αναποδογυρίσεις.'],q:'κέικ πορτοκαλιού'},
-    {n:'Κέικ μπανάνας',e:'🍌',srv:8,cal:280,ing:['Αλεύρι 230γρ','Ζάχαρη 150γρ','Αυγά 2','Βούτυρο 100γρ','Μπανάνες 3 ώριμες','Σόδα+μπέικιν'],steps:['Πολτοποιείς τις μπανάνες. Χτυπάς βούτυρο και ζάχαρη, προσθέτεις αυγά και τον πολτό μπανάνας.','Κοσκινίζεις αλεύρι, σόδα και μπέικιν. Αναδεύεις ελαφρά.','Ψήνεις στους 175°C για 55 λεπτά σε φόρμα loaf. Αφήνεις να κρυώσει εντελώς πριν κόψεις.'],q:'κέικ μπανάνας'},
-    {n:'Κέικ καρότου',e:'🥕',srv:12,cal:350,ing:['Αλεύρι 250γρ','Ζάχαρη 200γρ','Αυγά 3','Ελαιόλαδο 150ml','Καρότα 300γρ τριμμένα','Κανέλα+μοσχοκάρυδο'],steps:['Χτυπάς αυγά και ζάχαρη. Προσθέτεις ελαιόλαδο σε λεπτή ροή και τα τριμμένα καρότα.','Κοσκινίζεις αλεύρι, κανέλα, μοσχοκάρυδο και μπέικιν. Τα ενσωματώνεις απαλά.','Ψήνεις στους 175°C για 50 λεπτά. Αφήνεις να κρυώσει εντελώς πριν βάλεις frosting τυριού κρέμα.'],q:'κέικ καρότου'},
-    {n:'Marble Cake',e:'🎂',srv:12,cal:340,ing:['Αλεύρι 280γρ','Ζάχαρη 200γρ','Αυγά 4','Βούτυρο 180γρ','Γάλα 100ml','Κακάο 3 κ.σ.'],steps:['Χτυπάς βούτυρο και ζάχαρη αφράτα. Προσθέτεις αυγά ένα-ένα. Εναλλάσσεις αλεύρι και γάλα.','Χωρίζεις το μίγμα στα δύο. Στο ένα μισό προσθέτεις κακάο διαλυμένο σε λίγο γάλα.','Εναλλάσσεις κουταλιές από τα δύο μίγματα. Περνάς πιρούνι για μαρμάρινο σχέδιο. Ψήνεις 175°C για 50 λεπτά.'],q:'marble cake μαρμπρέ'},
-    {n:'Κέικ φράουλας',e:'🍓',srv:8,cal:260,ing:['Αλεύρι 230γρ','Ζάχαρη 160γρ','Αυγά 2','Βούτυρο 100γρ','Γιαούρτι 120γρ','Φράουλες 200γρ'],steps:['Βούτυρο-ζάχαρη, αυγά, γιαούρτι.','Ξηρά+φράουλες.','175°C 45 λεπτά.'],q:'κέικ φράουλας'},
-    {n:'Κέικ μήλου κανέλας',e:'🍎',srv:10,cal:320,ing:['Αλεύρι 260γρ','Ζάχαρη 180γρ','Αυγά 3','Ελαιόλαδο 100ml','Γιαούρτι 130γρ','Μήλα 2 τριμμένα','Κανέλα 2 κ.γ.'],steps:['Υγρά: αυγά, ζάχαρη, ελαιόλαδο, γιαούρτι.','Ξηρά+μήλα.','175°C 50 λεπτά.'],q:'κέικ μήλου κανέλας'},
+    {n:'Κέικ σοκολάτας',e:'🍫',srv:10,cal:380,ing:['Αλεύρι 250γρ','Κακάο 60γρ','Ζάχαρη 200γρ','Αυγά 3','Βούτυρο 150γρ','Γάλα 120ml','Μπέικιν πάουντερ'],steps:['Χτυπάς βούτυρο και ζάχαρη μέχρι να αφρατέψουν. Προσθέτεις τα αυγά ένα-ένα.','Κοσκινίζεις αλεύρι, κακάο και μπέικιν. Τα προσθέτεις εναλλάξ με το γάλα, ανακατεύοντας απαλά.','Ψήνεις σε βουτυρωμένη φόρμα στους 175°C για 45 λεπτά.'],q:'κέικ σοκολάτας'},
+    {n:'Κέικ λεμονιού',e:'🍋',srv:10,cal:290,ing:['Αλεύρι 250γρ','Ζάχαρη 180γρ','Αυγά 3','Ελαιόλαδο 100ml','Γιαούρτι 150γρ','Λεμόνι ξύσμα+χυμός','Μπέικιν'],steps:['Χτυπάς αυγά και ζάχαρη μέχρι να αφρατέψουν. Προσθέτεις ελαιόλαδο, γιαούρτι, ξύσμα και χυμό λεμονιού.','Κοσκινίζεις αλεύρι και μπέικιν και τα αναδεύεις απαλά.','Ψήνεις στους 175°C για 40 λεπτά. Περιχύνεις με λούστρο λεμονιού.'],q:'κέικ λεμονιού'},
+    {n:'Κέικ πορτοκαλιού',e:'🍊',srv:10,cal:310,ing:['Αλεύρι 280γρ','Ζάχαρη 200γρ','Αυγά 4','Ελαιόλαδο 120ml','Χυμός πορτοκαλιού 150ml','Ξύσμα 2 πορτοκαλιών'],steps:['Χτυπάς αυγά και ζάχαρη. Προσθέτεις σταδιακά ελαιόλαδο, χυμό και ξύσμα.','Κοσκινίζεις αλεύρι και μπέικιν και τα ενσωματώνεις απαλά.','Ψήνεις στους 180°C για 45 λεπτά.'],q:'κέικ πορτοκαλιού'},
+    {n:'Κέικ μπανάνας',e:'🍌',srv:8,cal:280,ing:['Αλεύρι 230γρ','Ζάχαρη 150γρ','Αυγά 2','Βούτυρο 100γρ','Μπανάνες 3 ώριμες','Σόδα+μπέικιν'],steps:['Πολτοποιείς τις μπανάνες. Χτυπάς βούτυρο και ζάχαρη, προσθέτεις αυγά και πολτό.','Κοσκινίζεις αλεύρι, σόδα και μπέικιν. Αναδεύεις ελαφρά.','Ψήνεις στους 175°C για 55 λεπτά σε φόρμα loaf.'],q:'κέικ μπανάνας'},
+    {n:'Κέικ καρότου',e:'🥕',srv:12,cal:350,ing:['Αλεύρι 250γρ','Ζάχαρη 200γρ','Αυγά 3','Ελαιόλαδο 150ml','Καρότα 300γρ τριμμένα','Κανέλα+μοσχοκάρυδο'],steps:['Χτυπάς αυγά και ζάχαρη. Προσθέτεις ελαιόλαδο και καρότα.','Κοσκινίζεις αλεύρι, κανέλα, μοσχοκάρυδο και μπέικιν. Ενσωματώνεις απαλά.','Ψήνεις στους 175°C για 50 λεπτά. Frosting τυριού κρέμα.'],q:'κέικ καρότου'},
+    {n:'Marble Cake',e:'🎂',srv:12,cal:340,ing:['Αλεύρι 280γρ','Ζάχαρη 200γρ','Αυγά 4','Βούτυρο 180γρ','Γάλα 100ml','Κακάο 3 κ.σ.'],steps:['Χτυπάς βούτυρο-ζάχαρη. Αυγά ένα-ένα. Εναλλάσσεις αλεύρι και γάλα.','Χωρίζεις στα δύο — στο ένα βάζεις κακάο.','Εναλλάσσεις κουταλιές στη φόρμα. Ψήνεις 175°C για 50 λεπτά.'],q:'marble cake μαρμπρέ'},
+    {n:'Κέικ φράουλας',e:'🍓',srv:8,cal:260,ing:['Αλεύρι 230γρ','Ζάχαρη 160γρ','Αυγά 2','Βούτυρο 100γρ','Γιαούρτι 120γρ','Φράουλες 200γρ'],steps:['Χτυπάς βούτυρο-ζάχαρη. Αυγά, γιαούρτι.','Κοσκινίζεις αλεύρι και μπέικιν. Ενσωματώνεις με τις φράουλες κομμένες.','Ψήνεις στους 175°C για 45 λεπτά.'],q:'κέικ φράουλας'},
+    {n:'Κέικ μήλου κανέλας',e:'🍎',srv:10,cal:320,ing:['Αλεύρι 260γρ','Ζάχαρη 180γρ','Αυγά 3','Ελαιόλαδο 100ml','Γιαούρτι 130γρ','Μήλα 2 τριμμένα','Κανέλα 2 κ.γ.'],steps:['Χτυπάς αυγά, ζάχαρη, ελαιόλαδο, γιαούρτι.','Κοσκινίζεις αλεύρι, κανέλα, μπέικιν. Προσθέτεις τα τριμμένα μήλα.','Ψήνεις στους 175°C για 50 λεπτά.'],q:'κέικ μήλου κανέλας'},
   ],
   koulourakia:[
-    {n:'Κουλουράκια πορτοκαλιού',e:'🍊',srv:45,cal:80,ing:['Αλεύρι 500γρ','Ζάχαρη 150γρ','Βούτυρο 150γρ','Αυγά 2','Χυμός πορτοκαλιού 80ml','Ξύσμα','Μπέικιν'],steps:['Βούτυρο-ζάχαρη, αυγά, χυμό, ξύσμα.','Αλεύρι+μπέικιν. Μαλακή ζύμη.','175°C 15-18 λεπτά.'],q:'κουλουράκια πορτοκαλιού'},
-    {n:'Κουλουράκια βουτύρου',e:'🧈',srv:50,cal:90,ing:['Αλεύρι 500γρ','Ζάχαρη 150γρ','Βούτυρο 200γρ','Αυγά 2','Γάλα 2 κ.σ.','Βανίλια'],steps:['Βούτυρο-ζάχαρη λευκό. Αυγά.','Αλεύρι.','Κορνέτα ή χέρι, 170°C 18-20 λεπτά.'],q:'κουλουράκια βουτύρου'},
-    {n:'Μπισκότα σοκολάτας',e:'🍪',srv:24,cal:110,ing:['Αλεύρι 200γρ','Σοκολάτα κομμάτια 200γρ','Βούτυρο 150γρ','Ζάχαρη καστανή 100γρ','Αυγό 1'],steps:['Λιωτό βούτυρο+ζάχαρη. Αυγό.','Αλεύρι+σόδα+σοκολάτα.','175°C 10-12 λεπτά — μαλακά!'],q:'μπισκότα chocolate chip'},
-    {n:'Κουλουράκια κακάο',e:'🍫',srv:40,cal:85,ing:['Αλεύρι 460γρ','Κακάο 40γρ','Ζάχαρη 150γρ','Βούτυρο 180γρ','Αυγά 2'],steps:['Βούτυρο-ζάχαρη. Αυγά.','Αλεύρι+κακάο.','175°C 15 λεπτά.'],q:'κουλουράκια κακάο'},
-    {n:'Κουλουράκια αμυγδάλου',e:'🌰',srv:40,cal:95,ing:['Αλεύρι 400γρ','Αλεσμένο αμύγδαλο 100γρ','Ζάχαρη 130γρ','Βούτυρο 160γρ','Αυγό 1'],steps:['Βούτυρο-ζάχαρη. Αυγό+αμύγδαλο.','Αλεύρι.','Αμύγδαλο φιλέ, 170°C 18 λεπτά.'],q:'κουλουράκια αμυγδάλου'},
-    {n:'Κουλουράκια μελιού',e:'🍯',srv:40,cal:70,ing:['Αλεύρι 450γρ','Μέλι 100ml','Ζάχαρη 80γρ','Βούτυρο 120γρ','Κανέλα+γαρίφαλο'],steps:['Ζεστό μέλι+βούτυρο, κρυώνεις.','Αλεύρι+μπαχαρικά+σόδα.','Μπαλάκια, 170°C 15 λεπτά.'],q:'κουλουράκια μελιού'},
-    {n:'Κουλουράκια βανίλιας',e:'🤍',srv:45,cal:75,ing:['Αλεύρι 480γρ','Ζάχαρη 130γρ','Βούτυρο 180γρ','Αυγά 2','Βανίλια'],steps:['Βούτυρο-ζάχαρη. Αυγά+βανίλια.','Αλεύρι.','170°C 15 λεπτά.'],q:'κουλουράκια βανίλιας'},
-    {n:'Παξιμαδάκια ελαιολάδου',e:'🫓',srv:40,cal:65,ing:['Αλεύρι 500γρ','Ελαιόλαδο 150ml','Ζάχαρη 100γρ','Αυγά 2','Χυμός πορτοκαλιού','Σησάμι'],steps:['Αυγά-ζάχαρη, ελαιόλαδο, χυμό.','Αλεύρι. Κορδόνια.','180°C 20 λεπτά, κόβεις, ξαναψήνεις 10 λεπτά.'],q:'παξιμαδάκια ελαιολάδου'},
+    {n:'Κουλουράκια πορτοκαλιού',e:'🍊',srv:45,cal:80,ing:['Αλεύρι 500γρ','Ζάχαρη 150γρ','Βούτυρο 150γρ','Αυγά 2','Χυμός πορτοκαλιού 80ml','Ξύσμα','Μπέικιν'],steps:['Χτυπάς βούτυρο-ζάχαρη. Αυγά, χυμό, ξύσμα.','Κοσκινίζεις αλεύρι και μπέικιν. Ζυμώνεις ελαφρά.','Πλάθεις και ψήνεις στους 175°C για 15-18 λεπτά.'],q:'κουλουράκια πορτοκαλιού'},
+    {n:'Κουλουράκια βουτύρου',e:'🧈',srv:50,cal:90,ing:['Αλεύρι 500γρ','Ζάχαρη 150γρ','Βούτυρο 200γρ','Αυγά 2','Γάλα 2 κ.σ.','Βανίλια'],steps:['Χτυπάς βούτυρο-ζάχαρη μέχρι να ασπρίσει. Αυγά, βανίλια.','Κοσκινίζεις αλεύρι. Ζυμώνεις απαλά.','Κορνέτα ή χέρι, ψήνεις 170°C για 18-20 λεπτά.'],q:'κουλουράκια βουτύρου'},
+    {n:'Μπισκότα σοκολάτας',e:'🍪',srv:24,cal:110,ing:['Αλεύρι 200γρ','Σοκολάτα κομμάτια 200γρ','Βούτυρο 150γρ','Ζάχαρη καστανή 100γρ','Αυγό 1'],steps:['Λιωτό βούτυρο+ζάχαρη. Αυγό.','Αλεύρι+σόδα+σοκολάτα.','Ψήνεις 175°C για 10-12 λεπτά — μαλακά!'],q:'μπισκότα chocolate chip'},
+    {n:'Κουλουράκια κακάο',e:'🍫',srv:40,cal:85,ing:['Αλεύρι 460γρ','Κακάο 40γρ','Ζάχαρη 150γρ','Βούτυρο 180γρ','Αυγά 2'],steps:['Χτυπάς βούτυρο-ζάχαρη. Αυγά.','Κοσκινίζεις αλεύρι+κακάο. Ζυμώνεις.','Ψήνεις 175°C για 15 λεπτά.'],q:'κουλουράκια κακάο'},
+    {n:'Κουλουράκια αμυγδάλου',e:'🌰',srv:40,cal:95,ing:['Αλεύρι 400γρ','Αλεσμένο αμύγδαλο 100γρ','Ζάχαρη 130γρ','Βούτυρο 160γρ','Αυγό 1'],steps:['Χτυπάς βούτυρο-ζάχαρη. Αυγό+αμύγδαλο.','Κοσκινίζεις αλεύρι. Ζυμώνεις.','Αμύγδαλο φιλέ από πάνω, ψήνεις 170°C για 18 λεπτά.'],q:'κουλουράκια αμυγδάλου'},
+    {n:'Κουλουράκια μελιού',e:'🍯',srv:40,cal:70,ing:['Αλεύρι 450γρ','Μέλι 100ml','Ζάχαρη 80γρ','Βούτυρο 120γρ','Κανέλα+γαρίφαλο'],steps:['Ζεσταίνεις μέλι+βούτυρο μαζί. Κρυώνεις.','Κοσκινίζεις αλεύρι+μπαχαρικά+σόδα.','Μπαλάκια, ψήνεις 170°C για 15 λεπτά.'],q:'κουλουράκια μελιού'},
+    {n:'Κουλουράκια βανίλιας',e:'🤍',srv:45,cal:75,ing:['Αλεύρι 480γρ','Ζάχαρη 130γρ','Βούτυρο 180γρ','Αυγά 2','Βανίλια'],steps:['Χτυπάς βούτυρο-ζάχαρη. Αυγά+βανίλια.','Κοσκινίζεις αλεύρι. Ζυμώνεις.','Ψήνεις 170°C για 15 λεπτά.'],q:'κουλουράκια βανίλιας'},
+    {n:'Παξιμαδάκια ελαιολάδου',e:'🫓',srv:40,cal:65,ing:['Αλεύρι 500γρ','Ελαιόλαδο 150ml','Ζάχαρη 100γρ','Αυγά 2','Χυμός πορτοκαλιού','Σησάμι'],steps:['Αυγά-ζάχαρη, ελαιόλαδο, χυμό.','Αλεύρι. Κορδόνια.','Ψήνεις 180°C για 20 λεπτά, κόβεις, ξαναψήνεις 10 λεπτά.'],q:'παξιμαδάκια ελαιολάδου'},
   ],
   tiganites:[
-    {n:'American Pancakes',e:'🥞',srv:8,cal:280,ing:['Αλεύρι 200γρ','Γάλα 250ml','Αυγό 1','Ζάχαρη 2 κ.σ.','Μπέικιν 2 κ.γ.','Βούτυρο λιωμένο 2 κ.σ.'],steps:['Ξηρά + υγρά ξεχωριστά. Ανακατεύεις ελαφρά — να μείνουν σβόλοι!','5 λεπτά ξεκούραση. Μέτρια φωτιά.','1 κουτάλα, 2-3 λεπτά ανά πλευρά. Φουσκαλίτσες = γυρνάς!'],q:'american pancakes αέρινα'},
-    {n:'Pancakes μύρτιλα',e:'🫐',srv:8,cal:300,ing:['Βάση Pancakes','Μύρτιλα 150γρ','Μέλι','Βανίλια'],steps:['Φτιάχνεις βάση.','Ρίχνεις μύρτιλα ελαφρά.','Ψήνεις. Μέλι+extra μύρτιλα.'],q:'pancakes μύρτιλα'},
-    {n:'Pancakes μπανάνα',e:'🍌',srv:8,cal:270,ing:['Αλεύρι 180γρ','Μπανάνα 2 ώριμες','Αυγό 1','Γάλα 200ml','Μπέικιν 1.5 κ.γ.','Κανέλα'],steps:['Πολτός μπανάνας + αυγό + γάλα.','Αλεύρι+μπέικιν+κανέλα.','2-3 λεπτά ανά πλευρά. Μέλι.'],q:'pancakes μπανάνα'},
-    {n:'Κρέπες κλασικές',e:'🫔',srv:14,cal:180,ing:['Αλεύρι 250γρ','Γάλα 500ml','Αυγά 3','Βούτυρο 30γρ λιωμένο','Ζάχαρη 1 κ.σ.'],steps:['Αυγά-αλεύρι-ζάχαρη. Γάλα σταδιακά. Βούτυρο. 30 λεπτά ξεκούραση.','Ζεστό τηγάνι.','1-2 λεπτά, γυρνάς 30 δευτ.'],q:'κρέπες κλασικές'},
-    {n:'Κρέπες Nutella',e:'🍫',srv:4,cal:380,ing:['Βάση κρεπών','Nutella','Μπανάνα','Φράουλες','Ζάχαρη άχνη'],steps:['Κρέπες.','Nutella γενναιόδωρα.','Φρούτα, τρίγωνο, ζάχαρη άχνη.'],q:'κρέπες Nutella'},
-    {n:'Τηγανίτες ελληνικές',e:'🍩',srv:12,cal:220,ing:['Αλεύρι 300γρ','Γάλα 300ml','Αυγά 2','Μπέικιν','Ελαιόλαδο'],steps:['Αυγά+γάλα. Αλεύρι+μπέικιν.','Κουταλιές σε ελαιόλαδο. 2 λεπτά ανά πλευρά.','Μέλι, κανέλα ή γλυκό κουταλιού.'],q:'τηγανίτες ελληνικές'},
-    {n:'French Toast',e:'🍞',srv:4,cal:310,ing:['Ψωμί χωριάτικο 4 φέτες','Αυγά 3','Γάλα 80ml','Ζάχαρη 2 κ.σ.','Κανέλα','Βούτυρο'],steps:['Αυγά+γάλα+ζάχαρη+κανέλα. Βουτάς φέτες.','Βούτυρο, 2-3 λεπτά ανά πλευρά.','Σιρόπι σφενδάμου ή μέλι.'],q:'french toast'},
-    {n:'Waffle',e:'🧇',srv:4,cal:350,ing:['Αλεύρι 200γρ','Γάλα 300ml','Αυγά 2','Βούτυρο 80γρ λιωμένο','Ζάχαρη 2 κ.σ.','Μπέικιν 2 κ.γ.'],steps:['Χτυπάς ασπράδια σε μαρέγκα.','Ζύμη+μαρέγκα ελαφρά.','Waffle maker 3-4 λεπτά.'],q:'waffle συνταγή'},
+    {n:'American Pancakes',e:'🥞',srv:8,cal:280,ing:['Αλεύρι 200γρ','Γάλα 250ml','Αυγό 1','Ζάχαρη 2 κ.σ.','Μπέικιν 2 κ.γ.','Βούτυρο λιωμένο 2 κ.σ.'],steps:['Ανακατεύεις ξηρά υλικά ξεχωριστά. Ενώνεις με υγρά ελαφρά — να μείνουν σβόλοι!','Αφήνεις 5 λεπτά. Μέτρια φωτιά, βουτυρωμένο τηγάνι.','1 κουτάλα ανά pancake. Όταν βγαίνουν φουσκαλίτσες γυρνάς. 2-3 λεπτά ανά πλευρά.'],q:'american pancakes αέρινα'},
+    {n:'Pancakes μύρτιλα',e:'🫐',srv:8,cal:300,ing:['Βάση Pancakes','Μύρτιλα 150γρ','Μέλι','Βανίλια'],steps:['Φτιάχνεις βάση pancakes.','Ρίχνεις μύρτιλα ελαφρά στη ζύμη.','Ψήνεις κανονικά. Σερβίρεις με μέλι και extra μύρτιλα.'],q:'pancakes μύρτιλα'},
+    {n:'Pancakes μπανάνα',e:'🍌',srv:8,cal:270,ing:['Αλεύρι 180γρ','Μπανάνα 2 ώριμες','Αυγό 1','Γάλα 200ml','Μπέικιν 1.5 κ.γ.','Κανέλα'],steps:['Πολτός μπανάνας + αυγό + γάλα.','Αλεύρι+μπέικιν+κανέλα. Ανακατεύεις.','2-3 λεπτά ανά πλευρά. Μέλι.'],q:'pancakes μπανάνα'},
+    {n:'Κρέπες κλασικές',e:'🫔',srv:14,cal:180,ing:['Αλεύρι 250γρ','Γάλα 500ml','Αυγά 3','Βούτυρο 30γρ λιωμένο','Ζάχαρη 1 κ.σ.'],steps:['Αυγά-αλεύρι-ζάχαρη. Γάλα σταδιακά. Βούτυρο. 30 λεπτά ξεκούραση.','Ζεστό τηγάνι, λίγο βούτυρο.','1-2 λεπτά, γυρνάς 30 δευτερόλεπτα.'],q:'κρέπες κλασικές'},
+    {n:'Κρέπες Nutella',e:'🍫',srv:4,cal:380,ing:['Βάση κρεπών','Nutella','Μπανάνα','Φράουλες','Ζάχαρη άχνη'],steps:['Φτιάχνεις κρέπες.','Απλώνεις Nutella γενναιόδωρα.','Βάζεις φρούτα, διπλώνεις σε τρίγωνο, ζάχαρη άχνη.'],q:'κρέπες Nutella'},
+    {n:'Τηγανίτες ελληνικές',e:'🍩',srv:12,cal:220,ing:['Αλεύρι 300γρ','Γάλα 300ml','Αυγά 2','Μπέικιν','Ελαιόλαδο'],steps:['Αυγά+γάλα. Αλεύρι+μπέικιν.','Κουταλιές σε ζεστό ελαιόλαδο. 2 λεπτά ανά πλευρά.','Μέλι, κανέλα ή γλυκό κουταλιού.'],q:'τηγανίτες ελληνικές'},
+    {n:'French Toast',e:'🍞',srv:4,cal:310,ing:['Ψωμί χωριάτικο 4 φέτες','Αυγά 3','Γάλα 80ml','Ζάχαρη 2 κ.σ.','Κανέλα','Βούτυρο'],steps:['Χτυπάς αυγά+γάλα+ζάχαρη+κανέλα. Βουτάς τις φέτες.','Βούτυρο, 2-3 λεπτά ανά πλευρά μέχρι χρυσαφένιο.','Σερβίρεις με σιρόπι σφενδάμου ή μέλι.'],q:'french toast'},
+    {n:'Waffle',e:'🧇',srv:4,cal:350,ing:['Αλεύρι 200γρ','Γάλα 300ml','Αυγά 2','Βούτυρο 80γρ λιωμένο','Ζάχαρη 2 κ.σ.','Μπέικιν 2 κ.γ.'],steps:['Χτυπάς ασπράδια σε μαρέγκα ξεχωριστά.','Ανακατεύεις ζύμη και μετά ενσωματώνεις τη μαρέγκα απαλά.','Waffle maker 3-4 λεπτά μέχρι χρυσαφένιο.'],q:'waffle συνταγή'},
   ],
   paradosiaka:[
-    {n:'Μπακλαβάς',e:'🍯',srv:24,cal:420,ing:['Φύλλο κρούστα 500γρ','Καρύδια 400γρ','Βούτυρο 200γρ','Κανέλα','Σιρόπι μελιού'],steps:['Φύλλα βουτυρωμένα εναλλάξ με καρύδι.','Ρόμβοι, 175°C 45-50 λεπτά.','Κρύο σιρόπι στον ζεστό.'],q:'μπακλαβάς παραδοσιακός'},
-    {n:'Γαλακτομπούρεκο',e:'🥧',srv:12,cal:380,ing:['Φύλλο κρούστα 500γρ','Γάλα 1λ','Αυγά 4','Σιμιγδάλι 100γρ','Ζάχαρη 200γρ','Βανίλια'],steps:['Κρέμα: γάλα+ζάχαρη+σιμιγδάλι+αυγά.','Φύλλα, κρέμα, φύλλα. 180°C 45 λεπτά.','Ζεστό σιρόπι στο κρύο.'],q:'γαλακτομπούρεκο παραδοσιακό'},
-    {n:'Λουκουμάδες',e:'🫧',srv:35,cal:60,ing:['Αλεύρι 300γρ','Νερό χλιαρό 350ml','Μαγιά ξηρή 7γρ','Αλάτι'],steps:['Ζύμη, αφήνεις 1 ώρα.','Καυτό βαθύ λάδι, κουταλιές 2-3 λεπτά.','Αμέσως με μέλι και κανέλα!'],q:'λουκουμάδες παραδοσιακοί'},
-    {n:'Ρεβανί',e:'🟡',srv:12,cal:310,ing:['Σιμιγδάλι 200γρ','Ζάχαρη 200γρ','Αυγά 4','Γιαούρτι 200γρ','Βούτυρο 100γρ'],steps:['Αυγά-ζάχαρη αφράτο. Γιαούρτι, βούτυρο.','Σιμιγδάλι+μπέικιν.','180°C 35-40 λεπτά. Κρύο σιρόπι.'],q:'ρεβανί παραδοσιακό'},
-    {n:'Χαλβάς σιμιγδαλένιος',e:'🟤',cal:320,ing:['Σιμιγδάλι 1 κούπα','Ελαιόλαδο 1/2 κούπα','Ζάχαρη 2 κούπες','Νερό 3 κούπες','Κανέλα'],steps:['Βράζεις σιρόπι (1-2-3-4).','Σοτάρεις σιμιγδάλι μέχρι χρυσαφένιο.','Σιρόπι μέσα, ανακατεύεις. Φόρμα.'],q:'χαλβάς σιμιγδαλένιος'},
-    {n:'Ρυζόγαλο',e:'🍚',srv:4,cal:210,ing:['Ρύζι 100γρ','Γάλα 1λ','Ζάχαρη 100γρ','Βανίλια','Κανέλα'],steps:['Ρύζι σε νερό 10 λεπτά. Στραγγίζεις.','Γάλα+ζάχαρη+βανίλια+ρύζι. 25-30 λεπτά ανακατεύοντας.','Κανέλα από πάνω.'],q:'ρυζόγαλο κρεμώδες'},
-    {n:'Κατάιφι',e:'🍮',srv:20,cal:350,ing:['Κατάιφι 500γρ','Καρύδια 300γρ','Βούτυρο 200γρ','Κανέλα','Σιρόπι'],steps:['Βουτυρωμένο κατάιφι, καρύδι+κανέλα.','Τυλίγεις, 175°C 50 λεπτά.','Κρύο σιρόπι.'],q:'κατάιφι παραδοσιακό'},
-    {n:'Σαμάλι',e:'⭐',srv:12,cal:290,ing:['Σιμιγδάλι 300γρ','Αλεύρι 100γρ','Ζάχαρη 200γρ','Γιαούρτι 200γρ','Αυγά 2'],steps:['Ανακατεύεις όλα.','180°C 35 λεπτά.','Ροδόνερο σιρόπι.'],q:'σαμάλι παραδοσιακό'},
+    {n:'Μπακλαβάς',e:'🍯',srv:24,cal:420,ing:['Φύλλο κρούστα 500γρ','Καρύδια 400γρ','Βούτυρο 200γρ','Κανέλα','Σιρόπι μελιού'],steps:['Βουτυρώνεις φύλλα εναλλάξ με τριμμένο καρύδι+κανέλα.','Κόβεις σε ρόμβους. Ψήνεις 175°C για 45-50 λεπτά.','Κρύο σιρόπι στον ζεστό μπακλαβά.'],q:'μπακλαβάς παραδοσιακός'},
+    {n:'Γαλακτομπούρεκο',e:'🥧',srv:12,cal:380,ing:['Φύλλο κρούστα 500γρ','Γάλα 1λ','Αυγά 4','Σιμιγδάλι 100γρ','Ζάχαρη 200γρ','Βανίλια'],steps:['Φτιάχνεις κρέμα: γάλα+ζάχαρη+σιμιγδάλι+αυγά+βανίλια σε χαμηλή φωτιά.','Φύλλα, κρέμα, φύλλα. Βουτυρώνεις καλά. Ψήνεις 180°C για 45 λεπτά.','Ζεστό σιρόπι στο κρύο γαλακτομπούρεκο.'],q:'γαλακτομπούρεκο παραδοσιακό'},
+    {n:'Λουκουμάδες',e:'🫧',srv:35,cal:60,ing:['Αλεύρι 300γρ','Νερό χλιαρό 350ml','Μαγιά ξηρή 7γρ','Αλάτι'],steps:['Ανακατεύεις υλικά. Αφήνεις να φουσκώσει 1 ώρα.','Καυτό βαθύ λάδι. Κουταλιές ζύμης, 2-3 λεπτά.','Σερβίρεις αμέσως με μέλι και κανέλα!'],q:'λουκουμάδες παραδοσιακοί'},
+    {n:'Ρεβανί',e:'🟡',srv:12,cal:310,ing:['Σιμιγδάλι 200γρ','Ζάχαρη 200γρ','Αυγά 4','Γιαούρτι 200γρ','Βούτυρο 100γρ'],steps:['Χτυπάς αυγά-ζάχαρη αφράτο. Γιαούρτι, βούτυρο.','Σιμιγδάλι+μπέικιν. Ανακατεύεις.','Ψήνεις 180°C για 35-40 λεπτά. Κρύο σιρόπι.'],q:'ρεβανί παραδοσιακό'},
+    {n:'Χαλβάς σιμιγδαλένιος',e:'🟤',srv:8,cal:320,ing:['Σιμιγδάλι χοντρό 1 κούπα','Ελαιόλαδο 1/2 κούπα','Ζάχαρη 2 κούπες','Νερό 3 κούπες','Κανέλα, σταφίδες, κουκουνάρι'],steps:['Βράζεις νερό+ζάχαρη+κανέλα (αναλογία 1-2-3-4). Κρατάς ζεστό.','Σοτάρεις σιμιγδάλι σε ελαιόλαδο ανακατεύοντας συνεχώς μέχρι χρυσαφένιο.','Ρίχνεις το ζεστό σιρόπι. Ανακατεύεις 5 λεπτά. Φόρμα 15 λεπτά.'],q:'χαλβάς σιμιγδαλένιος'},
+    {n:'Ρυζόγαλο',e:'🍚',srv:4,cal:210,ing:['Ρύζι 100γρ','Γάλα 1λ','Ζάχαρη 100γρ','Βανίλια','Κανέλα'],steps:['Ρύζι σε νερό 10 λεπτά. Στραγγίζεις.','Γάλα+ζάχαρη+βανίλια+ρύζι. Ανακατεύεις 25-30 λεπτά σε χαμηλή φωτιά.','Κανέλα από πάνω.'],q:'ρυζόγαλο κρεμώδες'},
+    {n:'Κατάιφι',e:'🍮',srv:20,cal:350,ing:['Κατάιφι 500γρ','Καρύδια 300γρ','Βούτυρο 200γρ','Κανέλα','Σιρόπι'],steps:['Βουτυρωμένο κατάιφι. Γέμιση καρύδι+κανέλα.','Τυλίγεις, βουτυρώνεις. Ψήνεις 175°C για 50 λεπτά.','Κρύο σιρόπι.'],q:'κατάιφι παραδοσιακό'},
+    {n:'Σαμάλι',e:'⭐',srv:12,cal:290,ing:['Σιμιγδάλι 300γρ','Αλεύρι 100γρ','Ζάχαρη 200γρ','Γιαούρτι 200γρ','Αυγά 2'],steps:['Ανακατεύεις όλα καλά.','Ψήνεις 180°C για 35 λεπτά.','Ρίχνεις σιρόπι ροδόνερου.'],q:'σαμάλι παραδοσιακό'},
   ],
   epochiaka:[
-    {n:'Μελομακάρονα',e:'🍪',srv:40,cal:180,ing:['Αλεύρι 500γρ','Ελαιόλαδο 150ml','Χυμός πορτοκαλιού 120ml','Ζάχαρη 100γρ','Κανέλα+γαρίφαλο','Καρύδια'],steps:['Ελαιόλαδο+χυμός+ζάχαρη+μπαχαρικά. Αλεύρι+σόδα.','Οβάλ, 180°C 20-25 λεπτά.','Μελόνερο, καρύδι.'],q:'μελομακάρονα παραδοσιακά'},
-    {n:'Κουραμπιέδες',e:'⬜',srv:35,cal:160,ing:['Αλεύρι 500γρ','Βούτυρο κλαριφιέ 250γρ','Ζάχαρη άχνη 100γρ','Κρόκο αυγού 1','Αμύγδαλα 100γρ'],steps:['Βούτυρο έως λευκό. Κρόκος, αλεύρι, αμύγδαλα.','Ημισφαίρια.','170°C 20 λεπτά. Ζάχαρη άχνη πλούσια.'],q:'κουραμπιέδες παραδοσιακοί'},
-    {n:'Βασιλόπιτα',e:'👑',srv:12,cal:290,ing:['Αλεύρι 500γρ','Ζάχαρη 200γρ','Βούτυρο 150γρ','Αυγά 3','Γάλα 150ml','Μαγιά 7γρ'],steps:['Ζυμώνεις, αφήνεις 1 ώρα.','Φλουρί. Στρογγυλό ταψί.','180°C 35-40 λεπτά.'],q:'βασιλόπιτα Πρωτοχρονιάς'},
-    {n:'Τσουρέκι πασχαλινό',e:'🧶',srv:12,cal:320,ing:['Αλεύρι δυνατό 750γρ','Γάλα 250ml','Βούτυρο 150γρ','Αυγά 3','Ζάχαρη 200γρ','Μαγιά 25γρ','Μαχλέπι & μαστίχα'],steps:['Προζύμι 30 λεπτά.','Ζυμώνεις 10 λεπτά. 2 ώρες ξεκούραση.','Πλέκεις, κόκκινο αυγό. 180°C 30-35 λεπτά.'],q:'τσουρέκι πασχαλινό'},
-    {n:'Λαγάνα',e:'🫓',cal:180,ing:['Αλεύρι 500γρ','Νερό 300ml','Μαγιά 7γρ','Ελαιόλαδο','Αλάτι','Σησάμι'],steps:['Ζυμώνεις, αφήνεις 1 ώρα.','Επίπεδη σε λαδόκολλα.','Σησάμι, 220°C 20-25 λεπτά.'],q:'λαγάνα Καθαράς Δευτέρας'},
-    {n:'Τάρτα φράουλας',e:'🍓',cal:320,ing:['Ζύμη τάρτας','Κρέμα ζαχαροπλαστικής','Φράουλες 400γρ'],steps:['Τυφλό ψήσιμο 15 λεπτά.','Κρέμα, φράουλες.','Γκλάς, ψύχεις 1 ώρα.'],q:'τάρτα φράουλας'},
-    {n:'Κρέμα καραμελέ',e:'🍮',srv:6,cal:250,ing:['Γάλα 500ml','Αυγά 3+κρόκοι 2','Ζάχαρη 150γρ','Βανίλια'],steps:['Καραμέλα στο καλούπι.','Κρέμα: αυγά+ζάχαρη+γάλα+βανίλια.','Μπεν μαρί 160°C 55 λεπτά. Ψύχεις 4 ώρες.'],q:'κρέμα καραμελέ'},
-    {n:'Κολοκυθόπιτα γλυκιά',e:'🎃',srv:10,cal:280,ing:['Κολοκύθα 500γρ','Αλεύρι 250γρ','Ζάχαρη 200γρ','Αυγά 3','Ελαιόλαδο 100ml','Κανέλα'],steps:['Τριμμένη κολοκύθα+αυγά+ζάχαρη+ελαιόλαδο.','Αλεύρι+κανέλα+μπέικιν.','175°C 50 λεπτά.'],q:'κολοκυθόπιτα γλυκιά'},
+    {n:'Μελομακάρονα',e:'🍪',srv:40,cal:180,ing:['Αλεύρι 500γρ','Ελαιόλαδο 150ml','Χυμός πορτοκαλιού 120ml','Ζάχαρη 100γρ','Κανέλα+γαρίφαλο','Καρύδια'],steps:['Ανακατεύεις ελαιόλαδο+χυμό+ζάχαρη+μπαχαρικά. Κοσκινίζεις αλεύρι+σόδα. Ζυμώνεις.','Πλάθεις οβάλ σχήματα. Ψήνεις 180°C για 20-25 λεπτά μέχρι χρυσαφένια.','Βουτάς σε μελόνερο, τριμμένο καρύδι από πάνω.'],q:'μελομακάρονα παραδοσιακά'},
+    {n:'Κουραμπιέδες',e:'⬜',srv:35,cal:160,ing:['Αλεύρι 500γρ','Βούτυρο κλαριφιέ 250γρ','Ζάχαρη άχνη 100γρ','Κρόκο αυγού 1','Αμύγδαλα 100γρ'],steps:['Χτυπάς βούτυρο μέχρι να ασπρίσει εντελώς. Κρόκος, αλεύρι, αμύγδαλα.','Πλάθεις ημισφαίρια ή αστέρια.','Ψήνεις 170°C για 20 λεπτά. Ζάχαρη άχνη πλούσια όσο είναι ζεστά!'],q:'κουραμπιέδες παραδοσιακοί'},
+    {n:'Βασιλόπιτα',e:'👑',srv:12,cal:290,ing:['Αλεύρι 500γρ','Ζάχαρη 200γρ','Βούτυρο 150γρ','Αυγά 3','Γάλα 150ml','Μαγιά 7γρ'],steps:['Ζυμώνεις, αφήνεις 1 ώρα να φουσκώσει.','Κρύβεις το φλουρί. Στρογγυλό ταψί.','Ψήνεις 180°C για 35-40 λεπτά. Ζάχαρη άχνη και σχέδια.'],q:'βασιλόπιτα Πρωτοχρονιάς'},
+    {n:'Τσουρέκι πασχαλινό',e:'🧶',srv:12,cal:320,ing:['Αλεύρι δυνατό 750γρ','Γάλα 250ml','Βούτυρο 150γρ','Αυγά 3','Ζάχαρη 200γρ','Μαγιά 25γρ','Μαχλέπι & μαστίχα'],steps:['Προζύμι 30 λεπτά. Ζυμώνεις 10 λεπτά.','2 ώρες ξεκούραση. Πλέκεις.','Κόκκινο αυγό στη μέση. Ψήνεις 180°C για 30-35 λεπτά.'],q:'τσουρέκι πασχαλινό'},
+    {n:'Λαγάνα',e:'🫓',srv:8,cal:180,ing:['Αλεύρι 500γρ','Νερό 300ml','Μαγιά 7γρ','Ελαιόλαδο','Αλάτι','Σησάμι'],steps:['Ζυμώνεις, αφήνεις 1 ώρα.','Επίπεδη σε λαδόκολλα. Βαθουλώματα με τα δάχτυλα.','Σησάμι, 220°C για 20-25 λεπτά.'],q:'λαγάνα Καθαράς Δευτέρας'},
+    {n:'Τάρτα φράουλας',e:'🍓',srv:8,cal:320,ing:['Ζύμη τάρτας','Κρέμα ζαχαροπλαστικής','Φράουλες 400γρ'],steps:['Τυφλό ψήσιμο 15+5 λεπτά στους 180°C. Αφήνεις να κρυώσει.','Κρέμα, φράουλες.','Γκλάς, ψύχεις 1 ώρα. Ζάχαρη άχνη, μέντα.'],q:'τάρτα φράουλας'},
+    {n:'Κρέμα καραμελέ',e:'🍮',srv:6,cal:250,ing:['Γάλα 500ml','Αυγά 3+κρόκοι 2','Ζάχαρη 150γρ','Βανίλια'],steps:['Καραμέλα στο καλούπι.','Κρέμα: αυγά+ζάχαρη+γάλα+βανίλια.','Μπεν μαρί 160°C για 55 λεπτά. Ψύχεις 4 ώρες.'],q:'κρέμα καραμελέ'},
+    {n:'Κολοκυθόπιτα γλυκιά',e:'🎃',srv:10,cal:280,ing:['Κολοκύθα 500γρ','Αλεύρι 250γρ','Ζάχαρη 200γρ','Αυγά 3','Ελαιόλαδο 100ml','Κανέλα'],steps:['Τριμμένη κολοκύθα+αυγά+ζάχαρη+ελαιόλαδο.','Αλεύρι+κανέλα+μπέικιν.','Ψήνεις 175°C για 50 λεπτά.'],q:'κολοκυθόπιτα γλυκιά'},
   ]
 };
 
 const FESTIVE=[
-  {id:'kathari',e:'🪁',n:'Καθαρά Δευτέρα',d:'Φεβ/Μαρ',type:'fasting',tl:'Νηστεία αυστηρή',sub:'Αποκριάτικο νηστίσιμο τραπέζι',fn:'Χωρίς κρέας, γαλακτοκομικά, αυγά. Επιτρέπονται θαλασσινά χωρίς αίμα: χταπόδι, καλαμάρι, γαρίδες, μύδια.',menu:['🥖 Λαγάνα','🐙 Χταπόδι κρασάτο','🫐 Ταραμοσαλάτα','🍬 Χαλβάς σιμιγδαλένιος','🫒 Ελιές & τουρσί','🦑 Καλαμάρια τηγανητά'],wine:'Ούζο ή τσίπουρο!',wt:'Ούζο & τσίπουρο',tl2:['Πρωί — Εκδρομή με χαρταετό','12:00 — Χταπόδι στα κάρβουνα','13:00 — Ταραμοσαλάτα, ελιές, λαγάνα','14:00 — Χαλβάς & χαρταετός!']},
-  {id:'evangelismos',e:'🐟',n:'25η Μαρτίου',d:'25 Μαρτίου',type:'fish',tl:'Ψάρι επιτρέπεται',sub:'Εθνική εορτή — μπακαλιάρος σκορδαλιά!',fn:'Σαρακοστή αλλά επιτρέπεται ψάρι. Παραδοσιακό: ΜΠΑΚΑΛΙΑΡΟΣ ΣΚΟΡΔΑΛΙΑ!',menu:['🐟 Μπακαλιάρος σκορδαλιά','🧄 Σκορδαλιά','🌿 Σπανακόρυζο','🥬 Λαχανοσαλάτα','🍬 Χαλβάς σιμιγδαλένιος'],wine:'Λευκό Ασύρτικο.',wt:'Λευκό για μπακαλιάρο',tl2:['Παραμονή — Μουλιάζεις μπακαλιάρο 24 ώρες!','25/3 11:00 — Σκορδαλιά','12:30 — Τηγανίζεις μπακαλιάρο','13:00 — Τραπέζι με παρέλαση!']},
+  {id:'kathari',e:'🪁',n:'Καθαρά Δευτέρα',d:'Φεβ/Μαρ',type:'fasting',tl:'Νηστεία αυστηρή',sub:'Αποκριάτικο νηστίσιμο τραπέζι',fn:'Χωρίς κρέας, γαλακτοκομικά, αυγά. Επιτρέπονται: χταπόδι, καλαμάρι, γαρίδες, μύδια.',menu:['🥖 Λαγάνα','🐙 Χταπόδι κρασάτο','🫐 Ταραμοσαλάτα','🍬 Χαλβάς σιμιγδαλένιος','🫒 Ελιές & τουρσί','🦑 Καλαμάρια τηγανητά'],wine:'Ούζο ή τσίπουρο!',wt:'Ούζο & τσίπουρο',tl2:['Πρωί — Εκδρομή με χαρταετό','12:00 — Χταπόδι στα κάρβουνα','13:00 — Ταραμοσαλάτα, ελιές, λαγάνα','14:00 — Χαλβάς & χαρταετός!']},
+  {id:'evangelismos',e:'🐟',n:'25η Μαρτίου',d:'25 Μαρτίου',type:'fish',tl:'Ψάρι επιτρέπεται',sub:'Εθνική εορτή — μπακαλιάρος σκορδαλιά!',fn:'Σαρακοστή αλλά επιτρέπεται ψάρι. Παραδοσιακό: ΜΠΑΚΑΛΙΑΡΟΣ ΣΚΟΡΔΑΛΙΑ!',menu:['🐟 Μπακαλιάρος σκορδαλιά','🧄 Σκορδαλιά','🌿 Σπανακόρυζο','🥬 Λαχανοσαλάτα','🍬 Χαλβάς σιμιγδαλένιος'],wine:'Λευκό Ασύρτικο.',wt:'Λευκό για μπακαλιάρο',tl2:['Παραμονή — Μουλιάζεις μπακαλιάρο 24 ώρες!','25/3 11:00 — Σκορδαλιά','12:30 — Τηγανίζεις μπακαλιάρο','13:00 — Τραπέζι!']},
   {id:'easter',e:'🐣',n:'Πάσχα',d:'Κυριακή Ανάστασης',type:'major',tl:'Μεγάλη εορτή',sub:'Το πιο σημαντικό τραπέζι του χρόνου',fn:null,menu:['🍲 Μαγειρίτσα','🥚 Τσουρέκι πασχαλινό','🥩 Αρνί στη σούβλα','🥩 Κοντοσούβλι','🥗 Χωριάτικη σαλάτα','🧄 Τζατζίκι'],wine:'Αγιωργίτικο Νεμέας.',wt:'Κόκκινο για αρνί',tl2:['Μ. Σάββατο 22:00 — Μαγειρίτσα','Κυριακή 08:00 — Ανάβεις σούβλα','13:00 — Σαλάτες & τζατζίκι','14:00 — Χριστός Ανέστη!']},
-  {id:'protomagia',e:'🌸',n:'Πρωτομαγιά',d:'1 Μαΐου',type:'folk',tl:'Λαϊκή γιορτή',sub:'Εκδρομή, γκριλ & φύση',fn:null,menu:['🥩 Σουβλάκια & κεφτέδες','🧄 Τζατζίκι','🥗 Σαλάτες','🍺 Μπύρα παγωμένη'],wine:'Κρύα μπύρα & ούζο!',wt:'Μπύρα & ούζο',tl2:['Πρωί — Εκδρομή στη φύση','11:00 — Ανάβεις γκριλ','13:00 — Σουβλάκια & κεφτέδες','17:00 — Καρπούζι!']},
-  {id:'aug15',e:'🕊️',n:'Δεκαπενταύγουστος',d:'15 Αυγούστου',type:'fish',tl:'Ψάρι στην εορτή',sub:'Κοίμηση Θεοτόκου',fn:'Νηστεία 1-14 Αυγ. Στις 15 επιτρέπεται ψάρι.',menu:['🐟 Ψάρι πλακί','🦐 Γαρίδες σαγανάκι','🥗 Χωριάτικη σαλάτα','🫒 Ελιές & τουρσί'],wine:'Ασύρτικο Σαντορίνης.',wt:'Ασύρτικο Σαντορίνης',tl2:['Πρωί — Εκκλησία','12:00 — Ψάρι στο φούρνο','13:00 — Σαλάτες','14:00 — Μεγάλο καλοκαιρινό τραπέζι!']},
-  {id:'okt28',e:'🇬🇷',n:'28η Οκτωβρίου',d:'28 Οκτωβρίου',type:'national',tl:'Εθνική εορτή',sub:'ΟΧΙ — Παραδοσιακό εορταστικό τραπέζι',fn:null,menu:['🥩 Κοκκινιστό αρνί','🍚 Γιουβέτσι αρνί','🥗 Χωριάτικη σαλάτα','🍰 Γαλακτομπούρεκο'],wine:'Αγιωργίτικο.',wt:'Ελληνικό κόκκινο',tl2:['Πρωί — Παρέλαση','12:30 — Γιουβέτσι στο φούρνο','14:00 — Τραπέζι!','16:00 — Γαλακτομπούρεκο']},
-  {id:'xmas',e:'🎄',n:'Χριστούγεννα',d:'25 Δεκεμβρίου',type:'major',tl:'Μεγάλη εορτή',sub:'Γουρουνόπουλο & χριστουγεννιάτικα γλυκά',fn:null,menu:['🐟 Μπακαλιάρος σκορδαλιά','🥩 Γουρουνόπουλο φούρνου','🥗 Σαλάτα ρόκα-παρμεζάνα','🍪 Μελομακάρονα','⬜ Κουραμπιέδες'],wine:'Ξινόμαυρο ή Αγιωργίτικο.',wt:'Κόκκινο για γουρουνόπουλο',tl2:['24/12 πρωί — Μαρινάρεις','24/12 βράδυ — Μπακαλιάρος','25/12 09:00 — Φούρνος','14:00 — Καλά Χριστούγεννα!']},
-  {id:'newyear',e:'🥂',n:'Πρωτοχρονιά',d:'31 Δεκεμβρίου',type:'major',tl:'Μεγάλη εορτή',sub:'Γαλοπούλα, βασιλόπιτα & Champagne',fn:null,menu:['🥗 Σαλάτα με ρόδι','🦃 Γαλοπούλα γεμιστή','🎂 Βασιλόπιτα','🍪 Μελομακάρονα'],wine:'Champagne & Chardonnay!',wt:'Champagne',tl2:['14:00 — Γαλοπούλα στο φούρνο','20:00 — Κυρίως δείπνο','23:55 — Βασιλόπιτα','00:00 — Καλή Χρονιά!']},
+  {id:'protomagia',e:'🌸',n:'Πρωτομαγιά',d:'1 Μαΐου',type:'folk',tl:'Λαϊκή γιορτή',sub:'Εκδρομή, γκριλ & φύση',fn:null,menu:['🥩 Σουβλάκια','🧆 Κεφτέδες','🧄 Τζατζίκι','🥗 Χωριάτικη σαλάτα','🍺 Μπύρα παγωμένη'],wine:'Κρύα μπύρα & ούζο!',wt:'Μπύρα & ούζο',tl2:['Πρωί — Εκδρομή στη φύση','11:00 — Ανάβεις γκριλ','13:00 — Σουβλάκια & κεφτέδες','17:00 — Καρπούζι!']},
+  {id:'aug15',e:'🕊️',n:'Δεκαπενταύγουστος',d:'15 Αυγούστου',type:'fish',tl:'Ψάρι στην εορτή',sub:'Κοίμηση Θεοτόκου',fn:'Νηστεία 1-14 Αυγ. Στις 15 επιτρέπεται ψάρι.',menu:['🐟 Ψάρι πλακί','🦐 Γαρίδες σαγανάκι','🥗 Χωριάτικη σαλάτα','🫒 Ελιές & τουρσί'],wine:'Ασύρτικο Σαντορίνης.',wt:'Ασύρτικο Σαντορίνης',tl2:['Πρωί — Εκκλησία','12:00 — Ψάρι στον φούρνο','13:00 — Σαλάτες','14:00 — Μεγάλο τραπέζι!']},
+  {id:'okt28',e:'🇬🇷',n:'28η Οκτωβρίου',d:'28 Οκτωβρίου',type:'national',tl:'Εθνική εορτή',sub:'ΟΧΙ — Παραδοσιακό εορταστικό τραπέζι',fn:null,menu:['🥩 Κοκκινιστό αρνί','🍚 Γιουβέτσι αρνί','🥘 Στιφάδο κουνελιού','🥗 Χωριάτικη σαλάτα','🍰 Γαλακτομπούρεκο'],wine:'Αγιωργίτικο.',wt:'Ελληνικό κόκκινο',tl2:['Πρωί — Παρέλαση','12:30 — Γιουβέτσι στον φούρνο','14:00 — Τραπέζι!','16:00 — Γαλακτομπούρεκο']},
+  {id:'xmas',e:'🎄',n:'Χριστούγεννα',d:'25 Δεκεμβρίου',type:'major',tl:'Μεγάλη εορτή',sub:'Γουρουνόπουλο & χριστουγεννιάτικα γλυκά',fn:null,menu:['🦃 Γαλοπούλα γεμιστή','🥩 Γουρουνόπουλο φούρνου','🥗 Σαλάτα ρόκα-παρμεζάνα','🍪 Μελομακάρονα','⬜ Κουραμπιέδες'],wine:'Ξινόμαυρο ή Αγιωργίτικο.',wt:'Κόκκινο για γουρουνόπουλο',tl2:['24/12 πρωί — Μαρινάρεις','24/12 βράδυ — Μπακαλιάρος','25/12 09:00 — Φούρνος','14:00 — Καλά Χριστούγεννα!']},
+  {id:'newyear',e:'🥂',n:'Πρωτοχρονιά',d:'31 Δεκεμβρίου',type:'major',tl:'Μεγάλη εορτή',sub:'Γαλοπούλα, βασιλόπιτα & Champagne',fn:null,menu:['🥗 Σαλάτα με ρόδι','🦃 Γαλοπούλα γεμιστή','🎂 Βασιλόπιτα','🍪 Μελομακάρονα'],wine:'Champagne & Chardonnay!',wt:'Champagne',tl2:['14:00 — Γαλοπούλα στον φούρνο','20:00 — Κυρίως δείπνο','23:55 — Βασιλόπιτα','00:00 — Καλή Χρονιά!']},
 ];
 
-// ── INIT ─────────────────────────────────────────────────────
-const DAYS=['Κυριακή','Δευτέρα','Τρίτη','Τετάρτη','Πέμπτη','Παρασκευή','Σάββατο'];
-const MONTHS=['Ιανουαρίου','Φεβρουαρίου','Μαρτίου','Απριλίου','Μαΐου','Ιουνίου','Ιουλίου','Αυγούστου','Σεπτεμβρίου','Οκτωβρίου','Νοεμβρίου','Δεκεμβρίου'];
-(function init(){
-  const nd=new Date();
-  document.getElementById('app-date').textContent=DAYS[nd.getDay()]+', '+nd.getDate()+' '+MONTHS[nd.getMonth()]+' '+nd.getFullYear();
-  const dc=getDefCat();
-  applyTheme(dc);
-  const catKeys=['all','pasta','seafood','meat','legumes','vegetables','salads','soups'];
-  document.querySelectorAll('#cat-row .cpill').forEach((p,i)=>p.classList.toggle('on',catKeys[i]===dc));
-  curCat=dc;
-  renderMeals(dc);
-  rendFest('all');
-  filtSw('keik');
-  if(curLang!=='el'){
-    document.getElementById('lb-el')?.classList.remove('on');
-    document.getElementById('lb-'+curLang)?.classList.add('on');
-    setLang(curLang);
-  }
-  if(localStorage.getItem('notif_on')==='true'&&Notification.permission==='granted'){
-    document.getElementById('bell').classList.add('on');
-    startNotifTimer();
-  }
-  if(window.speechSynthesis)speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();
-})();
+
+function findRecipeForItem(text){
+  const clean=text.replace(/^[^\u03B1-\u03C9\u0391-\u03A9\u1F00-\u1FFF\w]*/,'').trim();
+  const mm={'Λαγάνα':'lagana','Χταπόδι κρασάτο':'htapodi','Χταπόδι':'htapodi',
+    'Ταραμοσαλάτα':'taramosalata','Χαλβάς σιμιγδαλένιος':'halvas','Χαλβάς':'halvas',
+    'Καλαμάρια τηγανητά':'kalamaria','Μπακαλιάρος σκορδαλιά':'bakaliaro','Σκορδαλιά':'skordalia',
+    'Σπανακόρυζο':'spanakoryzo','Χωριάτικη σαλάτα':'horiatiki','Χωριάτικη':'horiatiki',
+    'Λαχανοσαλάτα':'horiatiki','Τζατζίκι':'tzatziki_dish',
+    'Κεφτέδες':'keftedes','Σουβλάκια':'souvlakia','Κοντοσούβλι':'kontosouvi',
+    'Αρνί στη σούβλα':'arni_souvia','Αρνάκι στη σούβλα':'arni_souvia','Μαγειρίτσα':'mageiritsa',
+    'Γαλοπούλα γεμιστή':'galopoula','Γουρουνόπουλο φούρνου':'gourounopoulo',
+    'Κοκκινιστό αρνί':'kokkinisto','Στιφάδο κουνελιού':'stifado',
+    'Γιουβέτσι αρνί':'giouvetsi','Γιουβέτσι':'giouvetsi',
+    'Σαλάτα με ρόδι':'salata_rodi','Ψάρι πλακί':'psari_plaki',
+    'Ελιές & τουρσί':'eliestoursi','Ελιές Καλαμών':'eliestoursi',
+    'Σαλάτα ρόκα-παρμεζάνα':'salata_rokka','Γαρίδες σαγανάκι':'garides',
+    'Ντολμαδάκια':'dolmades','Γίγαντες πλακί':'gigantes',
+  };
+  const sm={'Τσουρέκι πασχαλινό':{cat:'epochiaka',idx:3},'Μελομακάρονα':{cat:'epochiaka',idx:0},
+    'Κουραμπιέδες':{cat:'epochiaka',idx:1},'Βασιλόπιτα':{cat:'epochiaka',idx:2},
+    'Γαλακτομπούρεκο':{cat:'paradosiaka',idx:1},'Χαλβάς σιμιγδαλένιος':{cat:'paradosiaka',idx:4},
+  };
+  for(const[k,v] of Object.entries(mm)){if(clean===k||clean.includes(k))return{type:'meal',id:v};}
+  for(const[k,v] of Object.entries(sm)){if(clean===k||clean.includes(k))return{type:'sweet',...v};}
+  for(const[id,m] of Object.entries(MEALS)){if(m.n&&(clean===m.n||clean.includes(m.n)))return{type:'meal',id};}
+  for(const[cat,arr] of Object.entries(SWEETS)){for(let i=0;i<arr.length;i++){if(arr[i].n&&clean.includes(arr[i].n))return{type:'sweet',cat,idx:i};}}
+  return null;
+}
+function findMealByMenuText(t){const r=findRecipeForItem(t);return r&&r.type==='meal'?r.id:null;}
 
 // ── STATE ────────────────────────────────────────────────────
 
@@ -774,17 +912,7 @@ function renderMeals(cat){
     </div>`;
   }).join('');
 
-  // Load real food images (loremflickr - CC licensed)
-  show.forEach(m=>{
-    const img=document.getElementById('mi-'+m.id);
-    const emj=document.getElementById('me-'+m.id);
-    const url=FOOD_IMGS[m.id];
-    if(img&&url){
-      img.src=url;
-      img.onload=()=>{img.classList.add('loaded');if(emj)emj.style.opacity='0';};
-      img.onerror=()=>{img.style.display='none';};
-    }
-  });
+  // emoji only - no external images
 
   // Reminder
   const rw=document.getElementById('remind-wrap');
@@ -813,14 +941,7 @@ function openR(id){
     <img id="ov-img" alt="${m.n}" onload="this.classList.add('loaded')" onerror="this.style.display='none'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s;">
     <div class="ovhero-grad"></div>
     <div class="ovtitle"><h2>${mealName(m)}</h2></div>`;
-  // Load overlay image
-  const ovImg=document.getElementById('ov-img');
-  const ovUrl=FOOD_IMGS[id];
-  if(ovImg&&ovUrl){
-    ovImg.src=ovUrl;
-    ovImg.onload=()=>{ovImg.style.opacity='1';const fb=document.querySelector('.ovhero-fb');if(fb)fb.style.opacity='0';};
-    ovImg.onerror=()=>{ovImg.style.display='none';};
-  }
+  // no external images - emoji only
   // Stats
   document.getElementById('ov-stats').innerHTML=`
     <div class="ovstat"><label>${t('cal')}</label><span>${m.cal}</span></div>
@@ -830,12 +951,12 @@ function openR(id){
   // Tabs content
   buildIngTab(m);buildStepsTab(m);buildPairTab(m);
   // TTS
-  document.getElementById('ov-tts-btn').textContent=t('tts_p');
-  document.getElementById('ov-tts-lbl').textContent=mealName(m);
+  const ttsBtn=document.getElementById('ov-tts-btn');if(ttsBtn)ttsBtn.textContent=t('tts_p');
+  const ttsLbl=document.getElementById('ov-tts-lbl');if(ttsLbl)ttsLbl.textContent=mealName(m);
   ovTab('ing');
   document.getElementById('overlay').classList.add('show');
   document.body.style.overflow='hidden';
-  }catch(err){console.error('openR error:',id,err);try{document.getElementById('overlay').classList.add('show');document.body.style.overflow='hidden';}catch(e){}}
+  }catch(e){console.error('openR:',id,e);alert('Σφάλμα: '+e.message);}
 }
 
 function openSW(cat,idx){
@@ -848,19 +969,18 @@ function openSW(cat,idx){
     <div class="ovhero-fb" style="background:linear-gradient(145deg,#FFF8E7,#FFE082)"><span style="font-size:78px">${s.e}</span></div>
     <div class="ovhero-grad"></div>
     <div class="ovtitle"><h2>${s.n}</h2></div>`;
-  document.getElementById('ov-stats').innerHTML=`<div class="ovstat"><label>${t('cal')}</label><span>${s.cal}</span></div><div class="ovstat"><label>${t('srv')}</label><span>${s.srv||'—'}</span></div>`;
+  document.getElementById('ov-stats').innerHTML=`<div class="ovstat"><label>${t('cal')}</label><span>${s.cal} / μερ.</span></div>`;
   buildIngTab(s);buildStepsTab(s);
   document.getElementById('ot-pair').innerHTML=`<a class="ext-btn" href="https://www.google.com/search?q=${encodeURIComponent(s.q+' συνταγή')}" target="_blank">${t('ext')}</a>`;
-  document.getElementById('ov-tts-btn').textContent=t('tts_p');
-  document.getElementById('ov-tts-lbl').textContent=s.n;
+  const swTtsBtn=document.getElementById('ov-tts-btn');if(swTtsBtn)swTtsBtn.textContent=t('tts_p');
+  const swTtsLbl=document.getElementById('ov-tts-lbl');if(swTtsLbl)swTtsLbl.textContent=s.n;
   ovTab('ing');
   document.getElementById('overlay').classList.add('show');
   document.body.style.overflow='hidden';
-  }catch(err){console.error('openSW error:',cat,idx,err);}
+  }catch(e){console.error('openSW:',e);}
 }
 
 function buildIngTab(m){
-  if(!m.ing||!m.steps)return;
   const items=m.ing.map((i,idx)=>`<div class="ing-item" onclick="this.classList.toggle('done');this.querySelector('.ing-chk').textContent=this.classList.contains('done')?'✓':''"><div class="ing-chk"></div><span>${i}</span></div>`).join('');
   const note=m.cost?`<div class="cost-note">💰 ${m.cost} σύνολο · ${m.cps||''} ανά μερίδα &nbsp;<span style="color:var(--t3)">(${t('cost_yr')})</span></div>`:'';
   document.getElementById('ot-ing').innerHTML=`<div class="ing-grid">${items}</div>${note}`;
@@ -907,71 +1027,41 @@ function startTTS(){
 function stopTTS(){if(window.speechSynthesis)speechSynthesis.cancel();isTTS=false;const b=document.getElementById('ov-tts-btn');if(b)b.textContent=t('tts_p');}
 
 // ── FESTIVE ───────────────────────────────────────────────────
-// Find recipe (meal or sweet) by menu item text
-function findRecipeForItem(text){
-  const clean=text.replace(/^[^α-ωΑ-Ωἀ-῿ΆΈ-ΊΌΎ-ΐΪ-ΰϊ-ώ\w]*/,'').trim();
-  // Direct MEAL map
-  const mmap={
-    'Λαγάνα':'lagana','Χταπόδι κρασάτο':'htapodi','Χταπόδι ξυδάτο':'htapodi','Χταπόδι':'htapodi',
+// Map festive menu text → meal ID
+function findMealByMenuText(text){
+  const clean=text.replace(/^[\s\S]{0,3}? /,'').replace(/^[^\w\u0370-\u03FF\u1F00-\u1FFF]*/,'').trim();
+  // Direct ID map
+  const map={
+    'Λαγάνα':'lagana','Χταπόδι ξυδάτο':'htapodi','Χταπόδι':'htapodi',
     'Ταραμοσαλάτα':'taramosalata','Χαλβάς σιμιγδαλένιος':'halvas','Χαλβάς':'halvas',
-    'Καλαμάρια τηγανητά':'kalamaria','Καλαμαράκια τηγανητά':'kalamaria',
-    'Μπακαλιάρος σκορδαλιά':'bakaliaro','Σκορδαλιά':'skordalia','Σκορδαλιά με πατάτα':'skordalia',
-    'Σπανακόρυζο':'spanakoryzo','Χωριάτικη σαλάτα':'horiatiki','Χωριάτικη':'horiatiki',
-    'Λαχανοσαλάτα':'salata_laxano',
-    'Τζατζίκι':'tzatziki_dish','Κεφτέδες':'keftedes','Σουβλάκια':'souvlakia','Κοντοσούβλι':'souvlakia',
-    'Αρνί στη σούβλα':'arnaki_lemonato','Αρνάκι λεμονάτο':'arnaki_lemonato',
-    'Μαγειρίτσα':'mageiritsa',
-    'Γαλοπούλα γεμιστή':'galopoula','Γαλοπούλα':'galopoula',
-    'Γουρουνόπουλο φούρνου':'gourounopoulo','Γουρουνόπουλο στο φούρνο':'gourounopoulo',
-    'Κοκκινιστό αρνί':'kokkinisto',
-    'Στιφάδο κουνελιού':'stifado','Στιφάδο':'stifado','Κουνέλι στιφάδο':'stifado',
-    'Γιουβέτσι αρνί':'giouvetsi','Γιουβέτσι':'giouvetsi',
-    'Σαλάτα με ρόδι':'salata_rodi',
-    'Ντολμαδάκια':'dolmades','Γίγαντες πλακί':'gigantes','Γίγαντες':'gigantes',
-    'Γαρίδες σαγανάκι':'garides','Μύδια σαγανάκι':'mydia',
-    'Ψάρι πλακί':'psari_plaki','Ψάρι ψητό ή πλακί':'psari_plaki',
-    'Φακές':'fakes','Φακές σκέτες':'fakes',
-    'Ελιές & τουρσί':'eliestoursi','Ελιές Καλαμών':'eliestoursi',
-    'Σαλάτα ρόκα-παρμεζάνα':'salata_rokka',
-    'Χοιρινό παραδοσιακό':'souvlakia',
+    'Καλαμαράκια τηγανητά':'kalamaria','Καλαμάρια τηγανητά':'kalamaria',
+    'Μπακαλιάρος σκορδαλιά':'bakaliaro','Μπακαλιάρος τηγανητός':'bakaliaro',
+    'Σπανακόρυζο':'spanakoryzo','Χωριάτικη':'horiatiki','Χωριάτικη σαλάτα':'horiatiki',
+    'Τζατζίκι':'tzatziki_dish','Κεφτέδες':'keftedes','Σουβλάκια':'souvlakia',
+    'Αρνί στη σούβλα':'arni_souvia','Αρνάκι στη σούβλα':'arni_souvia','Κοντοσούβλι':'kontosouvi',
+    'Μαγειρίτσα':'kotosopa','Γαλοπούλα γεμιστή':'kotopoulo',
+    'Γιουβέτσι':'giouvetsi','Γιουβέτσι αρνί-κριθαράκι':'giouvetsi',
+    'Κοκκινιστό αρνί':'arnaki_lemonato','Στιφάδο αρνί':'arnaki_lemonato','Στιφάδο κουνελιού':'arnaki_lemonato',
+    'Ντολμαδάκια':'dolmades','Γίγαντες πλακί':'gigantes',
+    'Γουρουνόπουλο στο φούρνο':'biftekia','Χοιρινό παραδοσιακό':'souvlakia',
+    'Κουνέλι στιφάδο':'arnaki_lemonato','Σκορδαλιά με πατάτα':'tzatziki_dish',
+    'Μύδια σαγανάκι':'mydia','Γαρίδες σαγανάκι':'garides',
+    'Φακές σκέτες':'fakes','Σαλάτα με ρόδι':'salata_rokka',
+    'Φέτα Σαντορίνης':'horiatiki'
   };
-  // Direct SWEET map (cat:idx)
-  const smap={
-    'Τσουρέκι πασχαλινό':{cat:'epochiaka',idx:3},
-    'Μελομακάρονα':{cat:'epochiaka',idx:0},
-    'Κουραμπιέδες':{cat:'epochiaka',idx:1},
-    'Βασιλόπιτα':{cat:'epochiaka',idx:2},
-    'Γαλακτομπούρεκο':{cat:'paradosiaka',idx:1},
-    'Μπακλαβάς':{cat:'paradosiaka',idx:0},
-    'Λουκουμάδες':{cat:'paradosiaka',idx:2},
-    'Χαλβάς σιμιγδαλένιος':{cat:'paradosiaka',idx:4},
-  };
-  // Check meal direct map
-  for(const[k,v] of Object.entries(mmap)){
-    if(clean===k||clean.includes(k)||k.includes(clean))return{type:'meal',id:v};
+  for(const[k,v] of Object.entries(map)){
+    if(clean.includes(k)||k.includes(clean))return v;
   }
-  // Check sweet direct map
-  for(const[k,v] of Object.entries(smap)){
-    if(clean===k||clean.includes(k)||k.includes(clean))return{type:'sweet',...v};
-  }
-  // Search MEALS by name
   for(const[id,m] of Object.entries(MEALS)){
-    if(m.n&&(clean.includes(m.n)||m.n.includes(clean)))return{type:'meal',id};
-  }
-  // Search SWEETS by name
-  for(const[cat,arr] of Object.entries(SWEETS)){
-    for(let i=0;i<arr.length;i++){
-      if(arr[i].n&&(clean.includes(arr[i].n)||arr[i].n.includes(clean)))return{type:'sweet',cat,idx:i};
-    }
+    if(clean.includes(m.n)||m.n.includes(clean))return id;
   }
   return null;
 }
-function findMealByMenuText(text){
-  const r=findRecipeForItem(text);
-  return r&&r.type==='meal'?r.id:null;
-}
 
 function rendFest(f){
+  curFestF=f;
+  document.getElementById('fest-main').style.display='block';
+  document.getElementById('fest-det').style.display='none';
   const list=f==='all'?FESTIVE:FESTIVE.filter(x=>x.type===f);
   document.getElementById('fest-grid').innerHTML=list.map(x=>`
     <div class="fcard ${['fasting','fish'].includes(x.type)?x.type:''}" onclick="showFD('${x.id}')">
@@ -992,6 +1082,7 @@ function showFD(id){
   const f=FESTIVE.find(x=>x.id===id);if(!f)return;
   document.getElementById('fest-main').style.display='none';
   document.getElementById('fest-det').style.display='block';
+  window.scrollTo(0,0);
   document.getElementById('fd-t').textContent=f.e+' '+f.n;
   document.getElementById('fd-s').textContent=f.sub;
   document.getElementById('fd-fn').innerHTML=f.fn?`<div class="fn-box"><div class="fn-t">🌿 Νηστεία</div><div class="fn-d">${f.fn}</div></div>`:'';
@@ -1008,17 +1099,16 @@ function showFD(id){
         <div class="fmarrow">📖</div>
       </div>`;
     }
-    if(recipe&&recipe.type==='sweet'){
-      const sw=SWEETS[recipe.cat]?.[recipe.idx];
+    if(recipe&&recipe.type==='sweet'){const sw=SWEETS[recipe.cat]?.[recipe.idx];
       if(sw)return `<div class="fmenu-item clickable" onclick="openSW('${recipe.cat}',${recipe.idx})">
         <div class="fmdot" style="background:#B87818"></div>
         <div class="fmname">${item}</div>
-        <div class="fmbadge">🍰 Γλυκό · 🔥 ${sw.cal} θερμ./μερ.</div>
+        <div class="fmbadge">🍰 ${sw.cal} θερμ./μερ.</div>
         <div class="fmarrow">📖</div>
       </div>`;
     }
     return `<div class="fmenu-item"><div class="fmdot" style="background:#DDD"></div><div class="fmname">${item}</div></div>`;
-  }).join('');
+  }).join('');;
 
   document.getElementById('fd-wine').innerHTML=`<div class="pair-box"><div class="pair-t">${t('wine')} — ${f.wt}</div><div class="pair-d">${f.wine}</div></div>`;
   document.getElementById('fd-tl').innerHTML=f.tl2.map((tx,i,a)=>`
@@ -1043,7 +1133,7 @@ function filtSw(cat,btn){
   document.getElementById('sw-grid').innerHTML=SWEETS[cat].map((s,i)=>`
     <div class="swcard" onclick="openSW('${cat}',${i})">
       <div class="swebox" style="background:linear-gradient(145deg,#FFF8E7,#FFE082)">${s.e}</div>
-      <div class="swinfo"><div class="swname">${s.n}</div><div class="swcal">🔥 ${s.cal} θερμ. &nbsp;·&nbsp; 🍽️ ${s.srv||"—"} μερ.</div></div>
+      <div class="swinfo"><div class="swname">${s.n}</div><div class="swcal">${s.cal} θερμ./μερ.</div></div>
     </div>`).join('');
 }
 
@@ -1213,7 +1303,98 @@ function showToast(msg){
   el.textContent=msg;el.style.opacity='1';clearTimeout(el._t);el._t=setTimeout(()=>el.style.opacity='0',2500);
 }
 
+
+function showSec(id,btn){
+  curSec=id;
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('show'));
+  const s=document.getElementById('s-'+id);if(s)s.classList.add('show');
+  document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+}
+
+// ── SEARCH with accent-insensitive ──
+function deaccent(s){
+  return (s||'').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[αάΑΆ]/g,'α').replace(/[εέΕΈ]/g,'ε')
+    .replace(/[ηήΗΉ]/g,'η').replace(/[ιίΙΊϊΐ]/g,'ι')
+    .replace(/[οόΟΌ]/g,'ο').replace(/[υύΥΎϋΰ]/g,'υ')
+    .replace(/[ωώΩΏ]/g,'ω');
+}
+function openSearch(){
+  const sb=document.getElementById('search-bar');
+  const mg=document.getElementById('meals-grid');
+  sb.style.display='flex';
+  document.getElementById('search-inp').focus();
+  document.getElementById('search-inp').value='';
+  document.getElementById('search-results').style.display='none';
+  mg.style.display='grid';
+}
+function closeSearch(){
+  document.getElementById('search-bar').style.display='none';
+  document.getElementById('search-results').style.display='none';
+  document.getElementById('meals-grid').style.display='grid';
+}
+function doSearch(q){
+  const res=document.getElementById('search-results');
+  const mg=document.getElementById('meals-grid');
+  if(!q||q.trim().length<2){
+    res.style.display='none';
+    mg.style.display='grid';
+    return;
+  }
+  const dq=deaccent(q.trim());
+  const results=[];
+  // Search MEALS
+  for(const[id,m] of Object.entries(MEALS)){
+    if(deaccent(m.n).includes(dq)||deaccent(m.en||'').includes(dq)){
+      results.push({type:'meal',id,name:mealName(m),emoji:m.e,cat:catLabel(m.cats[0]),onclick:`openR('${id}')`});
+    }
+  }
+  // Search SWEETS
+  for(const[cat,arr] of Object.entries(SWEETS)){
+    arr.forEach((s,i)=>{
+      if(deaccent(s.n).includes(dq)){
+        results.push({type:'sweet',name:s.n,emoji:s.e,cat:t('sw')[['keik','koulourakia','tiganites','paradosiaka','epochiaka'].indexOf(cat)]||cat,onclick:`openSW('${cat}',${i})`});
+      }
+    });
+  }
+  mg.style.display='none';
+  if(results.length===0){
+    res.innerHTML=`<div class="search-empty">😕 Δεν βρέθηκαν αποτελέσματα για "<b>${q}</b>"</div>`;
+  } else {
+    res.innerHTML=results.map(r=>`
+      <div class="search-res-item" onclick="${r.onclick}">
+        <div class="search-res-emoji">${r.emoji}</div>
+        <div class="search-res-info">
+          <div class="search-res-name">${r.name}</div>
+          <div class="search-res-cat">${r.cat}</div>
+        </div>
+        <div style="color:var(--pri);font-size:18px">›</div>
+      </div>`).join('');
+  }
+  res.style.display='block';
+}
+
+function selGuest(n,btn){
+  document.querySelectorAll('.gpill').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  const num=document.getElementById('g-num');if(num)num.textContent=n;
+  const pool=Object.entries(MEALS)
+    .filter(([,m])=>!m.cats.includes('soups')&&m.srv>=2)
+    .sort((a,b)=>(b[1].pop||1)-(a[1].pop||1)).slice(0,8);
+  const res=document.getElementById('guest-res');
+  if(res)res.innerHTML=`<div class="guest-info">💡 Για <b>${n} άτομα</b></div><div class="meal-grid-sm">${pool.map(([id,m])=>`<div class="mcard-sm" onclick="openR('${id}')"><span style="font-size:32px">${m.e}</span><div>${m.n}</div></div>`).join('')}</div>`;
+}
+(function init(){
+  applyTheme('all');
+  renderMeals('all');
+  rendFest('all');
+  filtSw('keik');
+  selGuest(4,null);
+  if(curLang==='en')setLang('en');
+})();
+
 </script>
-<script>if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));</script>
 </body>
 </html>
