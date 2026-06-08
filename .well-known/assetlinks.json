@@ -1,9 +1,14 @@
-[{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "com.fooddaily.app",
-    "sha256_cert_fingerprints":
-    ["CE:C1:A7:2E:AF:B5:5C:11:C1:08:49:66:E0:95:D3:C5:4A:18:E7:96:B7:B5:E3:CB:83:BC:0A:66:6D:C2:83:DB"]
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.fooddaily.app",
+      "sha256_cert_fingerprints": [
+        "B7:4A:34:4D:D2:84:14:81:01:6B:43:A5:CB:F4:25:7E:A7:FA:57:69:3E:6E:45:A7:AE:6D:A4:77:9B:6D:01:EC"
+      ]
+    }
   }
-}]
+]
