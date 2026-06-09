@@ -2,8 +2,8 @@
   "name": "FoodDaily",
   "short_name": "FoodDaily",
   "description": "Μεσογειακές Συνταγές & Καθημερινές Προτάσεις Φαγητού",
-  "start_url": "/index.html",
-  "scope": "/",
+  "start_url": "/fooddaily/index.html",
+  "scope": "/fooddaily/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#F7F5EE",
@@ -20,23 +20,19 @@
     { "src": "icon-384.png", "sizes": "384x384", "type": "image/png", "purpose": "any maskable" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
-  "screenshots": [
-    { "src": "screenshot1.png", "sizes": "1080x1920", "type": "image/png", "form_factor": "narrow" },
-    { "src": "screenshot2.png", "sizes": "1080x1920", "type": "image/png", "form_factor": "narrow" }
-  ],
   "shortcuts": [
     {
       "name": "Σήμερα",
       "short_name": "Σήμερα",
       "description": "Προτάσεις μέρας",
-      "url": "/index.html#daily",
+      "url": "/fooddaily/index.html",
       "icons": [{ "src": "icon-96.png", "sizes": "96x96" }]
     },
     {
       "name": "Ψυγείο",
       "short_name": "Ψυγείο",
       "description": "Τι έχω στο ψυγείο",
-      "url": "/index.html#fridge",
+      "url": "/fooddaily/index.html",
       "icons": [{ "src": "icon-96.png", "sizes": "96x96" }]
     }
   ]
