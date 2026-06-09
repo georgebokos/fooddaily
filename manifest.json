@@ -1,7 +1,7 @@
 {
   "name": "FoodDaily",
   "short_name": "FoodDaily",
-  "description": "Μεσογειακές Συνταγές & Καθημερινές Προτάσεις",
+  "description": "Μεσογειακές Συνταγές & Καθημερινές Προτάσεις Φαγητού",
   "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",
@@ -23,12 +23,7 @@
   "shortcuts": [
     {
       "name": "Σήμερα",
-      "url": "/fooddaily/index.html",
-      "icons": [{ "src": "icon-96.png", "sizes": "96x96" }]
-    },
-    {
-      "name": "Ψυγείο",
-      "url": "/fooddaily/index.html",
+      "url": "/index.html",
       "icons": [{ "src": "icon-96.png", "sizes": "96x96" }]
     }
   ]
