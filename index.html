@@ -23,6 +23,11 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .hdr p{font-size:12.5px;color:var(--t2);margin-top:3px;}
 .hdr-r{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
 .hdr-btns{display:flex;gap:7px;align-items:center;}
+.hdr-inner{display:flex;justify-content:space-between;align-items:center;width:100%;}
+.logo{font-size:22px;font-weight:700;color:var(--pri);font-family:'Playfair Display',serif;display:flex;align-items:center;gap:5px;transition:color .5s;}
+.icon-btn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--bd);background:var(--lt);font-size:17px;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;}
+.icon-btn:hover{background:var(--pri);color:#fff;border-color:var(--pri);}
+.icon-btn.on{background:var(--pri);color:#fff;border-color:var(--pri);}
 .lang-sw{display:flex;gap:3px;background:var(--lt);border:1.5px solid var(--bd);border-radius:20px;padding:3px 5px;transition:all .5s;}
 .lbtn{width:28px;height:20px;border:none;background:transparent;font-size:13px;cursor:pointer;border-radius:12px;opacity:.5;transition:all .2s;padding:0;}
 .lbtn:hover{opacity:.85}
@@ -46,8 +51,17 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .cpill:hover{background:var(--lt);}
 .cpill.on{background:var(--pri);color:#fff;border-color:var(--pri);font-weight:500;}
 /* SECTIONS */
-.sec{display:none;padding:0 1.25rem 5rem;}.sec.show{display:block;}
-/* MEAL CARDS */
+.sec{display:none;padding:0 0 5rem;}.sec.show{display:block;}
+/* Daily section layout */
+.sec-head{padding:0;}
+.cat-row-wrap{padding:.25rem 1rem .5rem;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap;}
+.cat-row-wrap::-webkit-scrollbar{display:none}
+.cat-row{display:inline-flex;gap:6px;}
+.daily-meta{display:flex;align-items:center;justify-content:space-between;padding:.25rem 1.25rem .5rem;}
+.daily-lbl-txt{font-size:13px;font-weight:600;color:var(--t2);letter-spacing:.01em;}
+.meal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem;padding:0 1.25rem;}
+@media(max-width:440px){.meal-grid{grid-template-columns:1fr;}}
+/* MEAL CARDS (legacy) */
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem;}
 @media(max-width:440px){.mgrid{grid-template-columns:1fr;}}
 .mcard{background:var(--w);border:1.5px solid #EDE8DE;border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .22s;box-shadow:var(--sh);}
@@ -61,7 +75,10 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .mtop-badge{position:absolute;top:8px;left:8px;z-index:3;}
 .mtop-fresh{position:absolute;top:8px;right:8px;z-index:3;background:rgba(22,163,74,.9);color:#fff;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;}
 .mbtm{padding:10px 12px 12px;}
-.mname{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px;line-height:1.25;}
+.mname-row{display:flex;align-items:flex-start;justify-content:space-between;gap:4px;margin-bottom:4px;}
+.mname{font-size:14px;font-weight:700;color:var(--tx);line-height:1.25;}
+.fav-btn-sm{background:none;border:none;cursor:pointer;font-size:15px;padding:0;flex-shrink:0;line-height:1;transition:transform .2s;}
+.fav-btn-sm:hover{transform:scale(1.25);}
 .mmeta{font-size:11.5px;color:var(--t2);margin-bottom:3px;}
 .mhist{font-size:10.5px;color:var(--t3);}
 .badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500;display:inline-block;}
@@ -232,6 +249,76 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .meal-grid-sm{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:12px;}
 .mcard-sm{background:var(--lt);border-radius:12px;padding:12px;text-align:center;cursor:pointer;font-size:13px;font-weight:600;}
 .guest-info{padding:12px 16px;font-size:15px;color:var(--t2);}
+/* === SWEETS GRID === */
+.sw-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;padding:.5rem 1.25rem 1rem;}
+@media(max-width:440px){.sw-grid{grid-template-columns:1fr;}}
+/* === FESTIVE === */
+.fest-filters{padding:.25rem 1rem .75rem;overflow-x:auto;-webkit-overflow-scrolling:touch;display:flex;gap:6px;white-space:nowrap;}
+.fest-filters::-webkit-scrollbar{display:none}
+.fd-title{font-size:22px;font-weight:700;font-family:'Playfair Display',serif;color:var(--tx);margin-bottom:5px;padding:.5rem 1.25rem 0;}
+.fd-sub{font-size:14px;color:var(--t2);margin-bottom:.75rem;padding:0 1.25rem;}
+.fd-fn{padding:12px 14px;background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:var(--rs);margin-bottom:.875rem;margin:0 1.25rem .875rem;}
+.fd-menu-list{margin-bottom:.875rem;padding:0 1.25rem;}
+.fd-wine,.fd-timeline{padding:0 1.25rem;margin-bottom:.875rem;}
+/* === FRIDGE === */
+.fridge-hero{padding:1.25rem 1.25rem .75rem;}
+.fridge-t{font-size:18px;font-weight:700;color:var(--tx);margin-bottom:5px;font-family:'Playfair Display',serif;}
+.fridge-s{font-size:13.5px;color:var(--t2);margin-bottom:1rem;}
+.fridge-inp-row{display:flex;gap:8px;margin-bottom:.75rem;}
+.fridge-inp-row input{flex:1;padding:10px 13px;border:1.5px solid #DDD8CE;border-radius:var(--rs);font-size:14px;background:var(--w);color:var(--tx);outline:none;font-family:'Inter',sans-serif;}
+.fridge-inp-row input:focus{border-color:var(--pri);}
+.fbtn-add{width:44px;height:44px;border-radius:var(--rs);border:1.5px solid var(--bd);background:var(--pri);color:#fff;font-size:22px;cursor:pointer;flex-shrink:0;transition:all .2s;}
+.fbtn-add:hover{filter:brightness(1.1);}
+.fridge-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:12px;border-radius:var(--rs);border:none;background:var(--pri);color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;margin-bottom:.5rem;}
+.fridge-btn:hover{filter:brightness(1.1);}
+/* === GUESTS === */
+.guest-wrap{padding:1.25rem;}
+.guest-lbl{font-size:16px;font-weight:600;color:var(--tx);margin-bottom:.875rem;}
+.guest-occ{font-size:13px;color:var(--t2);margin-bottom:.875rem;}
+.guest-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;}
+.gpill{padding:8px 20px;border-radius:30px;border:1.5px solid var(--bd);background:var(--w);color:var(--t2);font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;}
+.gpill:hover{background:var(--lt);}
+.gpill.on{background:var(--pri);color:#fff;border-color:var(--pri);}
+/* === SEASONAL === */
+.season-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:.5rem 1.25rem 1rem;}
+@media(max-width:440px){.season-grid{grid-template-columns:1fr;}}
+.season-card{background:var(--w);border:1.5px solid #EDE8DE;border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .22s;box-shadow:var(--sh);}
+.season-card:hover{transform:translateY(-3px);box-shadow:var(--shl);}
+.sc-top{height:110px;display:flex;align-items:center;justify-content:center;}
+.sc-info{padding:10px 12px;}
+.sc-n{font-size:13.5px;font-weight:600;color:var(--tx);margin-bottom:3px;}
+.sc-s{font-size:12px;color:var(--t3);}
+/* === OVERLAY TTS ROW === */
+.ov-tts-row{padding:.75rem 1.5rem 1.5rem;display:flex;gap:8px;align-items:center;}
+.tts-btn{flex:1;padding:10px;border-radius:var(--rs);border:1.5px solid var(--bd);background:var(--lt);color:var(--pri);font-size:13.5px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;}
+.tts-btn:hover{background:var(--pri);color:#fff;}
+/* === NOTIFICATION MODAL (fix inner container) === */
+.nmod-inner{width:100%;max-width:700px;margin:0 auto;background:var(--w);border-radius:24px 24px 0 0;padding:1.5rem 1.25rem;}
+.nmod-t{font-size:17px;font-weight:600;color:var(--tx);margin-bottom:1.25rem;}
+.nmod-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid #F0EDE6;}
+.nmod-row label{font-size:14px;color:var(--tx);}
+.nmod-btns{display:flex;gap:10px;margin-top:1.25rem;}
+.nmod-save{flex:1;padding:12px;border-radius:var(--rs);border:none;background:var(--pri);color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;}
+.nmod-cls{flex:1;padding:12px;border-radius:var(--rs);border:1.5px solid var(--bd);background:transparent;color:var(--t2);font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;}
+/* === DARK MODE === */
+[data-theme="dark"]{--bg:#14120F;--w:#1C1A16;--tx:#F2EDE4;--t2:#9A9288;--t3:#6C6660;--sh:0 2px 14px rgba(0,0,0,.5);--shl:0 8px 32px rgba(0,0,0,.7);}
+[data-theme="dark"] .mcard,[data-theme="dark"] .fcard,[data-theme="dark"] .swcard,[data-theme="dark"] .fres-card,[data-theme="dark"] .rrow,[data-theme="dark"] .season-card,[data-theme="dark"] .sea-item{border-color:#2A2820;}
+[data-theme="dark"] .ing-item,[data-theme="dark"] .step-item,[data-theme="dark"] .pair-box,[data-theme="dark"] .fres-miss,[data-theme="dark"] .fn-box{background:#1C1A16;border-color:#2A2820;}
+[data-theme="dark"] .ovsh,[data-theme="dark"] .nmod-inner{background:#1E1C18;}
+[data-theme="dark"] .search-bar{background:#1E1C18;border-color:#2A2820;}
+[data-theme="dark"] .fgrp input,[data-theme="dark"] .fgrp select,[data-theme="dark"] .fridge-inp-row input,[data-theme="dark"] .inp-row input{background:#1E1C18;border-color:#2A2820;color:#F2EDE4;}
+[data-theme="dark"] .cpill,[data-theme="dark"] .gpill{background:#1E1C18;}
+[data-theme="dark"] .ntab{background:transparent;}
+[data-theme="dark"] .ovtabs{border-bottom-color:#2A2820;}
+[data-theme="dark"] .lang-sw{background:#1E1C18;}
+[data-theme="dark"] .remind{background:#1E1C18;}
+[data-theme="dark"] .balance{border-color:#2A2820;}
+[data-theme="dark"] .tag{background:#1E1C18;}
+/* === FAVORITES === */
+.fav-empty{text-align:center;padding:2.5rem 1rem;color:var(--t3);grid-column:1/-1;}
+/* === SHOPPING LIST COPY === */
+.copy-list-btn{display:flex;align-items:center;gap:6px;width:100%;margin-top:.875rem;padding:11px;border-radius:var(--rs);border:1.5px solid var(--bd);background:var(--lt);color:var(--pri);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;justify-content:center;}
+.copy-list-btn:hover{background:var(--pri);color:#fff;border-color:var(--pri);}
 </style>
 </head>
 <body>
@@ -241,6 +328,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
     <div class="logo">🫒 <span>FoodDaily</span></div>
     <div style="display:flex;align-items:center;gap:8px">
       <button id="search-btn" class="icon-btn" onclick="openSearch()" title="Αναζήτηση">🔍</button>
+      <button id="dark-btn" class="icon-btn" onclick="toggleDark()" title="Dark mode">🌙</button>
       <button id="bell" class="icon-btn" onclick="openNotif()">🔔</button>
       <div class="lang-sw">
         <button class="lbtn on" id="lb-el" onclick="setLang('el')">ΕΛ</button>
@@ -272,6 +360,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
         <button class="cpill" onclick="selCat('vegetables',this)">🥦 Λαχανικά</button>
         <button class="cpill" onclick="selCat('salads',this)">🥗 Σαλάτες</button>
         <button class="cpill" onclick="selCat('soups',this)">🍲 Σούπες</button>
+        <button class="cpill" id="fav-pill" onclick="selCat('favs',this)">❤️ Αγαπημένα</button>
       </div>
     </div>
     <div class="daily-meta">
@@ -286,7 +375,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
   </div>
   <div id="search-results" style="display:none"></div>
   <div class="meal-grid" id="meals-grid"></div>
-  <div id="remind-wrap"><div class="balance-bar" id="balance-bar"></div><div class="remind-bar" id="remind-bar"></div></div>
+  <div id="remind-wrap" style="padding:0 1.25rem;"></div>
 </div>
 
 <!-- FESTIVE -->
@@ -301,10 +390,10 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
   </div>
   <div id="festive-list">
     <div id="fest-main">
-      <div id="fest-grid"></div>
+      <div id="fest-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:.5rem 1.25rem 1rem;"></div>
     </div>
     <div id="fest-det" style="display:none">
-      <button class="back-btn" data-i18n="back" onclick="document.getElementById('fest-det').style.display='none';document.getElementById('fest-main').style.display='block';">← Πίσω</button>
+      <button class="back-btn" data-i18n="back" style="margin:0 1.25rem .875rem;" onclick="document.getElementById('fest-det').style.display='none';document.getElementById('fest-main').style.display='block';">← Πίσω</button>
       <div id="fd-t" class="fd-title"></div>
       <div id="fd-s" class="fd-sub"></div>
       <div id="fd-fn" class="fd-fn"></div>
@@ -346,7 +435,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
     </div>
     <button class="fridge-btn" id="fridge-btn" data-i18n="fridge_btn" onclick="smartFridge()">🔍 Βρες μου συνταγές!</button>
   </div>
-  <div id="fridge-res"></div>
+  <div id="fridge-res" style="padding:0 1.25rem;"></div>
 </div>
 
 <!-- GUESTS -->
@@ -884,18 +973,24 @@ function renderMeals(cat){
   const rids=recIds(7);
   const excl=['anginaresPolita','tartaFragola','taramosalata','halvas','lagana'];
   let pool=Object.entries(MEALS).filter(([id])=>!excl.includes(id)).map(([id,m])=>({...m,id}));
-  if(cat!=='all')pool=pool.filter(m=>m.cats.includes(cat));
+  if(cat==='favs'){pool=pool.filter(m=>getFavs().includes(m.id));}
+  else if(cat!=='all'){pool=pool.filter(m=>m.cats.includes(cat));}
   const fresh=pool.filter(m=>!rids.includes(m.id)).sort((a,b)=>(a.pop||2)-(b.pop||2)||(Math.random()-.5));
   const old=pool.filter(m=>rids.includes(m.id));
-  const show=[...fresh,...old].slice(0,6);
+  const show=cat==='favs'?pool:[...fresh,...old].slice(0,6);
 
   const grid=document.getElementById('meals-grid');
+  if(cat==='favs'&&!show.length){
+    grid.innerHTML=`<div class="fav-empty"><div style="font-size:38px">🤍</div><div style="font-size:15px;margin-top:.5rem">Δεν έχεις αγαπημένα ακόμα.</div><div style="font-size:13px;margin-top:4px">Πάτα ❤️ σε μια συνταγή!</div></div>`;
+    return;
+  }
   grid.innerHTML=show.map(m=>{
     const mc=m.cats[0];
     const ds=dSince(m.id);
     const bg=CAT_GRAD[mc]||CAT_GRAD.legumes;
     const cl=CAT_CL[mc]||'b-legumes';
     const freshBadge=ds>6?`<div class="mtop-fresh">${t('fresh')}</div>`:'';
+    const fav=isFav(m.id);
     return `<div class="mcard" onclick="openR('${m.id}')">
       <div class="mtop" style="background:${bg}">
         <img id="mi-${m.id}" alt="${m.n}" onload="this.classList.add('loaded')" onerror="this.style.display='none'">
@@ -905,7 +1000,10 @@ function renderMeals(cat){
         ${freshBadge}
       </div>
       <div class="mbtm">
-        <div class="mname">${mealName(m)}</div>
+        <div class="mname-row">
+          <div class="mname">${mealName(m)}</div>
+          <button class="fav-btn-sm" data-id="${m.id}" onclick="toggleFav('${m.id}',event)" title="Αγαπημένα">${fav?'❤️':'🤍'}</button>
+        </div>
         <div class="mmeta">⏱ ${m.time}' &nbsp;🔥 ${m.cal} &nbsp;💰 ${m.cps||'~2€'}${t('per_srv')}</div>
         <div class="mhist">${ds<999?'📅 '+ds+' '+t('days_ago'):t('new_sug')}</div>
       </div>
@@ -937,6 +1035,7 @@ function openR(id){
   const bg=CAT_GRAD[mc]||CAT_GRAD.legumes;
   hero.innerHTML=`
     <button class="ovcls" onclick="closeOv()">✕</button>
+    <button id="ov-fav" onclick="toggleFav('${m.id}',event)" style="position:absolute;top:12px;left:12px;z-index:10;background:rgba(0,0,0,.3);border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;">${isFav(m.id)?'❤️':'🤍'}</button>
     <div class="ovhero-fb" style="background:${bg}"><span style="font-size:78px;filter:drop-shadow(0 6px 20px rgba(0,0,0,.15))">${m.e}</span></div>
     <img id="ov-img" alt="${m.n}" onload="this.classList.add('loaded')" onerror="this.style.display='none'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s;">
     <div class="ovhero-grad"></div>
@@ -983,7 +1082,7 @@ function openSW(cat,idx){
 function buildIngTab(m){
   const items=m.ing.map((i,idx)=>`<div class="ing-item" onclick="this.classList.toggle('done');this.querySelector('.ing-chk').textContent=this.classList.contains('done')?'✓':''"><div class="ing-chk"></div><span>${i}</span></div>`).join('');
   const note=m.cost?`<div class="cost-note">💰 ${m.cost} σύνολο · ${m.cps||''} ανά μερίδα &nbsp;<span style="color:var(--t3)">(${t('cost_yr')})</span></div>`:'';
-  document.getElementById('ot-ing').innerHTML=`<div class="ing-grid">${items}</div>${note}`;
+  document.getElementById('ot-ing').innerHTML=`<div class="ing-grid">${items}</div><button class="copy-list-btn" onclick="copyShoppingList()">📋 Αντιγραφή λίστας αγορών</button>${note}`;
 }
 
 function buildStepsTab(m){
@@ -1261,11 +1360,24 @@ function stopVoice(){if(recog){try{recog.stop();}catch(e){}recog=null;}isLis=fal
 
 // ── NOTIFICATIONS ─────────────────────────────────────────────
 function openNmod(){
-  document.getElementById('nmod').classList.add('show');
+  document.getElementById('nmod').style.display='flex';
   const on=localStorage.getItem('notif_on')==='true';
-  document.getElementById('ntog').classList.toggle('on',on);
+  const ntog=document.getElementById('ntog');if(ntog)ntog.checked=on;
   document.getElementById('bell').classList.toggle('on',on);
   document.getElementById('ntime').value=localStorage.getItem('notif_time')||'09:00';
+}
+function closeNmod(){document.getElementById('nmod').style.display='none';}
+function openNotif(){openNmod();}
+function closeNotif(){closeNmod();}
+function saveNotif(){
+  const time=document.getElementById('ntime').value;
+  localStorage.setItem('notif_time',time);
+  const checked=document.getElementById('ntog').checked;
+  localStorage.setItem('notif_on',checked?'true':'false');
+  document.getElementById('bell').classList.toggle('on',checked);
+  if(checked)startNotifTimer();
+  closeNmod();
+  showToast('✓ Αποθηκεύτηκε!');
 }
 function closeNmod(){document.getElementById('nmod').classList.remove('show');}
 async function toggleNotif(){
@@ -1386,13 +1498,66 @@ function selGuest(n,btn){
   const res=document.getElementById('guest-res');
   if(res)res.innerHTML=`<div class="guest-info">💡 Για <b>${n} άτομα</b></div><div class="meal-grid-sm">${pool.map(([id,m])=>`<div class="mcard-sm" onclick="openR('${id}')"><span style="font-size:32px">${m.e}</span><div>${m.n}</div></div>`).join('')}</div>`;
 }
+// ── DARK MODE ────────────────────────────────────────────────
+function toggleDark(){
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  document.documentElement.setAttribute('data-theme',isDark?'light':'dark');
+  localStorage.setItem('fd_dark',isDark?'0':'1');
+  const btn=document.getElementById('dark-btn');
+  if(btn)btn.textContent=isDark?'🌙':'☀️';
+}
+
+// ── FAVORITES ─────────────────────────────────────────────────
+function getFavs(){return JSON.parse(localStorage.getItem('fd_favs')||'[]');}
+function isFav(id){return getFavs().includes(id);}
+function toggleFav(id,e){
+  if(e){e.stopPropagation();e.preventDefault();}
+  const favs=getFavs();
+  const i=favs.indexOf(id);
+  if(i>=0)favs.splice(i,1);else favs.push(id);
+  localStorage.setItem('fd_favs',JSON.stringify(favs));
+  // Update heart on all cards
+  document.querySelectorAll(`.fav-btn-sm[data-id="${id}"]`).forEach(b=>b.textContent=favs.includes(id)?'❤️':'🤍');
+  // Update heart in overlay
+  const ob=document.getElementById('ov-fav');if(ob)ob.textContent=favs.includes(id)?'❤️':'🤍';
+  // Update favorites pill count
+  updateFavPill();
+  showToast(favs.includes(id)?'❤️ Αγαπημένο!':'🤍 Αφαιρέθηκε');
+}
+function updateFavPill(){
+  const pill=document.getElementById('fav-pill');
+  if(!pill)return;
+  const n=getFavs().length;
+  pill.textContent=n>0?`❤️ Αγαπημένα (${n})`:'❤️ Αγαπημένα';
+}
+
+// ── SHOPPING LIST ─────────────────────────────────────────────
+function copyShoppingList(){
+  if(!_meal)return;
+  const name=mealName(_meal);
+  const list=`📋 ${name}\n\n${(_meal.ing||[]).map(i=>'• '+i).join('\n')}`;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(list).then(()=>showToast('✅ Λίστα αντιγράφηκε!')).catch(()=>showToast('⚠️ Σφάλμα αντιγραφής'));
+  } else {
+    const ta=document.createElement('textarea');ta.value=list;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');showToast('✅ Λίστα αντιγράφηκε!');}catch(e){showToast('⚠️ Σφάλμα');}
+    document.body.removeChild(ta);
+  }
+}
+
 (function init(){
+  // Dark mode
+  if(localStorage.getItem('fd_dark')==='1'){
+    document.documentElement.setAttribute('data-theme','dark');
+    const db=document.getElementById('dark-btn');if(db)db.textContent='☀️';
+  }
   applyTheme('all');
   renderMeals('all');
   rendFest('all');
   filtSw('keik');
   selGuest(4,null);
   if(curLang==='en')setLang('en');
+  updateFavPill();
 })();
 
 </script>
