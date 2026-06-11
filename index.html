@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<meta name="theme-color" content="#3A7558">
+<meta name="theme-color" content="#C8501A">
 <title>FoodDaily</title>
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
 
-:root{--bg:#F7F5EE;--pri:#3A7558;--lt:#DFF2E8;--em:#E8F6EE;--bd:#BEE0CE;
-  --w:#FFF;--tx:#1C1A17;--t2:#5C5650;--t3:#9A9490;
+:root{--bg:#FBF5EC;--pri:#C8501A;--pri2:#E8703A;--lt:#F5EAD8;--em:#FDF5EC;--bd:#EAD8BC;
+  --w:#FFF;--tx:#1E1008;--t2:#7A5C3A;--t3:#A08060;
   --sh:0 2px 14px rgba(0,0,0,.07);--shl:0 8px 32px rgba(0,0,0,.15);--r:18px;--rs:12px;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--tx);max-width:700px;margin:0 auto;min-height:100vh;transition:background .5s;}
@@ -30,7 +30,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .hero-btn{width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(255,255,255,.22);background:rgba(255,255,255,.14);backdrop-filter:blur(8px);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;transition:background .2s;}
 .hero-btn:hover{background:rgba(255,255,255,.28);}
 .hero-btn.on{background:rgba(255,255,255,.9);color:#333;}
-.hero-spacer{flex:1;}
+.hero-spacer{flex:.18;min-height:6px;max-height:16px;}
 .hero-greeting{font-size:12px;font-weight:700;color:rgba(255,255,255,.72);letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px;}
 .hero-title{font-size:24px;font-weight:800;color:#fff;line-height:1.2;text-shadow:0 2px 14px rgba(0,0,0,.3);}
 .hero-sub{font-size:12px;color:rgba(255,255,255,.65);margin-top:4px;}
@@ -59,7 +59,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .more-hdr{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.25rem .2rem;}
 .more-hdr h3{font-size:14px;font-weight:700;color:var(--t2);}
 [data-theme="dark"] .hero-search{border-color:rgba(255,255,255,.18);}
-[data-theme="dark"] .feat-go-btn{color:#1A3A2A;}
+[data-theme="dark"] .feat-go-btn{color:#6A2008;}
 .lang-sw{display:flex;gap:3px;background:var(--lt);border:1.5px solid var(--bd);border-radius:20px;padding:3px 5px;transition:all .5s;}
 .lbtn{width:28px;height:20px;border:none;background:transparent;font-size:13px;cursor:pointer;border-radius:12px;opacity:.5;transition:all .2s;padding:0;}
 .lbtn:hover{opacity:.85}
@@ -70,12 +70,19 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .bell.on{background:var(--pri);color:#fff;}
 .bell-dot{position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:#EF4444;border:2px solid var(--bg);}
 .vst{font-size:11px;color:var(--t3);}
-/* NAV */
-.nav{padding:0 1rem .5rem;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap;margin-top:12px;}
-.nav::-webkit-scrollbar{display:none}
-.ntab{display:inline-block;padding:7px 15px;border-radius:30px;border:1.5px solid var(--bd);background:transparent;color:var(--t2);font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .3s;margin-right:5px;}
-.ntab:hover{background:var(--lt);}
-.ntab.on{background:var(--pri);color:#fff;border-color:var(--pri);font-weight:500;}
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:700px;z-index:150;background:rgba(251,245,236,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1.5px solid rgba(200,80,26,.15);display:flex;justify-content:space-around;align-items:stretch;padding:6px 0 max(8px,env(safe-area-inset-bottom));}
+.bntab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 4px 2px;border:none;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;color:var(--t3);-webkit-tap-highlight-color:transparent;}
+.bntab-ico{font-size:22px;line-height:1;}
+.bntab-lbl{font-size:10px;font-weight:500;letter-spacing:.01em;}
+.bntab.on{color:var(--pri);}
+.bntab.on .bntab-ico{transform:translateY(-2px);}
+[data-theme="dark"] .bnav{background:rgba(20,18,15,.88);border-top-color:rgba(200,80,26,.25);}
+[data-theme="dark"] .bntab{color:var(--t3);}
+[data-theme="dark"] .bntab.on{color:var(--pri2);}
+/* Legacy ntab (hidden, kept for JS compat) */
+.nav{display:none;}
+.ntab{}
 /* CATS */
 .cats{padding:.25rem 1rem .75rem;overflow-x:auto;white-space:nowrap;}
 .cats::-webkit-scrollbar{display:none}
@@ -83,7 +90,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .cpill:hover{background:var(--lt);}
 .cpill.on{background:var(--pri);color:#fff;border-color:var(--pri);font-weight:500;}
 /* SECTIONS */
-.sec{display:none;padding:0 0 5rem;}.sec.show{display:block;}
+.sec{display:none;padding:0 0 6.5rem;}.sec.show{display:block;}
 /* Daily section layout */
 .sec-head{padding:0;}
 .cat-row-wrap{padding:.25rem 1rem .5rem;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap;}
@@ -403,7 +410,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
   </div>
 </div>
 
-<div class="nav">
+<div class="nav" aria-hidden="true">
   <button class="ntab on" onclick="showSec('daily',this)">☀️ Σήμερα</button>
   <button class="ntab" onclick="showSec('festive',this)">⭐ Εορτές</button>
   <button class="ntab" onclick="showSec('sweets',this)">🍯 Γλυκά</button>
@@ -411,6 +418,26 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
   <button class="ntab" onclick="showSec('guests',this)">👥 Καλεσμένοι</button>
   <button class="ntab" onclick="showSec('seasonal',this)">🌿 Εποχιακά</button>
 </div>
+
+<!-- BOTTOM NAV BAR -->
+<nav class="bnav" id="bnav">
+  <button class="bntab on" id="bnt-daily" onclick="showSec('daily','daily')">
+    <span class="bntab-ico">🍳</span>
+    <span class="bntab-lbl">Συνταγές</span>
+  </button>
+  <button class="bntab" id="bnt-favs" onclick="showSec('favs','favs')">
+    <span class="bntab-ico">❤️</span>
+    <span class="bntab-lbl">Αγαπημένα</span>
+  </button>
+  <button class="bntab" id="bnt-festive" onclick="showSec('festive','festive')">
+    <span class="bntab-ico">🎉</span>
+    <span class="bntab-lbl">Εορτές</span>
+  </button>
+  <button class="bntab" id="bnt-guests" onclick="showSec('guests','guests')">
+    <span class="bntab-ico">👥</span>
+    <span class="bntab-lbl">Καλεσμένοι</span>
+  </button>
+</nav>
 
 <!-- DAILY -->
 <div class="sec show" id="s-daily">
@@ -638,9 +665,7 @@ const MEAL_PRIORITY={
 };
 
 function applyTheme(c){
-  const t=TH[c]||TH.all,s=document.documentElement.style;
-  s.setProperty('--bg',t.bg);s.setProperty('--pri',t.pri);
-  s.setProperty('--lt',t.lt);s.setProperty('--bd',t.bd);
+  // Color stays fixed — terracotta palette only
 }
 
 const TR={
@@ -1077,7 +1102,7 @@ function goSec(id,btn){
   document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('on'));
   if(btn)btn.classList.add('on');
   curSec=id;
-  if(id!=='daily')applyTheme('all');
+  // applyTheme disabled — fixed terracotta palette
 }
 
 // ── MEALS RENDER ─────────────────────────────────────────────
@@ -1674,17 +1699,31 @@ function startNotifTimer(){
 }
 function showToast(msg){
   let el=document.getElementById('toast');
-  if(!el){el=document.createElement('div');el.id='toast';el.style.cssText='position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1C1A17;color:#fff;padding:9px 18px;border-radius:26px;font-size:13px;z-index:500;transition:opacity .3s;white-space:nowrap;';document.body.appendChild(el);}
+  if(!el){el=document.createElement('div');el.id='toast';el.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1C1A17;color:#fff;padding:9px 18px;border-radius:26px;font-size:13px;z-index:500;transition:opacity .3s;white-space:nowrap;';document.body.appendChild(el);}
   el.textContent=msg;el.style.opacity='1';clearTimeout(el._t);el._t=setTimeout(()=>el.style.opacity='0',2500);
 }
 
 
 function showSec(id,btn){
+  document.querySelectorAll('.bntab').forEach(b=>b.classList.remove('on'));
+  // "favs" is a category filter inside the daily section
+  if(id==='favs'){
+    curSec='daily';
+    document.querySelectorAll('.sec').forEach(s=>s.classList.remove('show'));
+    const sd=document.getElementById('s-daily');if(sd)sd.classList.add('show');
+    selCat('favs',document.getElementById('fav-pill'));
+    const ab=document.getElementById('bnt-favs');if(ab)ab.classList.add('on');
+    return;
+  }
   curSec=id;
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('show'));
   const s=document.getElementById('s-'+id);if(s)s.classList.add('show');
   document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('on'));
-  if(btn)btn.classList.add('on');
+  if(btn&&typeof btn!=='string'){btn.classList.add('on');}
+  // Update bottom nav active state
+  const bnMap={daily:'bnt-daily',festive:'bnt-festive',guests:'bnt-guests'};
+  const activeId=bnMap[id];
+  if(activeId){const ab=document.getElementById(activeId);if(ab)ab.classList.add('on');}
 }
 
 // ── SEARCH with accent-insensitive ──
@@ -1911,7 +1950,10 @@ function copyShoppingList(){
   if(gl)gl.textContent=`${greet} · ${days[nd.getDay()]}, ${nd.getDate()} ${months[nd.getMonth()]}`;
   const sl=document.getElementById('hero-sub');
   const mealCount=Object.keys(MEALS).length;
-  if(sl)sl.textContent=`✨ ${mealCount}+ συνταγές να διαλέξεις`;
+  const excl2=['anginaresPolita','tartaFragola','taramosalata','halvas','lagana','tzatziki_dish','skordalia','eliestoursi','salata_rodi'];
+  const dailyPool=Object.keys(MEALS).filter(id=>!excl2.includes(id));
+  const dailyCount=Math.min(dailyPool.length,6);
+  if(sl)sl.textContent=`🍽️ ${dailyCount} προτάσεις σήμερα · ${mealCount}+ συνταγές`;
   applyTheme('all');
   renderMeals('all');
   rendFest('all');
@@ -1926,7 +1968,7 @@ function copyShoppingList(){
         // Show a non-intrusive update toast with a reload button
         const toast=document.createElement('div');
         toast.id='sw-update-toast';
-        toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;z-index:9999;display:flex;align-items:center;gap:10px;box-shadow:0 4px 16px rgba(0,0,0,.35);';
+        toast.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;z-index:9999;display:flex;align-items:center;gap:10px;box-shadow:0 4px 16px rgba(0,0,0,.35);';
         toast.innerHTML=`<span>${curLang==='en'?'🔄 New version available!':'🔄 Νέα έκδοση διαθέσιμη!'}</span><button onclick="window.location.reload()" style="background:var(--pri);color:#fff;border:none;border-radius:8px;padding:5px 12px;cursor:pointer;font-size:13px;">${curLang==='en'?'Update':'Ενημέρωση'}</button>`;
         document.body.appendChild(toast);
       }
