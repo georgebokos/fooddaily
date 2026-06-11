@@ -1424,6 +1424,23 @@ function setLang(lang){
   renderMeals(curCat);
   filtSw(curSwCat);
   rendFest(curFestF);
+  // If overlay is open, rebuild its translated content
+  rebuildOverlayTexts();
+}
+
+function rebuildOverlayTexts(){
+  if(!_meal)return;
+  const ov=document.getElementById('overlay');
+  if(!ov||!ov.classList.contains('show'))return;
+  // Rebuild ingredient tab — copy btn, cost note, scale note all call t()
+  buildIngTab(_meal);
+  // Rebuild pair tab — wine/beer/plate labels call t()
+  if(_meal.wine||_meal.beer||_meal.plate)buildPairTab(_meal);
+  // Update stats labels without touching values/stepper
+  const labels=document.querySelectorAll('#ov-stats .ovstat label');
+  ['cal','time','srv','cost'].forEach((k,i)=>{if(labels[i])labels[i].textContent=t(k);});
+  // Update TTS button
+  const tb=document.getElementById('ov-tts-btn');if(tb)tb.textContent=isTTS?t('tts_s'):t('tts_p');
 }
 
 // ── VOICE ─────────────────────────────────────────────────────
