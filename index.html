@@ -329,6 +329,8 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 [data-theme="dark"] .card-actions{border-top-color:#2A2820;}
 [data-theme="dark"] .thumb-dn{background:#1C1A16;border-color:#2A2820;}
 [data-theme="dark"] .thumb-up{background:#14291A;border-color:#166534;color:#4ADE80;}
+.scale-note{background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border:1.5px solid #81C784;border-radius:8px;padding:8px 12px;font-size:13px;color:#2E7D32;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.scale-badge{position:absolute;top:4px;right:4px;background:var(--pri);color:#fff;border-radius:12px;font-size:10px;font-weight:700;padding:2px 6px;z-index:2;}
 </style>
 </head>
 <body>
@@ -545,7 +547,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 
 <script>
 let curCat='all',curSec='daily',curSwCat='keik',curFestF='all',
-    _meal=null,isTTS=false,recog=null,isLis=false,
+    _meal=null,isTTS=false,recog=null,isLis=false,_guestScale=1,
     curLang=localStorage.getItem('fd_lang')||'el';
 
 
@@ -570,6 +572,16 @@ const CAT_GRAD={
 };
 const CAT_CL={pasta:'b-pasta',seafood:'b-seafood',meat:'b-meat',
   legumes:'b-legumes',vegetables:'b-vegetables',salads:'b-salads',soups:'b-soups'};
+// Meal priority: 1=everyday affordable, 2=regular weekday, 3=weekend, 4=special occasion
+const MEAL_PRIORITY={
+  fasolada:1,fakes:1,aglio:1,spanakoryzo:1,keftedes:1,kima:1,briami:1,revythada:1,
+  horiatiki:1,gigantes:1,fava:1,salata_rokka:1,
+  kotopoulo:2,souvlakia:2,biftekia:2,kalamaria:2,tsipoura:2,psarosoupa:2,
+  kotosopa:2,dolmades:2,gemista:2,psari_plaki:2,giouvarlaakia:2,
+  moussaka:3,pastitsio:3,giouvetsi:3,arnaki_lemonato:3,htapodi:3,bakaliaro:3,
+  stifado:3,kokkinisto:3,garides:3,
+  arni_souvia:4,kontosouvi:4,mageiritsa:4,gourounopoulo:4,galopoula:4
+};
 
 function applyTheme(c){
   const t=TH[c]||TH.all,s=document.documentElement.style;
@@ -988,7 +1000,13 @@ function renderMeals(cat){
     .map(([id,m])=>({...m,id}));
   if(cat==='favs'){pool=pool.filter(m=>getFavs().includes(m.id));}
   else if(cat!=='all'){pool=pool.filter(m=>m.cats.includes(cat));}
-  const fresh=pool.filter(m=>!rids.includes(m.id)).sort((a,b)=>(a.pop||2)-(b.pop||2)||(Math.random()-.5));
+  const dow=new Date().getDay(); // 0=Sun
+  const isSunday=dow===0;
+  const fresh=pool.filter(m=>!rids.includes(m.id)).sort((a,b)=>{
+    const pa=MEAL_PRIORITY[a.id]||2, pb=MEAL_PRIORITY[b.id]||2;
+    if(isSunday) return (pb-pa)||(Math.random()-.5); // Sunday: elaborate first
+    return (pa-pb)||(Math.random()-.5); // Weekdays: everyday meals first
+  });
   const old=pool.filter(m=>rids.includes(m.id));
   const show=cat==='favs'?pool:[...fresh,...old].slice(0,6);
 
@@ -1060,11 +1078,12 @@ function openR(id){
     <div class="ovtitle"><h2>${mealName(m)}</h2></div>`;
   // no external images - emoji only
   // Stats
+  const sc=_guestScale||1;
   document.getElementById('ov-stats').innerHTML=`
     <div class="ovstat"><label>${t('cal')}</label><span>${m.cal}</span></div>
     <div class="ovstat"><label>${t('time')}</label><span>${m.time}'</span></div>
-    <div class="ovstat"><label>${t('srv')}</label><span>${m.srv}</span></div>
-    <div class="ovstat"><label>${t('cost')}</label><span style="color:var(--pri)">${m.cost||'~5€'}</span></div>`;
+    <div class="ovstat"><label>${t('srv')}</label><span>${sc>1?sc*m.srv+' (×'+sc+')':m.srv}</span></div>
+    <div class="ovstat"><label>${t('cost')}</label><span style="color:var(--pri)">${sc>1?scalePrice(m.cost||'~5€',sc):m.cost||'~5€'}</span></div>`;
   // Tabs content
   buildIngTab(m);buildStepsTab(m);buildPairTab(m);
   // TTS
@@ -1098,9 +1117,12 @@ function openSW(cat,idx){
 }
 
 function buildIngTab(m){
-  const items=m.ing.map((i,idx)=>`<div class="ing-item" onclick="this.classList.toggle('done');this.querySelector('.ing-chk').textContent=this.classList.contains('done')?'✓':''"><div class="ing-chk"></div><span>${i}</span></div>`).join('');
-  const note=m.cost?`<div class="cost-note">💰 ${m.cost} σύνολο · ${m.cps||''} ανά μερίδα &nbsp;<span style="color:var(--t3)">(${t('cost_yr')})</span></div>`:'';
-  document.getElementById('ot-ing').innerHTML=`<div class="ing-grid">${items}</div><button class="copy-list-btn" onclick="copyShoppingList()">📋 Αντιγραφή λίστας αγορών</button>${note}`;
+  const sc=_guestScale||1;
+  const items=m.ing.map(i=>`<div class="ing-item" onclick="this.classList.toggle('done');this.querySelector('.ing-chk').textContent=this.classList.contains('done')?'✓':''"><div class="ing-chk"></div><span>${sc>1?scaleQty(i,sc):i}</span></div>`).join('');
+  const scaledCost=sc>1?scalePrice(m.cost,sc):m.cost;
+  const scaleNote=sc>1?`<div class="scale-note">📊 Ποσότητες για <b>${sc*m.srv} άτομα</b> (×${sc})</div>`:'';
+  const note=m.cost?`<div class="cost-note">💰 ${scaledCost} σύνολο · ${m.cps||''} ανά μερίδα &nbsp;<span style="color:var(--t3)">(${t('cost_yr')})</span></div>`:'';
+  document.getElementById('ot-ing').innerHTML=`${scaleNote}<div class="ing-grid">${items}</div><button class="copy-list-btn" onclick="copyShoppingList()">📋 Αντιγραφή λίστας αγορών</button>${note}`;
 }
 
 function buildStepsTab(m){
@@ -1124,6 +1146,7 @@ function ovTab(tab){
 function closeOv(){
   document.getElementById('overlay').classList.remove('show');
   document.body.style.overflow='';
+  _guestScale=1;
   stopTTS();
 }
 
@@ -1505,6 +1528,25 @@ function doSearch(q){
   res.style.display='block';
 }
 
+function scaleQty(text,factor){
+  if(factor===1)return text;
+  return text.replace(/\d+(\.\d+)?/g,n=>{
+    const v=parseFloat(n)*factor;
+    const r=Math.round(v*10)/10;
+    return r%1===0?String(r):String(r);
+  });
+}
+function scalePrice(costStr,factor){
+  if(!costStr||factor===1)return costStr;
+  return costStr.replace(/\d+(\.\d+)?/g,n=>{
+    const v=Math.round(parseFloat(n)*factor*10)/10;
+    return v%1===0?String(v):v.toFixed(1);
+  });
+}
+function openRWithScale(id,scale){
+  _guestScale=scale&&scale>1?Math.ceil(scale):1;
+  openR(id);
+}
 function selGuest(n,btn){
   document.querySelectorAll('.gpill').forEach(b=>b.classList.remove('on'));
   if(btn)btn.classList.add('on');
@@ -1513,7 +1555,11 @@ function selGuest(n,btn){
     .filter(([,m])=>!m.cats.includes('soups')&&m.srv>=2)
     .sort((a,b)=>(b[1].pop||1)-(a[1].pop||1)).slice(0,8);
   const res=document.getElementById('guest-res');
-  if(res)res.innerHTML=`<div class="guest-info">💡 Για <b>${n} άτομα</b></div><div class="meal-grid-sm">${pool.map(([id,m])=>`<div class="mcard-sm" onclick="openR('${id}')"><span style="font-size:32px">${m.e}</span><div>${m.n}</div></div>`).join('')}</div>`;
+  if(res)res.innerHTML=`<div class="guest-info">💡 Για <b>${n} άτομα</b> — ποσότητες προσαρμοσμένες αυτόματα!</div><div class="meal-grid-sm">${pool.map(([id,m])=>{
+    const scale=Math.ceil(n/m.srv);
+    const badge=scale>1?`<div class="scale-badge">×${scale}</div>`:'';
+    return `<div class="mcard-sm" onclick="openRWithScale('${id}',${scale})" style="position:relative">${badge}<span style="font-size:32px">${m.e}</span><div>${m.n}</div><div style="font-size:11px;color:var(--pri);margin-top:2px">Αρχ. ${m.srv} μερ.</div></div>`;
+  }).join('')}</div>`;
 }
 // ── TODAY PLAN (επαναφορά κάθε μέρα) ─────────────────────────
 function getTodayPlan(){
