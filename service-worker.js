@@ -1,5 +1,5 @@
 // FoodDaily Service Worker v2.0
-const VERSION = '2026-06-11-05';
+const VERSION = '2026-06-11-06';
 const CACHE = `fooddaily-${VERSION}`;
 const ASSETS = [
   '/',
@@ -54,6 +54,22 @@ self.addEventListener('fetch', e => {
       })
     )
   );
+});
+
+// Message from page: show a notification (most reliable on Android TWA)
+self.addEventListener('message', e => {
+  if (e.data && e.data.type === 'SHOW_NOTIFICATION') {
+    e.waitUntil(
+      self.registration.showNotification(e.data.title, {
+        body: e.data.body,
+        icon: '/icon-192.png',
+        badge: '/icon-96.png',
+        tag: 'fd-meal',
+        vibrate: [200, 100, 200],
+        requireInteraction: false
+      })
+    );
+  }
 });
 
 // Notification click: open or focus the app
