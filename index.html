@@ -331,6 +331,10 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 [data-theme="dark"] .thumb-up{background:#14291A;border-color:#166534;color:#4ADE80;}
 .scale-note{background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border:1.5px solid #81C784;border-radius:8px;padding:8px 12px;font-size:13px;color:#2E7D32;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
 .scale-badge{position:absolute;top:4px;right:4px;background:var(--pri);color:#fff;border-radius:12px;font-size:10px;font-weight:700;padding:2px 6px;z-index:2;}
+.fav-cat-hdr{grid-column:1/-1;font-size:13px;font-weight:700;color:var(--pri);padding:10px 2px 4px;border-bottom:1.5px solid var(--bd);margin-top:6px;letter-spacing:.3px;}
+.fav-cat-hdr:first-child{margin-top:0;}
+.b-sweets{background:#FFF0C4;color:#9A6010;border:1px solid #EDD888;}
+[data-theme="dark"] .b-sweets{background:#2A220A;color:#EDD888;}
 </style>
 </head>
 <body>
@@ -998,8 +1002,56 @@ function renderMeals(cat){
   let pool=Object.entries(MEALS)
     .filter(([id])=>!excl.includes(id)&&!skipped.includes(id))
     .map(([id,m])=>({...m,id}));
-  if(cat==='favs'){pool=pool.filter(m=>getFavs().includes(m.id));}
   else if(cat!=='all'){pool=pool.filter(m=>m.cats.includes(cat));}
+
+  const grid=document.getElementById('meals-grid');
+
+  if(cat==='favs'){
+    const allFavIds=getFavs();
+    const mealFavIds=allFavIds.filter(id=>!id.startsWith('sw:'));
+    const sweetFavIds=allFavIds.filter(id=>id.startsWith('sw:'));
+    if(!allFavIds.length){
+      grid.innerHTML=`<div class="fav-empty"><div style="font-size:38px">🤍</div><div style="font-size:15px;margin-top:.5rem">Δεν έχεις αγαπημένα ακόμα.</div><div style="font-size:13px;margin-top:4px">Πάτα ❤️ σε οποιαδήποτε συνταγή ή γλυκό!</div></div>`;
+      return;
+    }
+    const CATLBLS={pasta:'🍝 Ζυμαρικά',seafood:'🐟 Θαλασσινά',meat:'🥩 Κρεατικά',
+      legumes:'🫘 Όσπρια',vegetables:'🥦 Λαχανικά',salads:'🥗 Σαλάτες',soups:'🍲 Σούπες'};
+    const SWLBLS={keik:'🎂 Κέικ',koulourakia:'🍪 Κουλουράκια',tiganites:'🥞 Τηγανίτες',
+      paradosiaka:'🍯 Παραδοσιακά',epochiaka:'🌸 Εποχιακά'};
+    const byCat={};
+    mealFavIds.forEach(id=>{const m=MEALS[id];if(!m)return;const c=m.cats[0];(byCat[c]=byCat[c]||[]).push({...m,id});});
+    const bySwCat={};
+    sweetFavIds.forEach(fid=>{
+      const parts=fid.split(':');const c=parts[1],i=+parts[2];
+      const s=SWEETS[c]?.[i];if(!s)return;
+      (bySwCat[c]=bySwCat[c]||[]).push({...s,_fid:fid,_swc:c,_swi:i});
+    });
+    let html='';
+    for(const[c,meals] of Object.entries(byCat)){
+      html+=`<div class="fav-cat-hdr">${CATLBLS[c]||c}</div>`;
+      html+=meals.map(m=>{
+        const bg=CAT_GRAD[m.cats[0]]||CAT_GRAD.legumes;
+        const cl=CAT_CL[m.cats[0]]||'b-legumes';
+        const planStatus=todayPlan[m.id];
+        const actHtml=planStatus==='plan'?`<span class="thumb-planned">✓ Θα το φτιάξω!</span>`:`<button class="thumb-up" onclick="thumbUp('${m.id}',event)">👍 Θα το φτιάξω!</button><button class="thumb-dn" onclick="thumbDown('${m.id}',event)">👎</button>`;
+        return `<div class="mcard" data-mid="${m.id}" onclick="openR('${m.id}')">
+          <div class="mtop" style="background:${bg}"><div class="memoji">${m.e}</div><div class="mtop-grad"></div><div class="mtop-badge"><span class="badge ${cl}">${catLabel(m.cats[0])}</span></div></div>
+          <div class="mbtm"><div class="mname-row"><div class="mname">${mealName(m)}</div><button class="fav-btn-sm" data-id="${m.id}" onclick="toggleFav('${m.id}',event)">❤️</button></div>
+          <div class="mmeta">⏱ ${m.time}' &nbsp;🔥 ${m.cal} &nbsp;💰 ${m.cps||'~2€'}${t('per_srv')}</div>
+          <div class="card-actions" id="ca-${m.id}">${actHtml}</div></div></div>`;
+      }).join('');
+    }
+    for(const[c,sweets] of Object.entries(bySwCat)){
+      html+=`<div class="fav-cat-hdr">${SWLBLS[c]||'Γλυκά'}</div>`;
+      html+=sweets.map(s=>`<div class="mcard" onclick="openSW('${s._swc}',${s._swi})">
+        <div class="mtop" style="background:linear-gradient(145deg,#FFF8E7,#FFE082)"><div class="memoji">${s.e}</div><div class="mtop-grad"></div><div class="mtop-badge"><span class="badge b-sweets">Γλυκό</span></div></div>
+        <div class="mbtm"><div class="mname-row"><div class="mname">${s.n}</div><button class="fav-btn-sm" data-id="${s._fid}" onclick="toggleFav('${s._fid}',event)">❤️</button></div>
+        <div class="mmeta">🔥 ${s.cal} θερμ./μερ. &nbsp;🍽 ${s.srv} μερ.</div></div></div>`).join('');
+    }
+    grid.innerHTML=html;
+    return;
+  }
+
   const dow=new Date().getDay(); // 0=Sun
   const isSunday=dow===0;
   const fresh=pool.filter(m=>!rids.includes(m.id)).sort((a,b)=>{
@@ -1008,13 +1060,8 @@ function renderMeals(cat){
     return (pa-pb)||(Math.random()-.5); // Weekdays: everyday meals first
   });
   const old=pool.filter(m=>rids.includes(m.id));
-  const show=cat==='favs'?pool:[...fresh,...old].slice(0,6);
+  const show=[...fresh,...old].slice(0,6);
 
-  const grid=document.getElementById('meals-grid');
-  if(cat==='favs'&&!show.length){
-    grid.innerHTML=`<div class="fav-empty"><div style="font-size:38px">🤍</div><div style="font-size:15px;margin-top:.5rem">Δεν έχεις αγαπημένα ακόμα.</div><div style="font-size:13px;margin-top:4px">Πάτα ❤️ σε μια συνταγή!</div></div>`;
-    return;
-  }
   grid.innerHTML=show.map(m=>{
     const mc=m.cats[0];
     const ds=dSince(m.id);
@@ -1098,10 +1145,12 @@ function openR(id){
 function openSW(cat,idx){
   try{
   const s=SWEETS[cat][idx];if(!s)return;
-  _meal=s;
+  const fid=`sw:${cat}:${idx}`;
+  _meal={...s,_fid:fid};
   const hero=document.getElementById('ov-hero');
   hero.innerHTML=`
     <button class="ovcls" onclick="closeOv()">✕</button>
+    <button id="ov-fav" onclick="toggleFav('${fid}',event)" style="position:absolute;top:12px;left:12px;z-index:10;background:rgba(0,0,0,.3);border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;">${isFav(fid)?'❤️':'🤍'}</button>
     <div class="ovhero-fb" style="background:linear-gradient(145deg,#FFF8E7,#FFE082)"><span style="font-size:78px">${s.e}</span></div>
     <div class="ovhero-grad"></div>
     <div class="ovtitle"><h2>${s.n}</h2></div>`;
@@ -1153,16 +1202,35 @@ function closeOv(){
 function ovBgClick(e){if(e.target===document.getElementById('overlay'))closeOv();}
 
 // ── TTS ───────────────────────────────────────────────────────
-function buildTTSText(m){return (m.n||'')+(m.ing?'. Υλικά: '+m.ing.join(', '):'')+(m.steps?'. '+m.steps.map((s,i)=>'Βήμα '+(i+1)+': '+s).join(' '):'');}
+function buildTTSText(m){
+  const name=m.n||'';
+  const ings=m.ing?'Υλικά. '+m.ing.join('. ')+'.':'';
+  const steps=m.steps?'Εκτέλεση. '+m.steps.map((s,i)=>'Βήμα '+(i+1)+'. '+s).join('. '):'';
+  return [name,ings,steps].filter(Boolean).join(' ');
+}
+function pickVoice(){
+  const vv=speechSynthesis.getVoices();
+  return vv.find(v=>v.lang.startsWith('el')&&v.name.toLowerCase().includes('google'))
+    ||vv.find(v=>v.lang.startsWith('el')&&!v.localService)
+    ||vv.find(v=>v.lang==='el-GR')
+    ||vv.find(v=>v.lang.startsWith('el'))
+    ||null;
+}
 function toggleTTS(){isTTS?stopTTS():startTTS();}
 function startTTS(){
-  if(!_meal||!window.speechSynthesis)return;stopTTS();
-  const u=new SpeechSynthesisUtterance(buildTTSText(_meal));
-  u.lang='el-GR';u.rate=0.88;
-  const gv=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.startsWith('el'));if(gv)u.voice=gv;
-  u.onstart=()=>{isTTS=true;document.getElementById('ov-tts-btn').textContent=t('tts_s');};
-  u.onend=u.onerror=()=>{isTTS=false;document.getElementById('ov-tts-btn').textContent=t('tts_p');};
-  speechSynthesis.speak(u);
+  if(!_meal||!window.speechSynthesis)return;
+  stopTTS();
+  const doSpeak=()=>{
+    const u=new SpeechSynthesisUtterance(buildTTSText(_meal));
+    u.lang='el-GR';u.rate=0.84;u.pitch=1.05;
+    const gv=pickVoice();if(gv)u.voice=gv;
+    u.onstart=()=>{isTTS=true;document.getElementById('ov-tts-btn').textContent=t('tts_s');};
+    u.onend=u.onerror=()=>{isTTS=false;document.getElementById('ov-tts-btn').textContent=t('tts_p');};
+    speechSynthesis.speak(u);
+  };
+  // voices may not be loaded yet on first call
+  if(speechSynthesis.getVoices().length){doSpeak();}
+  else{speechSynthesis.addEventListener('voiceschanged',doSpeak,{once:true});}
 }
 function stopTTS(){if(window.speechSynthesis)speechSynthesis.cancel();isTTS=false;const b=document.getElementById('ov-tts-btn');if(b)b.textContent=t('tts_p');}
 
@@ -1270,11 +1338,14 @@ function backFest(){
 function filtSw(cat,btn){
   if(btn){document.querySelectorAll('#sw-cats .cpill').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
   curSwCat=cat;
-  document.getElementById('sw-grid').innerHTML=SWEETS[cat].map((s,i)=>`
-    <div class="swcard" onclick="openSW('${cat}',${i})">
+  document.getElementById('sw-grid').innerHTML=SWEETS[cat].map((s,i)=>{
+    const fid=`sw:${cat}:${i}`;
+    return `<div class="swcard" onclick="openSW('${cat}',${i})" style="position:relative">
       <div class="swebox" style="background:linear-gradient(145deg,#FFF8E7,#FFE082)">${s.e}</div>
       <div class="swinfo"><div class="swname">${s.n}</div><div class="swcal">${s.cal} θερμ./μερ.</div></div>
-    </div>`).join('');
+      <button class="fav-btn-sm" data-id="${fid}" onclick="toggleFav('${fid}',event)" title="Αγαπημένο" style="position:absolute;top:6px;right:6px;background:rgba(255,255,255,.75);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;">${isFav(fid)?'❤️':'🤍'}</button>
+    </div>`;
+  }).join('');
 }
 
 // ── FRIDGE ────────────────────────────────────────────────────
