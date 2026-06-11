@@ -43,7 +43,10 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .icon-btn:hover,.icon-btn.on{background:var(--pri);color:#fff;border-color:var(--pri);}
 /* FEATURED DAILY CARD */
 .feat-meal-wrap{padding:14px 1.25rem 0;}
-.feat-meal{border-radius:22px;overflow:hidden;position:relative;height:175px;cursor:pointer;box-shadow:0 8px 28px rgba(0,0,0,.20);transition:transform .2s;}
+.feat-meal{border-radius:22px;overflow:hidden;position:relative;height:235px;cursor:pointer;box-shadow:0 8px 28px rgba(0,0,0,.20);transition:transform .2s;}
+.feat-meal-wrap{position:relative;}
+.feat-next-btn{position:absolute;bottom:14px;right:14px;z-index:3;width:38px;height:38px;border-radius:50%;border:none;background:rgba(0,0,0,.40);backdrop-filter:blur(6px);color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.feat-next-btn:hover{background:rgba(0,0,0,.65);}
 .feat-meal:hover{transform:translateY(-2px);}
 .feat-meal img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
 .feat-meal-ov{position:absolute;inset:0;background:linear-gradient(to right,rgba(0,0,0,.84) 0%,rgba(0,0,0,.42) 62%,rgba(0,0,0,.06) 100%);}
@@ -71,15 +74,22 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .bell-dot{position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:#EF4444;border:2px solid var(--bg);}
 .vst{font-size:11px;color:var(--t3);}
 /* BOTTOM NAV */
-.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:700px;z-index:150;background:rgba(251,245,236,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1.5px solid rgba(200,80,26,.15);display:flex;justify-content:space-around;align-items:stretch;padding:6px 0 max(8px,env(safe-area-inset-bottom));}
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:700px;z-index:150;background:rgba(251,245,236,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1.5px solid rgba(0,0,0,.09);display:flex;justify-content:space-around;align-items:stretch;padding:6px 0 max(8px,env(safe-area-inset-bottom));}
 .bntab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 4px 2px;border:none;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;color:var(--t3);-webkit-tap-highlight-color:transparent;}
 .bntab-ico{font-size:22px;line-height:1;}
-.bntab-lbl{font-size:10px;font-weight:500;letter-spacing:.01em;}
-.bntab.on{color:var(--pri);}
+.bntab-lbl{font-size:10px;font-weight:600;letter-spacing:.01em;}
+.bntab.on{color:#111;}
 .bntab.on .bntab-ico{transform:translateY(-2px);}
-[data-theme="dark"] .bnav{background:rgba(20,18,15,.88);border-top-color:rgba(200,80,26,.25);}
+[data-theme="dark"] .bnav{background:rgba(20,18,15,.92);border-top-color:rgba(255,255,255,.08);}
 [data-theme="dark"] .bntab{color:var(--t3);}
-[data-theme="dark"] .bntab.on{color:var(--pri2);}
+[data-theme="dark"] .bntab.on{color:#fff;}
+/* Hero shortcuts strip */
+.hero-shcts{display:flex;gap:8px;padding:10px 1.1rem 4px;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap;}
+.hero-shcts::-webkit-scrollbar{display:none}
+.hshct{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:30px;border:1.5px solid var(--bd);background:var(--w);color:var(--t2);font-size:13px;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;transition:all .22s;box-shadow:0 1px 6px rgba(0,0,0,.06);-webkit-tap-highlight-color:transparent;}
+.hshct:active{transform:scale(.95);}
+.hshct.on{background:var(--pri);color:#fff;border-color:var(--pri);}
+[data-theme="dark"] .hshct{background:var(--w);border-color:#2A2820;}
 /* Legacy ntab (hidden, kept for JS compat) */
 .nav{display:none;}
 .ntab{}
@@ -439,12 +449,29 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
   </button>
 </nav>
 
+<!-- SHORTCUTS (κάτω από hero search) -->
+<div class="hero-shcts" id="hero-shcts">
+  <button class="hshct on" id="hshct-daily" onclick="selMode('daily',this)">📅 Καθημερινά</button>
+  <button class="hshct" id="hshct-fridge" onclick="showSec('fridge','fridge')">🧊 Ψυγείο</button>
+  <button class="hshct" id="hshct-quick" onclick="selMode('quick',this)">⚡ Γρήγορα</button>
+</div>
+
 <!-- DAILY -->
 <div class="sec show" id="s-daily">
+  <div class="search-bar" id="search-bar" style="display:none">
+    <span>🔍</span>
+    <input type="text" id="search-inp" placeholder="Αναζήτηση συνταγής..." oninput="doSearch(this.value)">
+    <button class="search-close" onclick="closeSearch()">✕</button>
+  </div>
+  <div id="search-results" style="display:none"></div>
+  <!-- Featured card — first, big -->
+  <div id="featured-wrap"></div>
+  <!-- Category pills — below featured -->
   <div class="sec-head">
     <div class="cat-row-wrap">
       <div class="cat-row" id="cat-row">
-        <button class="cpill on" onclick="selCat('all',this)">🌿 Όλα</button>
+        <button class="cpill on" id="cpill-all" onclick="selCat('all',this)">☀️ Σημερινές</button>
+        <button class="cpill" id="cpill-quick" onclick="selCat('quick',this)">⚡ Γρήγορες ιδέες</button>
         <button class="cpill" onclick="selCat('pasta',this)">🍝 Ζυμαρικά</button>
         <button class="cpill" onclick="selCat('seafood',this)">🐟 Θαλασσινά</button>
         <button class="cpill" onclick="selCat('meat',this)">🥩 Κρεατικά</button>
@@ -457,16 +484,9 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
     </div>
     <div class="daily-meta">
       <div id="daily-lbl" class="daily-lbl-txt">Προτάσεις για σήμερα</div>
-      <button class="reshuffle" onclick="renderMeals(curCat)">🔀 Νέες προτάσεις</button>
+      <button class="reshuffle" onclick="renderMeals(curCat)">🔀 Νέες</button>
     </div>
   </div>
-  <div class="search-bar" id="search-bar" style="display:none">
-    <span>🔍</span>
-    <input type="text" id="search-inp" placeholder="Αναζήτηση συνταγής..." oninput="doSearch(this.value)">
-    <button class="search-close" onclick="closeSearch()">✕</button>
-  </div>
-  <div id="search-results" style="display:none"></div>
-  <div id="featured-wrap"></div>
   <div class="meal-grid" id="meals-grid"></div>
   <div id="remind-wrap" style="padding:0 1.25rem;"></div>
 </div>
@@ -629,7 +649,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 <script>
 let curCat='all',curSec='daily',curSwCat='keik',curFestF='all',
     _meal=null,isTTS=false,recog=null,isLis=false,_guestScale=1,_curSrv=0,
-    curLang='el';
+    curLang='el',curMode='daily',featIdx=0,_featPool=[];
 
 
 const TH={
@@ -1106,10 +1126,87 @@ function goSec(id,btn){
 }
 
 // ── MEALS RENDER ─────────────────────────────────────────────
+function selMode(mode,btn){
+  curMode=mode;
+  document.querySelectorAll('.hshct').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  if(mode==='quick'){
+    // Sync category pills
+    selCat('quick',document.getElementById('cpill-quick'));
+  } else {
+    selCat('all',document.getElementById('cpill-all'));
+  }
+}
+
 function selCat(cat,btn){
   document.querySelectorAll('#cat-row .cpill').forEach(b=>b.classList.remove('on'));
   if(btn)btn.classList.add('on');
-  curCat=cat; applyTheme(cat); renderMeals(cat);
+  curCat=cat; applyTheme(cat); featIdx=0; renderMeals(cat);
+}
+
+function renderFeatured(show,cat,todayPlan){
+  const fw=document.getElementById('featured-wrap');
+  if(!fw||!show.length)return;
+  const fm=show[featIdx]||show[0];
+  const fimg=MEAL_IMAGES[fm.id]||'';
+  const fbg=CAT_GRAD[fm.cats[0]]||CAT_GRAD.legumes;
+  const ffav=isFav(fm.id);
+  const fplan=todayPlan[fm.id];
+  const badge=cat==='quick'?'⚡ Γρήγορη ιδέα':'⭐ Πρόταση ημέρας';
+  fw.innerHTML=`<div class="feat-meal-wrap" style="padding:12px 1.1rem 0;position:relative;">
+    <div class="feat-meal" onclick="openR('${fm.id}')">
+      ${fimg?`<img src="${fimg}" alt="${fm.n}" onerror="this.style.display='none'">`:`<div style="position:absolute;inset:0;background:${fbg}"></div>`}
+      <div class="feat-meal-ov"></div>
+      ${!fimg?`<div class="feat-meal-e">${fm.e}</div>`:''}
+      <div class="feat-meal-body">
+        <div class="feat-badge-pill">${badge}</div>
+        <div class="feat-meal-name">${mealName(fm)}</div>
+        <div class="feat-meal-meta"><span>⏱ ${fm.time}'</span><span>💰 ${fm.cost||'~5€'}</span><span>👥 ${fm.srv} μερ.</span></div>
+        ${fplan==='plan'
+          ?`<div class="feat-go-btn" style="background:rgba(34,197,94,.9);color:#fff">✓ Θα το φτιάξω σήμερα!</div>`
+          :`<button class="feat-go-btn" onclick="event.stopPropagation();openR('${fm.id}')">Δες τη συνταγή →</button>`}
+      </div>
+      <button class="feat-fav" data-id="${fm.id}" onclick="toggleFav('${fm.id}',event)">${ffav?'❤️':'🤍'}</button>
+      <button class="feat-next-btn" title="Επόμενη πρόταση" onclick="event.stopPropagation();featNext()">👎</button>
+    </div>
+  </div>
+  <div class="more-hdr"><h3>🌞 Περισσότερες προτάσεις</h3></div>`;
+}
+
+function featNext(){
+  if(_featPool.length<2)return;
+  featIdx=(featIdx+1)%_featPool.length;
+  // Re-render featured and grid
+  const todayPlan=getTodayPlan();
+  renderFeatured(_featPool,curCat,todayPlan);
+  // Update grid to exclude new featured
+  const grid=document.getElementById('meals-grid');
+  if(grid){
+    const gridMeals=_featPool.filter((_,i)=>i!==featIdx);
+    grid.innerHTML=gridMeals.map(m=>{
+      const mc=m.cats[0];
+      const bg=CAT_GRAD[mc]||CAT_GRAD.legumes;
+      const cl=CAT_CL[mc]||'b-legumes';
+      const fav=isFav(m.id);
+      const planStatus=todayPlan[m.id];
+      const actHtml=planStatus==='plan'
+        ?`<span class="thumb-planned">✓ Θα το φτιάξω σήμερα!</span>`
+        :`<button class="thumb-up" onclick="thumbUp('${m.id}',event)">👍 Θα το φτιάξω!</button><button class="thumb-dn" onclick="thumbDown('${m.id}',event)">👎</button>`;
+      return `<div class="mcard" data-mid="${m.id}" onclick="openR('${m.id}')">
+        <div class="mtop" style="background:${bg}">
+          <img id="mi-${m.id}" alt="${m.n}" src="${MEAL_IMAGES[m.id]||''}" onload="this.classList.add('loaded');document.getElementById('me-${m.id}').style.opacity=0" onerror="this.style.display='none'">
+          <div class="memoji" id="me-${m.id}">${m.e}</div>
+          <div class="mtop-grad"></div>
+          <div class="mtop-badge"><span class="badge ${cl}">${catLabel(mc)}</span></div>
+        </div>
+        <div class="mbtm">
+          <div class="mname-row"><div class="mname">${mealName(m)}</div><button class="fav-btn-sm" data-id="${m.id}" onclick="toggleFav('${m.id}',event)">${fav?'❤️':'🤍'}</button></div>
+          <div class="mmeta">⏱ ${m.time}' &nbsp;🔥 ${m.cal} &nbsp;💰 ${m.cps||'~2€'}${t('per_srv')}</div>
+          <div class="card-actions" id="ca-${m.id}">${actHtml}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
 }
 
 function renderMeals(cat){
@@ -1122,7 +1219,8 @@ function renderMeals(cat){
   let pool=Object.entries(MEALS)
     .filter(([id])=>!excl.includes(id)&&!skipped.includes(id))
     .map(([id,m])=>({...m,id}));
-  if(cat!=='all'&&cat!=='favs'){pool=pool.filter(m=>m.cats.includes(cat));}
+  if(cat==='quick'){pool=pool.filter(m=>parseInt(m.time)<=20);}
+  else if(cat!=='all'&&cat!=='favs'){pool=pool.filter(m=>m.cats.includes(cat));}
 
   const grid=document.getElementById('meals-grid');
 
@@ -1181,40 +1279,21 @@ function renderMeals(cat){
     return (pa-pb)||(Math.random()-.5); // Weekdays: everyday meals first
   });
   const old=pool.filter(m=>rids.includes(m.id));
-  const show=[...fresh,...old].slice(0,6);
+  const show=[...fresh,...old].slice(0,8);
+  _featPool=show;
+  if(featIdx>=show.length)featIdx=0;
 
-  // Featured card (first meal, only on all-categories view)
+  // Featured card (first meal, only on all/quick categories view)
   const fw=document.getElementById('featured-wrap');
   if(fw){
-    if(cat==='all'&&show.length>0){
-      const fm=show[0];
-      const fimg=MEAL_IMAGES[fm.id]||'';
-      const fbg=CAT_GRAD[fm.cats[0]]||CAT_GRAD.legumes;
-      const ffav=isFav(fm.id);
-      const fplan=todayPlan[fm.id];
-      fw.innerHTML=`<div class="feat-meal-wrap">
-        <div class="feat-meal" onclick="openR('${fm.id}')">
-          ${fimg?`<img src="${fimg}" alt="${fm.n}" onerror="this.style.display='none'">`:`<div style="position:absolute;inset:0;background:${fbg}"></div>`}
-          <div class="feat-meal-ov"></div>
-          ${!fimg?`<div class="feat-meal-e">${fm.e}</div>`:''}
-          <div class="feat-meal-body">
-            <div class="feat-badge-pill">⭐ Πρόταση ημέρας</div>
-            <div class="feat-meal-name">${mealName(fm)}</div>
-            <div class="feat-meal-meta"><span>⏱ ${fm.time}'</span><span>💰 ${fm.cost||'~5€'}</span><span>👥 ${fm.srv} μερ.</span></div>
-            ${fplan==='plan'
-              ?`<div class="feat-go-btn" style="background:rgba(34,197,94,.9);color:#fff">✓ Θα το φτιάξω σήμερα!</div>`
-              :`<button class="feat-go-btn" onclick="event.stopPropagation();openR('${fm.id}')">Δες τη συνταγή →</button>`}
-          </div>
-          <button class="feat-fav" data-id="${fm.id}" onclick="toggleFav('${fm.id}',event)">${ffav?'❤️':'🤍'}</button>
-        </div>
-      </div>
-      <div class="more-hdr"><h3>🌞 Περισσότερες προτάσεις</h3></div>`;
+    if((cat==='all'||cat==='quick')&&show.length>0){
+      renderFeatured(show,cat,todayPlan);
     } else {
       fw.innerHTML='';
     }
   }
 
-  const gridMeals=cat==='all'?show.slice(1):show;
+  const gridMeals=(cat==='all'||cat==='quick')?show.filter((_,i)=>i!==featIdx):show;
   grid.innerHTML=gridMeals.map(m=>{
     const mc=m.cats[0];
     const ds=dSince(m.id);
@@ -1706,6 +1785,7 @@ function showToast(msg){
 
 function showSec(id,btn){
   document.querySelectorAll('.bntab').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.hshct').forEach(b=>b.classList.remove('on'));
   // "favs" is a category filter inside the daily section
   if(id==='favs'){
     curSec='daily';
@@ -1724,6 +1804,9 @@ function showSec(id,btn){
   const bnMap={daily:'bnt-daily',festive:'bnt-festive',guests:'bnt-guests'};
   const activeId=bnMap[id];
   if(activeId){const ab=document.getElementById(activeId);if(ab)ab.classList.add('on');}
+  // Update shortcuts active state
+  if(id==='fridge'){const hf=document.getElementById('hshct-fridge');if(hf)hf.classList.add('on');}
+  else if(id==='daily'){const hd=document.getElementById('hshct-daily');if(hd)hd.classList.add('on');}
 }
 
 // ── SEARCH with accent-insensitive ──
