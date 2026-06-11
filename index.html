@@ -319,6 +319,12 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 /* === SHOPPING LIST COPY === */
 .copy-list-btn{display:flex;align-items:center;gap:6px;width:100%;margin-top:.875rem;padding:11px;border-radius:var(--rs);border:1.5px solid var(--bd);background:var(--lt);color:var(--pri);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;justify-content:center;}
 .copy-list-btn:hover{background:var(--pri);color:#fff;border-color:var(--pri);}
+/* === COOKED BUTTON === */
+.cooked-btn{padding:10px 14px;border-radius:var(--rs);border:1.5px solid #86EFAC;background:#F0FDF4;color:#166534;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .25s;white-space:nowrap;flex-shrink:0;}
+.cooked-btn:hover{background:#DCFCE7;border-color:#4ADE80;}
+.cooked-btn.done{background:#DCFCE7;border-color:#86EFAC;color:#166534;cursor:default;opacity:.7;}
+[data-theme="dark"] .cooked-btn{background:#14291A;border-color:#166534;color:#4ADE80;}
+[data-theme="dark"] .cooked-btn.done{opacity:.5;}
 </style>
 </head>
 <body>
@@ -504,9 +510,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
       <button class="tts-btn" id="ov-tts-btn" onclick="toggleTTS()">
         <span id="ov-tts-lbl">▶ Άκου</span>
       </button>
-      <button id="vst" class="icon-btn" style="display:none">
-        <span id="mic">🎤</span>
-      </button>
+      <button id="ov-cooked-btn" class="cooked-btn" onclick="markCooked()">✅ Το έφτιαξα σήμερα!</button>
     </div>
   </div>
 </div>
@@ -971,7 +975,9 @@ function catLabel(cat){return t('cl_'+cat)||cat;}
 
 function renderMeals(cat){
   const rids=recIds(7);
-  const excl=['anginaresPolita','tartaFragola','taramosalata','halvas','lagana'];
+  // Εξαιρούνται συνοδευτικά, μεζέδες, ψωμιά, γλυκά — ΟΧΙ κυρίως πιάτα
+  const excl=['anginaresPolita','tartaFragola','taramosalata','halvas','lagana',
+              'tzatziki_dish','skordalia','eliestoursi','salata_rodi'];
   let pool=Object.entries(MEALS).filter(([id])=>!excl.includes(id)).map(([id,m])=>({...m,id}));
   if(cat==='favs'){pool=pool.filter(m=>getFavs().includes(m.id));}
   else if(cat!=='all'){pool=pool.filter(m=>m.cats.includes(cat));}
@@ -1027,7 +1033,8 @@ function reshuffle(){renderMeals(curCat);}
 function openR(id){
   try{
   const m=MEALS[id];if(!m)return;
-  saveH(id);_meal=m;
+  _meal={...m,id};
+  // Δεν αποθηκεύουμε ιστορικό απλώς από το άνοιγμα — μόνο αν πατήσει "Το έφτιαξα"
   const mc=m.cats[0];
   applyTheme(mc||'all');
   // Hero
@@ -1047,6 +1054,10 @@ function openR(id){
     <div class="ovstat"><label>${t('time')}</label><span>${m.time}'</span></div>
     <div class="ovstat"><label>${t('srv')}</label><span>${m.srv}</span></div>
     <div class="ovstat"><label>${t('cost')}</label><span style="color:var(--pri)">${m.cost||'~5€'}</span></div>`;
+  // Cooked button state
+  const cookedToday=dSince(id)===0;
+  const cb=document.getElementById('ov-cooked-btn');
+  if(cb){cb.textContent=cookedToday?'✓ Μαγειρεύτηκε σήμερα!':'✅ Το έφτιαξα σήμερα!';cb.classList.toggle('done',cookedToday);cb.disabled=cookedToday;}
   // Tabs content
   buildIngTab(m);buildStepsTab(m);buildPairTab(m);
   // TTS
@@ -1498,6 +1509,19 @@ function selGuest(n,btn){
   const res=document.getElementById('guest-res');
   if(res)res.innerHTML=`<div class="guest-info">💡 Για <b>${n} άτομα</b></div><div class="meal-grid-sm">${pool.map(([id,m])=>`<div class="mcard-sm" onclick="openR('${id}')"><span style="font-size:32px">${m.e}</span><div>${m.n}</div></div>`).join('')}</div>`;
 }
+// ── MARK COOKED ───────────────────────────────────────────────
+function markCooked(){
+  if(!_meal)return;
+  const id=_meal.id||Object.keys(MEALS).find(k=>MEALS[k]===_meal);
+  if(!id)return;
+  saveH(id);
+  const cb=document.getElementById('ov-cooked-btn');
+  if(cb){cb.textContent='✓ Μαγειρεύτηκε σήμερα!';cb.classList.add('done');cb.disabled=true;}
+  showToast('✅ Καταχωρήθηκε στο ιστορικό!');
+  // Ανανέωσε τις κάρτες ώστε να φύγει από τις "φρέσκες" προτάσεις
+  if(curSec==='daily')renderMeals(curCat);
+}
+
 // ── DARK MODE ────────────────────────────────────────────────
 function toggleDark(){
   const isDark=document.documentElement.getAttribute('data-theme')==='dark';
