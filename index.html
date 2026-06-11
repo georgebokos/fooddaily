@@ -350,10 +350,6 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
       <button id="search-btn" class="icon-btn" onclick="openSearch()" title="Αναζήτηση">🔍</button>
       <button id="dark-btn" class="icon-btn" onclick="toggleDark()" title="Dark mode">🌙</button>
       <button id="bell" class="icon-btn" onclick="openNotif()">🔔</button>
-      <div class="lang-sw">
-        <button class="lbtn on" id="lb-el" onclick="setLang('el')">ΕΛ</button>
-        <button class="lbtn" id="lb-en" onclick="setLang('en')">EN</button>
-      </div>
     </div>
   </div>
 </div>
@@ -1760,7 +1756,6 @@ function copyShoppingList(){
   rendFest('all');
   filtSw('keik');
   selGuest(4,null);
-  if(curLang==='en')setLang('en');
   updateFavPill();
   // Service Worker registration
   if('serviceWorker' in navigator){
