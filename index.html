@@ -18,10 +18,10 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .serif{font-family:'Playfair Display',serif;}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:4px}
 /* HERO HEADER */
-.hero-hdr{position:relative;height:240px;border-radius:0 0 32px 32px;overflow:hidden;margin-bottom:0;}
+.hero-hdr{position:relative;height:295px;border-radius:0 0 32px 32px;overflow:hidden;}
 .hero-hdr-img{position:absolute;inset:0;background-image:url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=900&q=82&auto=format&fit=crop');background-size:cover;background-position:center 40%;}
-.hero-hdr-ov{position:absolute;inset:0;background:linear-gradient(155deg,rgba(15,5,0,.75) 0%,rgba(50,15,5,.55) 40%,rgba(150,60,15,.18) 100%);}
-.hero-hdr-inner{position:relative;z-index:2;padding:18px 18px 0;}
+.hero-hdr-ov{position:absolute;inset:0;background:linear-gradient(160deg,rgba(12,4,0,.80) 0%,rgba(45,12,2,.60) 40%,rgba(130,55,10,.20) 100%);}
+.hero-content{position:relative;z-index:2;height:100%;padding:20px 18px 16px;display:flex;flex-direction:column;}
 .hero-brand{display:flex;align-items:center;justify-content:space-between;}
 .hero-brand-l{display:flex;align-items:center;gap:9px;}
 .hero-logo{width:36px;height:36px;border-radius:11px;background:rgba(255,255,255,.15);backdrop-filter:blur(8px);border:1.5px solid rgba(255,255,255,.26);display:flex;align-items:center;justify-content:center;font-size:19px;}
@@ -30,20 +30,36 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .hero-btn{width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(255,255,255,.22);background:rgba(255,255,255,.14);backdrop-filter:blur(8px);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;transition:background .2s;}
 .hero-btn:hover{background:rgba(255,255,255,.28);}
 .hero-btn.on{background:rgba(255,255,255,.9);color:#333;}
-.hero-body{padding:12px 18px 0;}
-.hero-day-lbl{font-size:11px;font-weight:600;color:rgba(255,255,255,.68);letter-spacing:.7px;text-transform:uppercase;}
-.hero-title{font-size:22px;font-weight:800;color:#fff;line-height:1.22;margin-top:2px;text-shadow:0 2px 12px rgba(0,0,0,.28);}
-.hero-sub{font-size:12px;color:rgba(255,255,255,.68);margin-top:4px;}
-.hero-search{position:absolute;z-index:3;bottom:-22px;left:16px;right:16px;background:#fff;border-radius:16px;box-shadow:0 6px 24px rgba(0,0,0,.14);display:flex;align-items:center;padding:0 14px;height:46px;gap:9px;border:1.5px solid #EDD8BC;}
-.hero-search input{flex:1;border:none;outline:none;font-size:14px;color:#7A5C3A;background:transparent;}
-.hero-search input::placeholder{color:#C4A07A;}
-.hero-search-icon{font-size:17px;color:#C4A07A;}
+.hero-spacer{flex:1;}
+.hero-greeting{font-size:12px;font-weight:700;color:rgba(255,255,255,.72);letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px;}
+.hero-title{font-size:24px;font-weight:800;color:#fff;line-height:1.2;text-shadow:0 2px 14px rgba(0,0,0,.3);}
+.hero-sub{font-size:12px;color:rgba(255,255,255,.65);margin-top:4px;}
+.hero-search{margin-top:14px;background:rgba(255,255,255,.15);backdrop-filter:blur(12px);border:1.5px solid rgba(255,255,255,.25);border-radius:16px;height:44px;display:flex;align-items:center;padding:0 14px;gap:9px;cursor:pointer;}
+.hero-search input{flex:1;border:none;outline:none;font-size:14px;color:rgba(255,255,255,.92);background:transparent;cursor:pointer;}
+.hero-search input::placeholder{color:rgba(255,255,255,.55);}
+.hero-search-icon{font-size:17px;color:rgba(255,255,255,.65);}
 /* keep icon-btn for any remaining uses */
 .icon-btn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--bd);background:var(--lt);font-size:17px;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;}
 .icon-btn:hover,.icon-btn.on{background:var(--pri);color:#fff;border-color:var(--pri);}
-[data-theme="dark"] .hero-search{background:#1C1A16;border-color:#2A2820;}
-[data-theme="dark"] .hero-search input{color:#E8DDD0;}
-[data-theme="dark"] .hero-search input::placeholder{color:#6A5A48;}
+/* FEATURED DAILY CARD */
+.feat-meal-wrap{padding:14px 1.25rem 0;}
+.feat-meal{border-radius:22px;overflow:hidden;position:relative;height:175px;cursor:pointer;box-shadow:0 8px 28px rgba(0,0,0,.20);transition:transform .2s;}
+.feat-meal:hover{transform:translateY(-2px);}
+.feat-meal img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.feat-meal-ov{position:absolute;inset:0;background:linear-gradient(to right,rgba(0,0,0,.84) 0%,rgba(0,0,0,.42) 62%,rgba(0,0,0,.06) 100%);}
+.feat-meal-e{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:68px;opacity:.20;z-index:0;}
+.feat-meal-body{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;justify-content:center;padding:16px 20px;}
+.feat-badge-pill{display:inline-flex;align-items:center;gap:4px;background:rgba(255,210,80,.22);border:1px solid rgba(255,210,80,.38);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;color:#FFE066;margin-bottom:7px;width:fit-content;}
+.feat-meal-name{font-size:22px;font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.28);line-height:1.2;}
+.feat-meal-meta{display:flex;gap:12px;margin-top:6px;}
+.feat-meal-meta span{font-size:12px;color:rgba(255,255,255,.82);font-weight:600;}
+.feat-go-btn{margin-top:11px;display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.92);color:var(--pri);border:none;border-radius:12px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;width:fit-content;transition:transform .18s;}
+.feat-go-btn:hover{transform:scale(1.04);}
+.feat-fav{position:absolute;top:10px;right:10px;z-index:2;background:rgba(0,0,0,.32);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;backdrop-filter:blur(4px);}
+.more-hdr{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.25rem .2rem;}
+.more-hdr h3{font-size:14px;font-weight:700;color:var(--t2);}
+[data-theme="dark"] .hero-search{border-color:rgba(255,255,255,.18);}
+[data-theme="dark"] .feat-go-btn{color:#1A3A2A;}
 .lang-sw{display:flex;gap:3px;background:var(--lt);border:1.5px solid var(--bd);border-radius:20px;padding:3px 5px;transition:all .5s;}
 .lbtn{width:28px;height:20px;border:none;background:transparent;font-size:13px;cursor:pointer;border-radius:12px;opacity:.5;transition:all .2s;padding:0;}
 .lbtn:hover{opacity:.85}
@@ -55,7 +71,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .bell-dot{position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:#EF4444;border:2px solid var(--bg);}
 .vst{font-size:11px;color:var(--t3);}
 /* NAV */
-.nav{padding:0 1rem .5rem;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap;margin-top:32px;}
+.nav{padding:0 1rem .5rem;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap;margin-top:12px;}
 .nav::-webkit-scrollbar{display:none}
 .ntab{display:inline-block;padding:7px 15px;border-radius:30px;border:1.5px solid var(--bd);background:transparent;color:var(--t2);font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .3s;margin-right:5px;}
 .ntab:hover{background:var(--lt);}
@@ -365,7 +381,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 <div class="hero-hdr">
   <div class="hero-hdr-img"></div>
   <div class="hero-hdr-ov"></div>
-  <div class="hero-hdr-inner">
+  <div class="hero-content">
     <div class="hero-brand">
       <div class="hero-brand-l">
         <div class="hero-logo">🍽️</div>
@@ -376,15 +392,14 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
         <button id="bell" class="hero-btn" onclick="openNotif()">🔔</button>
       </div>
     </div>
-  </div>
-  <div class="hero-body">
-    <div class="hero-day-lbl" id="hero-day-lbl"></div>
+    <div class="hero-spacer"></div>
+    <div class="hero-greeting" id="hero-greeting"></div>
     <div class="hero-title">Τι μαγειρεύουμε<br>σήμερα;</div>
-    <div class="hero-sub">✨ Βρες τη συνταγή της ημέρας</div>
-  </div>
-  <div class="hero-search">
-    <span class="hero-search-icon">🔍</span>
-    <input type="text" placeholder="Ψάξε συνταγή, υλικό..." onclick="openSearch()" readonly style="cursor:pointer;">
+    <div class="hero-sub" id="hero-sub">✨ Βρες τη συνταγή της ημέρας</div>
+    <div class="hero-search" onclick="openSearch()">
+      <span class="hero-search-icon">🔍</span>
+      <input type="text" placeholder="Ψάξε συνταγή, υλικό..." readonly>
+    </div>
   </div>
 </div>
 
@@ -424,6 +439,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
     <button class="search-close" onclick="closeSearch()">✕</button>
   </div>
   <div id="search-results" style="display:none"></div>
+  <div id="featured-wrap"></div>
   <div class="meal-grid" id="meals-grid"></div>
   <div id="remind-wrap" style="padding:0 1.25rem;"></div>
 </div>
@@ -1142,7 +1158,39 @@ function renderMeals(cat){
   const old=pool.filter(m=>rids.includes(m.id));
   const show=[...fresh,...old].slice(0,6);
 
-  grid.innerHTML=show.map(m=>{
+  // Featured card (first meal, only on all-categories view)
+  const fw=document.getElementById('featured-wrap');
+  if(fw){
+    if(cat==='all'&&show.length>0){
+      const fm=show[0];
+      const fimg=MEAL_IMAGES[fm.id]||'';
+      const fbg=CAT_GRAD[fm.cats[0]]||CAT_GRAD.legumes;
+      const ffav=isFav(fm.id);
+      const fplan=todayPlan[fm.id];
+      fw.innerHTML=`<div class="feat-meal-wrap">
+        <div class="feat-meal" onclick="openR('${fm.id}')">
+          ${fimg?`<img src="${fimg}" alt="${fm.n}" onerror="this.style.display='none'">`:`<div style="position:absolute;inset:0;background:${fbg}"></div>`}
+          <div class="feat-meal-ov"></div>
+          ${!fimg?`<div class="feat-meal-e">${fm.e}</div>`:''}
+          <div class="feat-meal-body">
+            <div class="feat-badge-pill">⭐ Πρόταση ημέρας</div>
+            <div class="feat-meal-name">${mealName(fm)}</div>
+            <div class="feat-meal-meta"><span>⏱ ${fm.time}'</span><span>💰 ${fm.cost||'~5€'}</span><span>👥 ${fm.srv} μερ.</span></div>
+            ${fplan==='plan'
+              ?`<div class="feat-go-btn" style="background:rgba(34,197,94,.9);color:#fff">✓ Θα το φτιάξω σήμερα!</div>`
+              :`<button class="feat-go-btn" onclick="event.stopPropagation();openR('${fm.id}')">Δες τη συνταγή →</button>`}
+          </div>
+          <button class="feat-fav" data-id="${fm.id}" onclick="toggleFav('${fm.id}',event)">${ffav?'❤️':'🤍'}</button>
+        </div>
+      </div>
+      <div class="more-hdr"><h3>🌞 Περισσότερες προτάσεις</h3></div>`;
+    } else {
+      fw.innerHTML='';
+    }
+  }
+
+  const gridMeals=cat==='all'?show.slice(1):show;
+  grid.innerHTML=gridMeals.map(m=>{
     const mc=m.cats[0];
     const ds=dSince(m.id);
     const bg=CAT_GRAD[mc]||CAT_GRAD.legumes;
@@ -1171,8 +1219,6 @@ function renderMeals(cat){
       </div>
     </div>`;
   }).join('');
-
-  // emoji only - no external images
 
   // Reminder
   const rw=document.getElementById('remind-wrap');
@@ -1856,12 +1902,16 @@ function copyShoppingList(){
     const db=document.getElementById('dark-btn');if(db)db.textContent='☀️';
   }
   localStorage.removeItem('fd_lang');
-  // Set hero day label
+  // Hero greeting + date
   const days=['Κυριακή','Δευτέρα','Τρίτη','Τετάρτη','Πέμπτη','Παρασκευή','Σάββατο'];
   const months=['Ιαν','Φεβ','Μαρ','Απρ','Μαΐ','Ιουν','Ιουλ','Αυγ','Σεπ','Οκτ','Νοε','Δεκ'];
-  const nd=new Date();
-  const dl=document.getElementById('hero-day-lbl');
-  if(dl)dl.textContent=`${days[nd.getDay()]} · ${nd.getDate()} ${months[nd.getMonth()]}`;
+  const nd=new Date();const hr=nd.getHours();
+  const greet=hr<6?'🌙 Καλό βράδυ':hr<12?'☀️ Καλημέρα':hr<17?'🌤 Καλημέρα':hr<21?'🌆 Καλησπέρα':'🌙 Καλό βράδυ';
+  const gl=document.getElementById('hero-greeting');
+  if(gl)gl.textContent=`${greet} · ${days[nd.getDay()]}, ${nd.getDate()} ${months[nd.getMonth()]}`;
+  const sl=document.getElementById('hero-sub');
+  const mealCount=Object.keys(MEALS).length;
+  if(sl)sl.textContent=`✨ ${mealCount}+ συνταγές να διαλέξεις`;
   applyTheme('all');
   renderMeals('all');
   rendFest('all');
