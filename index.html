@@ -1757,6 +1757,7 @@ async function saveNotif(){
     localStorage.setItem('notif_on','true');
     document.getElementById('bell').classList.add('on');
     startNotifTimer();
+    registerPeriodicSync();
     showToast('✅ Ειδοποιήσεις ενεργοποιήθηκαν!');
   } else {
     localStorage.setItem('notif_on','false');
@@ -1774,25 +1775,59 @@ async function toggleNotif(){
     else showToast('⚠️ Δεν δόθηκε άδεια');
   } else {tog.checked=false;document.getElementById('bell').classList.remove('on');localStorage.setItem('notif_on','false');showToast('Απενεργοποιήθηκαν');}
 }
-function testNotif(){if(Notification.permission!=='granted'){showToast('⚠️ Πρώτα ενεργοποίησε τις ειδοποιήσεις');return;}sendNotif();showToast('🔔 Δοκιμαστική ειδοποίηση εστάλη');}
-function sendNotif(){
+async function testNotif(){
+  if(Notification.permission!=='granted'){showToast('⚠️ Πρώτα ενεργοποίησε τις ειδοποιήσεις');return;}
+  await sendNotif();
+  showToast('🔔 Ειδοποίηση εστάλη!');
+}
+async function sendNotif(){
   const rids=recIds(7);
   const pool=Object.values(MEALS).filter(m=>!rids.includes(m.id||''));
   const m=(pool.length?pool:Object.values(MEALS))[Math.floor(Math.random()*(pool.length||Object.keys(MEALS).length))];
   if(!m)return;
-  try{new Notification('🫒 FoodDaily — Πρόταση Μέρας',{body:`${m.e} ${m.n}  |  ⏱ ${m.time}'  |  🔥 ${m.cal}  |  💰 ${m.cost||'~5€'}`,tag:'fd-meal'});}catch(e){}
+  const title='🍽️ FoodDaily — Πρόταση Μέρας';
+  const opts={
+    body:`${m.e} ${m.n}  |  ⏱ ${m.time}'  |  🔥 ${m.cal}  |  💰 ${m.cost||'~5€'}`,
+    tag:'fd-meal',icon:'/icon-192.png',badge:'/icon-96.png',
+    vibrate:[200,100,200]
+  };
+  // Android requires showNotification via SW — new Notification() silently fails on Android
+  if('serviceWorker' in navigator){
+    try{
+      const reg=await navigator.serviceWorker.ready;
+      await reg.showNotification(title,opts);
+      return;
+    }catch(e){}
+  }
+  try{new Notification(title,opts);}catch(e){}
 }
 let _notifInt=null;
 function startNotifTimer(){
   if(_notifInt)clearInterval(_notifInt);
-  _notifInt=setInterval(()=>{
+  _notifInt=setInterval(async ()=>{
     if(localStorage.getItem('notif_on')!=='true'||Notification.permission!=='granted')return;
     const nd=new Date(),t2=(localStorage.getItem('notif_time')||'09:00').split(':');
     if(nd.getHours()===+t2[0]&&nd.getMinutes()===+t2[1]){
       const ld=localStorage.getItem('notif_last');
-      if(ld!==nd.toDateString()){sendNotif();localStorage.setItem('notif_last',nd.toDateString());}
+      if(ld!==nd.toDateString()){
+        await sendNotif();
+        localStorage.setItem('notif_last',nd.toDateString());
+      }
     }
   },60000);
+}
+// Register Periodic Background Sync for notifications when app is closed
+async function registerPeriodicSync(){
+  if(!('serviceWorker' in navigator))return;
+  try{
+    const reg=await navigator.serviceWorker.ready;
+    if('periodicSync' in reg){
+      const status=await navigator.permissions.query({name:'periodic-background-sync'});
+      if(status.state==='granted'){
+        await reg.periodicSync.register('fd-daily-notif',{minInterval:8*60*60*1000});
+      }
+    }
+  }catch(e){}
 }
 function showToast(msg){
   let el=document.getElementById('toast');
@@ -2064,6 +2099,7 @@ function copyShoppingList(){
   // Restart notification timer if previously enabled
   if(localStorage.getItem('notif_on')==='true'&&Notification.permission==='granted'){
     startNotifTimer();
+    registerPeriodicSync();
     document.getElementById('bell').classList.add('on');
   }
   // Service Worker registration

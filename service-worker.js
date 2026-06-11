@@ -1,5 +1,5 @@
 // FoodDaily Service Worker v2.0
-const VERSION = '2026-06-11-04';
+const VERSION = '2026-06-11-05';
 const CACHE = `fooddaily-${VERSION}`;
 const ASSETS = [
   '/',
@@ -27,7 +27,6 @@ self.addEventListener('activate', e => {
       ))
       .then(() => self.clients.claim())
       .then(() => {
-        // Tell all open tabs that a new version just activated
         self.clients.matchAll({ type: 'window' }).then(clients => {
           clients.forEach(c => c.postMessage({ type: 'SW_UPDATED' }));
         });
@@ -44,7 +43,6 @@ self.addEventListener('fetch', e => {
   e.respondWith(
     caches.open(CACHE).then(cache =>
       cache.match(e.request).then(cached => {
-        // Always fetch a fresh copy in the background
         const fetchPromise = fetch(e.request).then(resp => {
           if (resp && resp.status === 200) {
             cache.put(e.request, resp.clone());
@@ -52,9 +50,36 @@ self.addEventListener('fetch', e => {
           return resp;
         }).catch(() => null);
 
-        // Serve cached instantly if available, otherwise wait for network
         return cached || fetchPromise || caches.match('/index.html');
       })
     )
   );
+});
+
+// Notification click: open or focus the app
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cls => {
+      const existing = cls.find(c => c.url.includes(self.location.origin));
+      if (existing) return existing.focus();
+      return clients.openWindow('/');
+    })
+  );
+});
+
+// Periodic Background Sync: fire daily notification when app is closed
+self.addEventListener('periodicsync', e => {
+  if (e.tag === 'fd-daily-notif') {
+    e.waitUntil(
+      self.registration.showNotification('🍽️ FoodDaily', {
+        body: 'Τι μαγειρεύουμε σήμερα; Δες τις προτάσεις σου!',
+        icon: '/icon-192.png',
+        badge: '/icon-96.png',
+        tag: 'fd-meal',
+        vibrate: [200, 100, 200],
+        data: { url: '/' }
+      })
+    );
+  }
 });
