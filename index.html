@@ -17,17 +17,33 @@
 body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--tx);max-width:700px;margin:0 auto;min-height:100vh;transition:background .5s;}
 .serif{font-family:'Playfair Display',serif;}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:4px}
-/* HEADER */
-.hdr{padding:1.25rem 1.25rem .625rem;display:flex;justify-content:space-between;align-items:flex-start;}
-.hdr h1{font-size:26px;font-weight:700;color:var(--pri);font-family:'Playfair Display',serif;transition:color .5s;}
-.hdr p{font-size:12.5px;color:var(--t2);margin-top:3px;}
-.hdr-r{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
-.hdr-btns{display:flex;gap:7px;align-items:center;}
-.hdr-inner{display:flex;justify-content:space-between;align-items:center;width:100%;}
-.logo{font-size:22px;font-weight:700;color:var(--pri);font-family:'Playfair Display',serif;display:flex;align-items:center;gap:5px;transition:color .5s;}
+/* HERO HEADER */
+.hero-hdr{position:relative;height:240px;border-radius:0 0 32px 32px;overflow:hidden;margin-bottom:0;}
+.hero-hdr-img{position:absolute;inset:0;background-image:url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=900&q=82&auto=format&fit=crop');background-size:cover;background-position:center 40%;}
+.hero-hdr-ov{position:absolute;inset:0;background:linear-gradient(155deg,rgba(15,5,0,.75) 0%,rgba(50,15,5,.55) 40%,rgba(150,60,15,.18) 100%);}
+.hero-hdr-inner{position:relative;z-index:2;padding:18px 18px 0;}
+.hero-brand{display:flex;align-items:center;justify-content:space-between;}
+.hero-brand-l{display:flex;align-items:center;gap:9px;}
+.hero-logo{width:36px;height:36px;border-radius:11px;background:rgba(255,255,255,.15);backdrop-filter:blur(8px);border:1.5px solid rgba(255,255,255,.26);display:flex;align-items:center;justify-content:center;font-size:19px;}
+.hero-name{font-size:20px;font-weight:800;color:#fff;letter-spacing:-.3px;text-shadow:0 1px 8px rgba(0,0,0,.35);}
+.hero-btns{display:flex;gap:7px;}
+.hero-btn{width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(255,255,255,.22);background:rgba(255,255,255,.14);backdrop-filter:blur(8px);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;transition:background .2s;}
+.hero-btn:hover{background:rgba(255,255,255,.28);}
+.hero-btn.on{background:rgba(255,255,255,.9);color:#333;}
+.hero-body{padding:12px 18px 0;}
+.hero-day-lbl{font-size:11px;font-weight:600;color:rgba(255,255,255,.68);letter-spacing:.7px;text-transform:uppercase;}
+.hero-title{font-size:22px;font-weight:800;color:#fff;line-height:1.22;margin-top:2px;text-shadow:0 2px 12px rgba(0,0,0,.28);}
+.hero-sub{font-size:12px;color:rgba(255,255,255,.68);margin-top:4px;}
+.hero-search{position:absolute;z-index:3;bottom:-22px;left:16px;right:16px;background:#fff;border-radius:16px;box-shadow:0 6px 24px rgba(0,0,0,.14);display:flex;align-items:center;padding:0 14px;height:46px;gap:9px;border:1.5px solid #EDD8BC;}
+.hero-search input{flex:1;border:none;outline:none;font-size:14px;color:#7A5C3A;background:transparent;}
+.hero-search input::placeholder{color:#C4A07A;}
+.hero-search-icon{font-size:17px;color:#C4A07A;}
+/* keep icon-btn for any remaining uses */
 .icon-btn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--bd);background:var(--lt);font-size:17px;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;}
-.icon-btn:hover{background:var(--pri);color:#fff;border-color:var(--pri);}
-.icon-btn.on{background:var(--pri);color:#fff;border-color:var(--pri);}
+.icon-btn:hover,.icon-btn.on{background:var(--pri);color:#fff;border-color:var(--pri);}
+[data-theme="dark"] .hero-search{background:#1C1A16;border-color:#2A2820;}
+[data-theme="dark"] .hero-search input{color:#E8DDD0;}
+[data-theme="dark"] .hero-search input::placeholder{color:#6A5A48;}
 .lang-sw{display:flex;gap:3px;background:var(--lt);border:1.5px solid var(--bd);border-radius:20px;padding:3px 5px;transition:all .5s;}
 .lbtn{width:28px;height:20px;border:none;background:transparent;font-size:13px;cursor:pointer;border-radius:12px;opacity:.5;transition:all .2s;padding:0;}
 .lbtn:hover{opacity:.85}
@@ -39,7 +55,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .bell-dot{position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:#EF4444;border:2px solid var(--bg);}
 .vst{font-size:11px;color:var(--t3);}
 /* NAV */
-.nav{padding:0 1rem .5rem;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap;}
+.nav{padding:0 1rem .5rem;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap;margin-top:32px;}
 .nav::-webkit-scrollbar{display:none}
 .ntab{display:inline-block;padding:7px 15px;border-radius:30px;border:1.5px solid var(--bd);background:transparent;color:var(--t2);font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .3s;margin-right:5px;}
 .ntab:hover{background:var(--lt);}
@@ -346,14 +362,29 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </head>
 <body>
 
-<div class="hdr">
-  <div class="hdr-inner">
-    <div class="logo">🫒 <span>FoodDaily</span></div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <button id="search-btn" class="icon-btn" onclick="openSearch()" title="Αναζήτηση">🔍</button>
-      <button id="dark-btn" class="icon-btn" onclick="toggleDark()" title="Dark mode">🌙</button>
-      <button id="bell" class="icon-btn" onclick="openNotif()">🔔</button>
+<div class="hero-hdr">
+  <div class="hero-hdr-img"></div>
+  <div class="hero-hdr-ov"></div>
+  <div class="hero-hdr-inner">
+    <div class="hero-brand">
+      <div class="hero-brand-l">
+        <div class="hero-logo">🍽️</div>
+        <span class="hero-name">FoodDaily</span>
+      </div>
+      <div class="hero-btns">
+        <button id="dark-btn" class="hero-btn" onclick="toggleDark()" title="Dark mode">🌙</button>
+        <button id="bell" class="hero-btn" onclick="openNotif()">🔔</button>
+      </div>
     </div>
+  </div>
+  <div class="hero-body">
+    <div class="hero-day-lbl" id="hero-day-lbl"></div>
+    <div class="hero-title">Τι μαγειρεύουμε<br>σήμερα;</div>
+    <div class="hero-sub">✨ Βρες τη συνταγή της ημέρας</div>
+  </div>
+  <div class="hero-search">
+    <span class="hero-search-icon">🔍</span>
+    <input type="text" placeholder="Ψάξε συνταγή, υλικό..." onclick="openSearch()" readonly style="cursor:pointer;">
   </div>
 </div>
 
@@ -1825,6 +1856,12 @@ function copyShoppingList(){
     const db=document.getElementById('dark-btn');if(db)db.textContent='☀️';
   }
   localStorage.removeItem('fd_lang');
+  // Set hero day label
+  const days=['Κυριακή','Δευτέρα','Τρίτη','Τετάρτη','Πέμπτη','Παρασκευή','Σάββατο'];
+  const months=['Ιαν','Φεβ','Μαρ','Απρ','Μαΐ','Ιουν','Ιουλ','Αυγ','Σεπ','Οκτ','Νοε','Δεκ'];
+  const nd=new Date();
+  const dl=document.getElementById('hero-day-lbl');
+  if(dl)dl.textContent=`${days[nd.getDay()]} · ${nd.getDate()} ${months[nd.getMonth()]}`;
   applyTheme('all');
   renderMeals('all');
   rendFest('all');
