@@ -67,7 +67,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .mcard{background:var(--w);border:1.5px solid #EDE8DE;border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .22s;box-shadow:var(--sh);}
 .mcard:hover{transform:translateY(-3px);box-shadow:var(--shl);}
 .mcard:active{transform:scale(.97);}
-.mtop{height:140px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.mtop{height:150px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
 .mtop img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s;}
 .mtop img.loaded{opacity:1;}
 .memoji{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:60px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.13));transition:opacity .5s;z-index:1;}
@@ -185,7 +185,10 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 @media(max-width:440px){.swgrid{grid-template-columns:1fr;}}
 .swcard{background:var(--w);border:1.5px solid #EDE8DE;border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .22s;box-shadow:var(--sh);}
 .swcard:hover{transform:translateY(-3px);box-shadow:var(--shl);}
-.swebox{height:74px;display:flex;align-items:center;justify-content:center;font-size:33px;}
+.swebox{height:94px;display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;overflow:hidden;}
+.swebox img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s;z-index:1;}
+.swebox img.loaded{opacity:1;}
+.swebox-e{position:relative;z-index:0;transition:opacity .4s;}
 .swinfo{padding:10px 12px;}
 .swname{font-size:13.5px;font-weight:600;color:var(--tx);margin-bottom:2px;}
 .swcal{font-size:12px;color:var(--t3);}
@@ -844,6 +847,73 @@ const MEALS={
 };
 
 
+const MEAL_IMAGES={
+  fasolada:'images/fasolada.png',
+  horiatiki:'images/xoriatiki_salata.png',
+  kotopoulo:'images/kotopoulo_lemonato.png',
+  keftedes:'images/keftedes.png',
+  aglio:'images/spaghetti_aglio_e_olio.png',
+  garides:'images/garides_saganaki.png',
+  fakes:'images/fakes_soupa.png',
+  kima:'images/makaronia_me_kima.png',
+  gemista:'images/gemista.png',
+  spanakoryzo:'images/spanakoryzo.png',
+  souvlakia:'images/souvlakia_xoirina.png',
+  pastitsio:'images/pastitsio.png',
+  giouvetsi:'images/giouvetsi_arni.png',
+  tsipoura:'images/tsipoura_sto_fourno.png',
+  kalamaria:'images/kalamaria_tiganita.png',
+  bakaliaro:'images/bakaliaros_skordalia.png',
+  htapodi:'images/xtapodi_krasato.png',
+  taramosalata:'images/taramosalata.png',
+  halvas:'images/halvas_simigdalenios.png',
+  lagana:'images/lagana.png',
+  psarosoupa:'images/psarosoupa_avgolemono.png',
+  kotosopa:'images/kotosoupa_avgolemono.png',
+  revythada:'images/revythada.png',
+  briami:'images/briam.png',
+  dolmades:'images/ntolmadakia_gialantzi.png',
+  tzatziki_dish:'images/tzatziki_spitiko.png',
+  gigantes:'images/gigantes_plaki.png',
+  fava:'images/fava_santorinis.png',
+  salata_rokka:'images/salata_roka_parmezana.png',
+  salata_rodi:'images/salata_me_rodi.png',
+  giouvarlaakia:'images/giouvarlakia_avgolemono.png',
+  biftekia:'images/biftekia_sxaras.png',
+  arnaki_lemonato:'images/arnaki_lemonato.png',
+  arni_souvia:'images/arni_sti_souvla.png',
+  kontosouvi:'images/kontosouvli.png',
+  anginaresPolita:'images/agkinares_ala_polita.png',
+  mageiritsa:'images/mageiritsa.png',
+  skordalia:'images/skordalia.png',
+  gourounopoulo:'images/gourounopoulo_fournou.png',
+  galopoula:'images/galopoula_gemisti.png',
+  stifado:'images/stifado_kouneliou.png',
+  psari_plaki:'images/psari_plaki.png',
+  eliestoursi:'images/elies_tourssi.png',
+  kokkinisto:'images/kokkinisto_arni.png',
+};
+
+const SWEET_IMAGES={
+  'keik:0':'images/keik_sokolatas.png',
+  'keik:1':'images/keik_lemoniou.png',
+  'keik:2':'images/keik_portokaliou.png',
+  'keik:3':'images/keik_bananas.png',
+  'keik:4':'images/keik_karotou.png',
+  'keik:5':'images/marble_cake.png',
+  'keik:6':'images/keik_fraoulas.png',
+  'keik:7':'images/keik_milou_me_kanela.png',
+  'koulourakia:0':'images/koulourakia_portokaliou.png',
+  'koulourakia:1':'images/koulourakia_voutyrou.png',
+  'koulourakia:2':'images/biskota_sokolatas.png',
+  'koulourakia:3':'images/koulourakia_kakao.png',
+  'koulourakia:4':'images/koulourakia_amygdalou.png',
+  'koulourakia:5':'images/koulourakia_meliou.png',
+  'koulourakia:6':'images/koulourakia_vanilias.png',
+  'tiganites:0':'images/pancakes_ellinikes.png',
+  'tiganites:5':'images/tiganites_aples.png',
+};
+
 const SWEETS={
   keik:[
     {n:'Κέικ σοκολάτας',e:'🍫',srv:10,cal:380,ing:['Αλεύρι 250γρ','Κακάο 60γρ','Ζάχαρη 200γρ','Αυγά 3','Βούτυρο 150γρ','Γάλα 120ml','Μπέικιν πάουντερ'],steps:['Χτυπάς βούτυρο και ζάχαρη μέχρι να αφρατέψουν. Προσθέτεις τα αυγά ένα-ένα.','Κοσκινίζεις αλεύρι, κακάο και μπέικιν. Τα προσθέτεις εναλλάξ με το γάλα, ανακατεύοντας απαλά.','Ψήνεις σε βουτυρωμένη φόρμα στους 175°C για 45 λεπτά.'],q:'κέικ σοκολάτας'},
@@ -1054,7 +1124,7 @@ function renderMeals(cat){
       :`<button class="thumb-up" onclick="thumbUp('${m.id}',event)">👍 Θα το φτιάξω!</button><button class="thumb-dn" onclick="thumbDown('${m.id}',event)">👎</button>`;
     return `<div class="mcard" data-mid="${m.id}" onclick="openR('${m.id}')">
       <div class="mtop" style="background:${bg}">
-        <img id="mi-${m.id}" alt="${m.n}" onload="this.classList.add('loaded')" onerror="this.style.display='none'">
+        <img id="mi-${m.id}" alt="${m.n}" src="${MEAL_IMAGES[m.id]||''}" onload="this.classList.add('loaded');document.getElementById('me-${m.id}').style.opacity=0" onerror="this.style.display='none'">
         <div class="memoji" id="me-${m.id}">${m.e}</div>
         <div class="mtop-grad"></div>
         <div class="mtop-badge"><span class="badge ${cl}">${catLabel(mc)}</span></div>
@@ -1099,10 +1169,9 @@ function openR(id){
     <button class="ovcls" onclick="closeOv()">✕</button>
     <button id="ov-fav" onclick="toggleFav('${m.id}',event)" style="position:absolute;top:12px;left:12px;z-index:10;background:rgba(0,0,0,.3);border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;">${isFav(m.id)?'❤️':'🤍'}</button>
     <div class="ovhero-fb" style="background:${bg}"><span style="font-size:78px;filter:drop-shadow(0 6px 20px rgba(0,0,0,.15))">${m.e}</span></div>
-    <img id="ov-img" alt="${m.n}" onload="this.classList.add('loaded')" onerror="this.style.display='none'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s;">
+    <img id="ov-img" alt="${m.n}" src="${MEAL_IMAGES[m.id]||''}" onload="this.classList.add('loaded');document.querySelector('#ov-hero .ovhero-fb').style.opacity=0" onerror="this.style.display='none'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s;">
     <div class="ovhero-grad"></div>
     <div class="ovtitle"><h2>${mealName(m)}</h2></div>`;
-  // no external images - emoji only
   // Stats — init serving count
   if(_curSrv===0)_curSrv=Math.round(m.srv*(_guestScale||1));
   const initCost=_curSrv!==m.srv?scalePrice(m.cost||'~5€',_curSrv/m.srv):m.cost||'~5€';
@@ -1323,8 +1392,12 @@ function filtSw(cat,btn){
   curSwCat=cat;
   document.getElementById('sw-grid').innerHTML=SWEETS[cat].map((s,i)=>{
     const fid=`sw:${cat}:${i}`;
+    const swImg=SWEET_IMAGES[`${cat}:${i}`]||'';
     return `<div class="swcard" onclick="openSW('${cat}',${i})" style="position:relative">
-      <div class="swebox" style="background:linear-gradient(145deg,#FFF8E7,#FFE082)">${s.e}</div>
+      <div class="swebox" style="background:linear-gradient(145deg,#FFF8E7,#FFE082)">
+        ${swImg?`<img src="${swImg}" alt="${s.n}" onload="this.classList.add('loaded');this.nextElementSibling.style.opacity=0" onerror="this.style.display='none'">`:''}
+        <span class="swebox-e">${s.e}</span>
+      </div>
       <div class="swinfo"><div class="swname">${s.n}</div><div class="swcal">${s.cal} θερμ./μερ.</div></div>
       <button class="fav-btn-sm" data-id="${fid}" onclick="toggleFav('${fid}',event)" title="Αγαπημένο" style="position:absolute;top:6px;right:6px;background:rgba(255,255,255,.75);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;">${isFav(fid)?'❤️':'🤍'}</button>
     </div>`;
