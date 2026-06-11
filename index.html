@@ -2013,7 +2013,7 @@ function selGuest(n,btn){
       <div class="mbtm">
         <div class="mname-row">
           <div class="mname">${mealName(m)}</div>
-          <button class="fav-btn-sm" onclick="toggleFav('${id}',event)">${fav?'❤️':'🤍'}</button>
+          <button class="fav-btn-sm" data-id="${id}" onclick="toggleFav('${id}',event)">${fav?'❤️':'🤍'}</button>
         </div>
         <div class="mmeta">⏱ ${m.time}' &nbsp;🔥 ${m.cal} &nbsp;💰 ${m.cost||'~8€'}</div>
       </div>
@@ -2076,13 +2076,18 @@ function toggleFav(id,e){
   const i=favs.indexOf(id);
   if(i>=0)favs.splice(i,1);else favs.push(id);
   localStorage.setItem('fd_favs',JSON.stringify(favs));
-  // Update heart on all cards
-  document.querySelectorAll(`.fav-btn-sm[data-id="${id}"]`).forEach(b=>b.textContent=favs.includes(id)?'❤️':'🤍');
+  const isNowFav=favs.includes(id);
+  // Update ALL heart buttons for this id (grid cards + featured card + guest cards)
+  document.querySelectorAll(`.fav-btn-sm[data-id="${id}"], .feat-fav[data-id="${id}"]`).forEach(b=>{
+    b.textContent=isNowFav?'❤️':'🤍';
+    b.style.transform='scale(1.35)';
+    setTimeout(()=>b.style.transform='',200);
+  });
   // Update heart in overlay
-  const ob=document.getElementById('ov-fav');if(ob)ob.textContent=favs.includes(id)?'❤️':'🤍';
+  const ob=document.getElementById('ov-fav');if(ob)ob.textContent=isNowFav?'❤️':'🤍';
   // Update favorites pill count
   updateFavPill();
-  showToast(favs.includes(id)?'❤️ Αγαπημένο!':'🤍 Αφαιρέθηκε');
+  showToast(isNowFav?'❤️ Αγαπημένο!':'🤍 Αφαιρέθηκε');
 }
 function updateFavPill(){
   const pill=document.getElementById('fav-pill');
