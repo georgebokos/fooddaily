@@ -319,12 +319,16 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 /* === SHOPPING LIST COPY === */
 .copy-list-btn{display:flex;align-items:center;gap:6px;width:100%;margin-top:.875rem;padding:11px;border-radius:var(--rs);border:1.5px solid var(--bd);background:var(--lt);color:var(--pri);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;justify-content:center;}
 .copy-list-btn:hover{background:var(--pri);color:#fff;border-color:var(--pri);}
-/* === COOKED BUTTON === */
-.cooked-btn{padding:10px 14px;border-radius:var(--rs);border:1.5px solid #86EFAC;background:#F0FDF4;color:#166534;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .25s;white-space:nowrap;flex-shrink:0;}
-.cooked-btn:hover{background:#DCFCE7;border-color:#4ADE80;}
-.cooked-btn.done{background:#DCFCE7;border-color:#86EFAC;color:#166534;cursor:default;opacity:.7;}
-[data-theme="dark"] .cooked-btn{background:#14291A;border-color:#166534;color:#4ADE80;}
-[data-theme="dark"] .cooked-btn.done{opacity:.5;}
+/* === THUMB BUTTONS (κάρτες) === */
+.card-actions{display:flex;gap:6px;margin-top:7px;padding-top:7px;border-top:1px solid #F0EDE6;}
+.thumb-up{flex:1;padding:6px 8px;border-radius:var(--rs);border:1.5px solid #86EFAC;background:#F0FDF4;color:#166534;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;text-align:center;}
+.thumb-up:hover{background:#DCFCE7;border-color:#4ADE80;}
+.thumb-dn{width:32px;padding:5px;border-radius:var(--rs);border:1.5px solid #EDE8DE;background:var(--w);font-size:14px;cursor:pointer;transition:all .2s;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.thumb-dn:hover{background:#FEE2E2;border-color:#FCA5A5;}
+.thumb-planned{font-size:12px;color:#166534;font-weight:600;display:flex;align-items:center;gap:4px;}
+[data-theme="dark"] .card-actions{border-top-color:#2A2820;}
+[data-theme="dark"] .thumb-dn{background:#1C1A16;border-color:#2A2820;}
+[data-theme="dark"] .thumb-up{background:#14291A;border-color:#166534;color:#4ADE80;}
 </style>
 </head>
 <body>
@@ -510,7 +514,6 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
       <button class="tts-btn" id="ov-tts-btn" onclick="toggleTTS()">
         <span id="ov-tts-lbl">▶ Άκου</span>
       </button>
-      <button id="ov-cooked-btn" class="cooked-btn" onclick="markCooked()">✅ Το έφτιαξα σήμερα!</button>
     </div>
   </div>
 </div>
@@ -978,7 +981,11 @@ function renderMeals(cat){
   // Εξαιρούνται συνοδευτικά, μεζέδες, ψωμιά, γλυκά — ΟΧΙ κυρίως πιάτα
   const excl=['anginaresPolita','tartaFragola','taramosalata','halvas','lagana',
               'tzatziki_dish','skordalia','eliestoursi','salata_rodi'];
-  let pool=Object.entries(MEALS).filter(([id])=>!excl.includes(id)).map(([id,m])=>({...m,id}));
+  const todayPlan=getTodayPlan();
+  const skipped=Object.entries(todayPlan).filter(([,v])=>v==='skip').map(([k])=>k);
+  let pool=Object.entries(MEALS)
+    .filter(([id])=>!excl.includes(id)&&!skipped.includes(id))
+    .map(([id,m])=>({...m,id}));
   if(cat==='favs'){pool=pool.filter(m=>getFavs().includes(m.id));}
   else if(cat!=='all'){pool=pool.filter(m=>m.cats.includes(cat));}
   const fresh=pool.filter(m=>!rids.includes(m.id)).sort((a,b)=>(a.pop||2)-(b.pop||2)||(Math.random()-.5));
@@ -997,7 +1004,11 @@ function renderMeals(cat){
     const cl=CAT_CL[mc]||'b-legumes';
     const freshBadge=ds>6?`<div class="mtop-fresh">${t('fresh')}</div>`:'';
     const fav=isFav(m.id);
-    return `<div class="mcard" onclick="openR('${m.id}')">
+    const planStatus=todayPlan[m.id];
+    const actHtml=planStatus==='plan'
+      ?`<span class="thumb-planned">✓ Θα το φτιάξω σήμερα!</span>`
+      :`<button class="thumb-up" onclick="thumbUp('${m.id}',event)">👍 Θα το φτιάξω!</button><button class="thumb-dn" onclick="thumbDown('${m.id}',event)">👎</button>`;
+    return `<div class="mcard" data-mid="${m.id}" onclick="openR('${m.id}')">
       <div class="mtop" style="background:${bg}">
         <img id="mi-${m.id}" alt="${m.n}" onload="this.classList.add('loaded')" onerror="this.style.display='none'">
         <div class="memoji" id="me-${m.id}">${m.e}</div>
@@ -1011,7 +1022,7 @@ function renderMeals(cat){
           <button class="fav-btn-sm" data-id="${m.id}" onclick="toggleFav('${m.id}',event)" title="Αγαπημένα">${fav?'❤️':'🤍'}</button>
         </div>
         <div class="mmeta">⏱ ${m.time}' &nbsp;🔥 ${m.cal} &nbsp;💰 ${m.cps||'~2€'}${t('per_srv')}</div>
-        <div class="mhist">${ds<999?'📅 '+ds+' '+t('days_ago'):t('new_sug')}</div>
+        <div class="card-actions" id="ca-${m.id}">${actHtml}</div>
       </div>
     </div>`;
   }).join('');
@@ -1054,10 +1065,6 @@ function openR(id){
     <div class="ovstat"><label>${t('time')}</label><span>${m.time}'</span></div>
     <div class="ovstat"><label>${t('srv')}</label><span>${m.srv}</span></div>
     <div class="ovstat"><label>${t('cost')}</label><span style="color:var(--pri)">${m.cost||'~5€'}</span></div>`;
-  // Cooked button state
-  const cookedToday=dSince(id)===0;
-  const cb=document.getElementById('ov-cooked-btn');
-  if(cb){cb.textContent=cookedToday?'✓ Μαγειρεύτηκε σήμερα!':'✅ Το έφτιαξα σήμερα!';cb.classList.toggle('done',cookedToday);cb.disabled=cookedToday;}
   // Tabs content
   buildIngTab(m);buildStepsTab(m);buildPairTab(m);
   // TTS
@@ -1390,7 +1397,6 @@ function saveNotif(){
   closeNmod();
   showToast('✓ Αποθηκεύτηκε!');
 }
-function closeNmod(){document.getElementById('nmod').classList.remove('show');}
 async function toggleNotif(){
   const tog=document.getElementById('ntog');
   if(!tog.classList.contains('on')){
@@ -1509,17 +1515,41 @@ function selGuest(n,btn){
   const res=document.getElementById('guest-res');
   if(res)res.innerHTML=`<div class="guest-info">💡 Για <b>${n} άτομα</b></div><div class="meal-grid-sm">${pool.map(([id,m])=>`<div class="mcard-sm" onclick="openR('${id}')"><span style="font-size:32px">${m.e}</span><div>${m.n}</div></div>`).join('')}</div>`;
 }
-// ── MARK COOKED ───────────────────────────────────────────────
-function markCooked(){
-  if(!_meal)return;
-  const id=_meal.id||Object.keys(MEALS).find(k=>MEALS[k]===_meal);
-  if(!id)return;
+// ── TODAY PLAN (επαναφορά κάθε μέρα) ─────────────────────────
+function getTodayPlan(){
+  const today=new Date().toDateString();
+  const s=JSON.parse(localStorage.getItem('fd_plan')||'{}');
+  if(s.date!==today)return{};
+  return s.meals||{};
+}
+function setTodayMeal(id,status){
+  const today=new Date().toDateString();
+  const plan=getTodayPlan();
+  plan[id]=status;
+  localStorage.setItem('fd_plan',JSON.stringify({date:today,meals:plan}));
+}
+
+// ── THUMBS UP / DOWN ──────────────────────────────────────────
+function thumbUp(id,e){
+  if(e){e.stopPropagation();e.preventDefault();}
+  setTodayMeal(id,'plan');
   saveH(id);
-  const cb=document.getElementById('ov-cooked-btn');
-  if(cb){cb.textContent='✓ Μαγειρεύτηκε σήμερα!';cb.classList.add('done');cb.disabled=true;}
-  showToast('✅ Καταχωρήθηκε στο ιστορικό!');
-  // Ανανέωσε τις κάρτες ώστε να φύγει από τις "φρέσκες" προτάσεις
-  if(curSec==='daily')renderMeals(curCat);
+  const ca=document.getElementById('ca-'+id);
+  if(ca)ca.innerHTML='<span class="thumb-planned">✓ Θα το φτιάξω σήμερα!</span>';
+  showToast('👍 Ωραία επιλογή!');
+}
+function thumbDown(id,e){
+  if(e){e.stopPropagation();e.preventDefault();}
+  setTodayMeal(id,'skip');
+  const card=document.querySelector(`.mcard[data-mid="${id}"]`);
+  if(card){
+    card.style.transition='opacity .22s,transform .22s';
+    card.style.opacity='0';card.style.transform='scale(.93)';
+    setTimeout(()=>renderMeals(curCat),230);
+  } else {
+    renderMeals(curCat);
+  }
+  showToast('👎 Αλλάζω πρόταση...');
 }
 
 // ── DARK MODE ────────────────────────────────────────────────
