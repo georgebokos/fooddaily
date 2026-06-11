@@ -552,7 +552,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 <script>
 let curCat='all',curSec='daily',curSwCat='keik',curFestF='all',
     _meal=null,isTTS=false,recog=null,isLis=false,_guestScale=1,_curSrv=0,
-    curLang=localStorage.getItem('fd_lang')||'el';
+    curLang='el';
 
 
 const TH={
@@ -1751,6 +1751,7 @@ function copyShoppingList(){
     document.documentElement.setAttribute('data-theme','dark');
     const db=document.getElementById('dark-btn');if(db)db.textContent='☀️';
   }
+  localStorage.removeItem('fd_lang');
   applyTheme('all');
   renderMeals('all');
   rendFest('all');
