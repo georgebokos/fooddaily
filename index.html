@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<meta name="theme-color" content="#C8501A">
+<meta name="theme-color" content="#111111">
 <title>FoodDaily</title>
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -643,6 +643,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
       <button class="nmod-save" onclick="saveNotif()">Αποθήκευση</button>
       <button class="nmod-cls" onclick="closeNotif()">Άκυρο</button>
     </div>
+    <button class="nmod-cls" style="width:100%;margin-top:8px;font-size:13px;" onclick="testNotif()">🔔 Δοκιμαστική ειδοποίηση</button>
   </div>
 </div>
 
@@ -1737,26 +1738,43 @@ function openNmod(){
 function closeNmod(){document.getElementById('nmod').style.display='none';}
 function openNotif(){openNmod();}
 function closeNotif(){closeNmod();}
-function saveNotif(){
+async function saveNotif(){
   const time=document.getElementById('ntime').value;
   localStorage.setItem('notif_time',time);
   const checked=document.getElementById('ntog').checked;
-  localStorage.setItem('notif_on',checked?'true':'false');
-  document.getElementById('bell').classList.toggle('on',checked);
-  if(checked)startNotifTimer();
+  if(checked){
+    if(!('Notification' in window)){showToast('⚠️ Ο browser δεν υποστηρίζει ειδοποιήσεις');return;}
+    if(Notification.permission!=='granted'){
+      const p=await Notification.requestPermission();
+      if(p!=='granted'){
+        document.getElementById('ntog').checked=false;
+        localStorage.setItem('notif_on','false');
+        document.getElementById('bell').classList.remove('on');
+        showToast('⚠️ Δεν δόθηκε άδεια για ειδοποιήσεις');
+        closeNmod();return;
+      }
+    }
+    localStorage.setItem('notif_on','true');
+    document.getElementById('bell').classList.add('on');
+    startNotifTimer();
+    showToast('✅ Ειδοποιήσεις ενεργοποιήθηκαν!');
+  } else {
+    localStorage.setItem('notif_on','false');
+    document.getElementById('bell').classList.remove('on');
+    showToast('Ειδοποιήσεις απενεργοποιήθηκαν');
+  }
   closeNmod();
-  showToast('✓ Αποθηκεύτηκε!');
 }
 async function toggleNotif(){
   const tog=document.getElementById('ntog');
-  if(!tog.classList.contains('on')){
+  if(!tog.checked){
     if(!('Notification' in window)){alert('Browser δεν υποστηρίζει ειδοποιήσεις.');return;}
     const p=await Notification.requestPermission();
-    if(p==='granted'){tog.classList.add('on');document.getElementById('bell').classList.add('on');localStorage.setItem('notif_on','true');startNotifTimer();showToast('✓ Ειδοποιήσεις ενεργοποιήθηκαν!');}
+    if(p==='granted'){tog.checked=true;document.getElementById('bell').classList.add('on');localStorage.setItem('notif_on','true');startNotifTimer();showToast('✅ Ειδοποιήσεις ενεργοποιήθηκαν!');}
     else showToast('⚠️ Δεν δόθηκε άδεια');
-  } else {tog.classList.remove('on');document.getElementById('bell').classList.remove('on');localStorage.setItem('notif_on','false');showToast('Απενεργοποιήθηκαν');}
+  } else {tog.checked=false;document.getElementById('bell').classList.remove('on');localStorage.setItem('notif_on','false');showToast('Απενεργοποιήθηκαν');}
 }
-function testNotif(){if(Notification.permission!=='granted'){toggleNotif();return;}sendNotif();}
+function testNotif(){if(Notification.permission!=='granted'){showToast('⚠️ Πρώτα ενεργοποίησε τις ειδοποιήσεις');return;}sendNotif();showToast('🔔 Δοκιμαστική ειδοποίηση εστάλη');}
 function sendNotif(){
   const rids=recIds(7);
   const pool=Object.values(MEALS).filter(m=>!rids.includes(m.id||''));
@@ -2043,6 +2061,11 @@ function copyShoppingList(){
   filtSw('keik');
   selGuest(4,null);
   updateFavPill();
+  // Restart notification timer if previously enabled
+  if(localStorage.getItem('notif_on')==='true'&&Notification.permission==='granted'){
+    startNotifTimer();
+    document.getElementById('bell').classList.add('on');
+  }
   // Service Worker registration
   if('serviceWorker' in navigator){
     navigator.serviceWorker.register('/service-worker.js').catch(()=>{});
