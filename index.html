@@ -649,26 +649,6 @@ function t(k){return TR[curLang]?.[k]||TR.el[k]||k;}
 function mealName(m){return curLang==='en'&&m.en?m.en:m.n;}
 function catLabel(cat){return t('cl_'+cat)||cat;}
 
-function setLang(lang){
-  curLang=lang;localStorage.setItem('fd_lang',lang);
-  document.querySelectorAll('.lbtn').forEach(b=>b.classList.remove('on'));
-  const lb=document.getElementById('lb-'+lang);if(lb)lb.classList.add('on');
-  document.querySelectorAll('.ntab').forEach((b,i)=>{const k='n'+i;if(TR[lang]&&TR[lang][k])b.textContent=TR[lang][k];});
-  document.querySelectorAll('#cat-row .cpill').forEach((b,i)=>{const k='c'+i;if(TR[lang]&&TR[lang][k])b.textContent=TR[lang][k];});
-  const swc=TR[lang]&&TR[lang].sw?TR[lang].sw:TR.el.sw;
-  document.querySelectorAll('#sw-cats .cpill').forEach((b,i)=>{if(swc[i])b.textContent=swc[i];});
-  const dl=document.getElementById('daily-lbl');if(dl)dl.textContent=t('daily_lbl');
-  const vs=document.getElementById('vst');if(vs)vs.textContent=t('vst');
-  const fi=document.getElementById('fridge-inp');if(fi)fi.placeholder=t('fridge_ph');
-  const rb=document.querySelector('.reshuffle');if(rb)rb.textContent=t('reshuf');
-  // Update ALL data-i18n elements
-  document.querySelectorAll('[data-i18n]').forEach(el=>{
-    const key=el.getAttribute('data-i18n');
-    const val=t(key);
-    if(val&&val!==key)el.textContent=val;
-  });
-  renderMeals(curCat);filtSw(curSwCat);rendFest(curFestF);
-}
 
 
 const MEALS={
@@ -952,8 +932,6 @@ function findRecipeForItem(text){
   for(const[cat,arr] of Object.entries(SWEETS)){for(let i=0;i<arr.length;i++){if(arr[i].n&&clean.includes(arr[i].n))return{type:'sweet',cat,idx:i};}}
   return null;
 }
-function findMealByMenuText(t){const r=findRecipeForItem(t);return r&&r.type==='meal'?r.id:null;}
-
 // ── STATE ────────────────────────────────────────────────────
 
 // ── HISTORY ──────────────────────────────────────────────────
@@ -988,10 +966,6 @@ function selCat(cat,btn){
   curCat=cat; applyTheme(cat); renderMeals(cat);
 }
 
-function mealName(m){return curLang==='en'&&m.en?m.en:m.n;}
-
-function catLabel(cat){return t('cl_'+cat)||cat;}
-
 function renderMeals(cat){
   const rids=recIds(7);
   // Εξαιρούνται συνοδευτικά, μεζέδες, ψωμιά, γλυκά — ΟΧΙ κυρίως πιάτα
@@ -1002,7 +976,7 @@ function renderMeals(cat){
   let pool=Object.entries(MEALS)
     .filter(([id])=>!excl.includes(id)&&!skipped.includes(id))
     .map(([id,m])=>({...m,id}));
-  else if(cat!=='all'){pool=pool.filter(m=>m.cats.includes(cat));}
+  if(cat!=='all'&&cat!=='favs'){pool=pool.filter(m=>m.cats.includes(cat));}
 
   const grid=document.getElementById('meals-grid');
 
@@ -1010,6 +984,7 @@ function renderMeals(cat){
     const allFavIds=getFavs();
     const mealFavIds=allFavIds.filter(id=>!id.startsWith('sw:'));
     const sweetFavIds=allFavIds.filter(id=>id.startsWith('sw:'));
+    const rw=document.getElementById('remind-wrap');if(rw)rw.innerHTML='';
     if(!allFavIds.length){
       grid.innerHTML=`<div class="fav-empty"><div style="font-size:38px">🤍</div><div style="font-size:15px;margin-top:.5rem">Δεν έχεις αγαπημένα ακόμα.</div><div style="font-size:13px;margin-top:4px">Πάτα ❤️ σε οποιαδήποτε συνταγή ή γλυκό!</div></div>`;
       return;
@@ -1154,6 +1129,7 @@ function openSW(cat,idx){
     <div class="ovhero-fb" style="background:linear-gradient(145deg,#FFF8E7,#FFE082)"><span style="font-size:78px">${s.e}</span></div>
     <div class="ovhero-grad"></div>
     <div class="ovtitle"><h2>${s.n}</h2></div>`;
+  _guestScale=1;
   document.getElementById('ov-stats').innerHTML=`<div class="ovstat"><label>${t('cal')}</label><span>${s.cal} / μερ.</span></div>`;
   buildIngTab(s);buildStepsTab(s);
   document.getElementById('ot-pair').innerHTML=`<a class="ext-btn" href="https://www.google.com/search?q=${encodeURIComponent(s.q+' συνταγή')}" target="_blank">${t('ext')}</a>`;
@@ -1431,6 +1407,8 @@ function setLang(lang){
   const fi=document.getElementById('fridge-inp');if(fi)fi.placeholder=t('fridge_ph');
   const rb=document.querySelector('.reshuffle');if(rb)rb.textContent=t('reshuf');
   const bt=document.querySelector('.bal-t');if(bt)bt.textContent=t('bal_t');
+  // Update all data-i18n elements
+  document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');const v=t(k);if(v&&v!==k)el.textContent=v;});
   // Re-render
   renderMeals(curCat);
   filtSw(curSwCat);
