@@ -1965,15 +1965,61 @@ function selGuest(n,btn){
   document.querySelectorAll('.gpill').forEach(b=>b.classList.remove('on'));
   if(btn)btn.classList.add('on');
   const num=document.getElementById('g-num');if(num)num.textContent=n;
-  const pool=Object.entries(MEALS)
-    .filter(([,m])=>!m.cats.includes('soups')&&m.srv>=2)
-    .sort((a,b)=>(b[1].pop||1)-(a[1].pop||1)).slice(0,8);
+
+  // Curated guest pool — meat/oven/seafood, no everyday cheap dishes
+  const EXCL_GUEST=['fasolada','fakes','aglio','spanakoryzo','briami','revythada',
+    'horiatiki','gigantes','fava','salata_rokka','salata_rodi','taramosalata',
+    'halvas','lagana','tzatziki_dish','skordalia','eliestoursi','psarosoupa','kotosopa'];
+
+  // Priority buckets (most impressive first)
+  const P4=['arni_souvia','kontosouvi','gourounopoulo','galopoula','mageiritsa'];
+  const P3=['giouvetsi','arnaki_lemonato','moussaka','pastitsio','stifado',
+            'kokkinisto','htapodi','garides','bakaliaro','anginaresPolita'];
+  const P2=['kotopoulo','souvlakia','biftekia','kalamaria','tsipoura',
+            'dolmades','gemista','giouvarlaakia','psari_plaki','keftedes'];
+
+  const pick=ids=>ids.filter(id=>MEALS[id]&&!EXCL_GUEST.includes(id));
+
+  // Shuffle within each tier for variety
+  const shuffle=a=>[...a].sort(()=>Math.random()-.5);
+  const pool=[...shuffle(pick(P4)),...shuffle(pick(P3)),...shuffle(pick(P2))].slice(0,9);
+
+  // Section hints based on group size
+  const hint= n<=2 ? '🍽️ Για ρομαντικό δείπνο ή μικρή παρέα'
+            : n<=4 ? '🥘 Ιδανικά για οικογενειακό τραπέζι'
+            : n<=6 ? '🎉 Για παρέα φίλων — σερβίρει καλά σε μεγάλα τεμάχια'
+            : '🍖 Για μεγάλο τραπέζι — φαγητά που κάνουν εντύπωση';
+
   const res=document.getElementById('guest-res');
-  if(res)res.innerHTML=`<div class="guest-info">💡 Για <b>${n} άτομα</b> — ποσότητες προσαρμοσμένες αυτόματα!</div><div class="meal-grid-sm">${pool.map(([id,m])=>{
+  if(!res)return;
+  res.innerHTML=`<div class="guest-info">${hint}</div>
+  <div class="meal-grid" style="padding:0 1.25rem;">
+  ${pool.map(id=>{
+    const m=MEALS[id];
     const scale=Math.ceil(n/m.srv);
-    const badge=scale>1?`<div class="scale-badge">×${scale}</div>`:'';
-    return `<div class="mcard-sm" onclick="openRWithScale('${id}',${scale})" style="position:relative">${badge}<span style="font-size:32px">${m.e}</span><div>${m.n}</div><div style="font-size:11px;color:var(--pri);margin-top:2px">Αρχ. ${m.srv} μερ.</div></div>`;
-  }).join('')}</div>`;
+    const mc=m.cats[0];
+    const bg=CAT_GRAD[mc]||CAT_GRAD.legumes;
+    const cl=CAT_CL[mc]||'b-legumes';
+    const img=MEAL_IMAGES[id]||'';
+    const fav=isFav(id);
+    return `<div class="mcard" onclick="openRWithScale('${id}',${scale})">
+      <div class="mtop" style="background:${bg}">
+        ${img?`<img alt="${m.n}" src="${img}" onload="this.classList.add('loaded');this.nextElementSibling.style.opacity=0" onerror="this.style.display='none'">`:''}
+        <div class="memoji">${m.e}</div>
+        <div class="mtop-grad"></div>
+        <div class="mtop-badge"><span class="badge ${cl}">${catLabel(mc)}</span></div>
+        ${scale>1?`<div class="mtop-fresh" style="background:rgba(200,80,26,.9)">×${scale} μερ.</div>`:''}
+      </div>
+      <div class="mbtm">
+        <div class="mname-row">
+          <div class="mname">${mealName(m)}</div>
+          <button class="fav-btn-sm" onclick="toggleFav('${id}',event)">${fav?'❤️':'🤍'}</button>
+        </div>
+        <div class="mmeta">⏱ ${m.time}' &nbsp;🔥 ${m.cal} &nbsp;💰 ${m.cost||'~8€'}</div>
+      </div>
+    </div>`;
+  }).join('')}
+  </div>`;
 }
 // ── TODAY PLAN (επαναφορά κάθε μέρα) ─────────────────────────
 function getTodayPlan(){
