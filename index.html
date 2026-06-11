@@ -330,6 +330,10 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 [data-theme="dark"] .thumb-dn{background:#1C1A16;border-color:#2A2820;}
 [data-theme="dark"] .thumb-up{background:#14291A;border-color:#166534;color:#4ADE80;}
 .scale-note{background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border:1.5px solid #81C784;border-radius:8px;padding:8px 12px;font-size:13px;color:#2E7D32;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.srv-stepper{display:flex;align-items:center;gap:5px;}
+.srv-btn{width:24px;height:24px;border:1.5px solid var(--bd);border-radius:50%;background:var(--lt);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;font-weight:700;color:var(--pri);transition:all .18s;-webkit-tap-highlight-color:transparent;}
+.srv-btn:hover,.srv-btn:active{background:var(--pri);color:#fff;border-color:var(--pri);}
+#srv-val{font-weight:700;font-size:15px;min-width:22px;text-align:center;}
 .scale-badge{position:absolute;top:4px;right:4px;background:var(--pri);color:#fff;border-radius:12px;font-size:10px;font-weight:700;padding:2px 6px;z-index:2;}
 .fav-cat-hdr{grid-column:1/-1;font-size:13px;font-weight:700;color:var(--pri);padding:10px 2px 4px;border-bottom:1.5px solid var(--bd);margin-top:6px;letter-spacing:.3px;}
 .fav-cat-hdr:first-child{margin-top:0;}
@@ -551,7 +555,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 
 <script>
 let curCat='all',curSec='daily',curSwCat='keik',curFestF='all',
-    _meal=null,isTTS=false,recog=null,isLis=false,_guestScale=1,
+    _meal=null,isTTS=false,recog=null,isLis=false,_guestScale=1,_curSrv=0,
     curLang=localStorage.getItem('fd_lang')||'el';
 
 
@@ -605,6 +609,8 @@ const TR={
     cal:'Θερμίδες',time:'Χρόνος',srv:'Μερίδες',cost:'Κόστος υλικών',per_srv:'/μερ.',cost_yr:'τιμές 2026',
     t_ing:'Υλικά',t_steps:'Εκτέλεση',t_pair:'Ταίριασμα',tts_p:'▶ Άκου',tts_s:'⏸ Παύση',
     ext:'🔍 Αναλυτική συνταγή ↗',wine:'🍷 Κρασί',beer:'🍺 Μπύρα',plate:'🍽️ Στήσιμο πιάτου',
+    copy_list:'📋 Αντιγραφή λίστας αγορών',all_have:'✅ Τα έχεις όλα!',
+    qty_for:'Ποσότητες για',people:'άτομα',total_cost:'σύνολο',per_srv_lbl:'ανά μερίδα',
     fridge_t:'🧊 Τι έχεις στο ψυγείο;',fridge_s:'Βάλε υλικά και θα βρω τι να μαγειρέψεις!',
     fridge_ph:'π.χ. κιμάς, ντομάτα, τυρί...',fridge_btn:'🔍 Βρες μου συνταγές!',
     f_found:'συνταγές με αυτά που έχεις:',f_miss:'Λείπουν:',f_ok:'✅ Έχεις όλα τα κύρια υλικά!',
@@ -630,6 +636,8 @@ const TR={
     cal:'Calories',time:'Time',srv:'Servings',cost:'Ingredient cost',per_srv:'/serv.',cost_yr:'prices 2026',
     t_ing:'Ingredients',t_steps:'Instructions',t_pair:'Pairing',tts_p:'▶ Listen',tts_s:'⏸ Pause',
     ext:'🔍 Full recipe ↗',wine:'🍷 Wine',beer:'🍺 Beer',plate:'🍽️ Plating',
+    copy_list:'📋 Copy shopping list',all_have:'✅ You have everything!',
+    qty_for:'Quantities for',people:'people',total_cost:'total',per_srv_lbl:'per serving',
     fridge_t:"🧊 What's in your fridge?",fridge_s:"Add ingredients and I'll find recipes!",
     fridge_ph:'e.g. tomato, onion, cheese...',fridge_btn:'🔍 Find recipes!',
     f_found:'recipes with what you have:',f_miss:'Missing:',f_ok:'✅ You have all main ingredients!',
@@ -1099,13 +1107,14 @@ function openR(id){
     <div class="ovhero-grad"></div>
     <div class="ovtitle"><h2>${mealName(m)}</h2></div>`;
   // no external images - emoji only
-  // Stats
-  const sc=_guestScale||1;
+  // Stats — init serving count
+  if(_curSrv===0)_curSrv=Math.round(m.srv*(_guestScale||1));
+  const initCost=_curSrv!==m.srv?scalePrice(m.cost||'~5€',_curSrv/m.srv):m.cost||'~5€';
   document.getElementById('ov-stats').innerHTML=`
     <div class="ovstat"><label>${t('cal')}</label><span>${m.cal}</span></div>
     <div class="ovstat"><label>${t('time')}</label><span>${m.time}'</span></div>
-    <div class="ovstat"><label>${t('srv')}</label><span>${sc>1?sc*m.srv+' (×'+sc+')':m.srv}</span></div>
-    <div class="ovstat"><label>${t('cost')}</label><span style="color:var(--pri)">${sc>1?scalePrice(m.cost||'~5€',sc):m.cost||'~5€'}</span></div>`;
+    <div class="ovstat"><label>${t('srv')}</label><div class="srv-stepper"><button class="srv-btn" onclick="changeSrv(-1)">−</button><span id="srv-val">${_curSrv}</span><button class="srv-btn" onclick="changeSrv(1)">+</button></div></div>
+    <div class="ovstat" id="ov-cost"><label>${t('cost')}</label><span id="cost-val" style="color:var(--pri)">${initCost}</span></div>`;
   // Tabs content
   buildIngTab(m);buildStepsTab(m);buildPairTab(m);
   // TTS
@@ -1129,8 +1138,8 @@ function openSW(cat,idx){
     <div class="ovhero-fb" style="background:linear-gradient(145deg,#FFF8E7,#FFE082)"><span style="font-size:78px">${s.e}</span></div>
     <div class="ovhero-grad"></div>
     <div class="ovtitle"><h2>${s.n}</h2></div>`;
-  _guestScale=1;
-  document.getElementById('ov-stats').innerHTML=`<div class="ovstat"><label>${t('cal')}</label><span>${s.cal} / μερ.</span></div>`;
+  _guestScale=1;_curSrv=0;
+  document.getElementById('ov-stats').innerHTML=`<div class="ovstat"><label>${t('cal')}</label><span>${s.cal} / μερ.</span></div><div class="ovstat"><label>${t('srv')}</label><span>${s.srv}</span></div>`;
   buildIngTab(s);buildStepsTab(s);
   document.getElementById('ot-pair').innerHTML=`<a class="ext-btn" href="https://www.google.com/search?q=${encodeURIComponent(s.q+' συνταγή')}" target="_blank">${t('ext')}</a>`;
   const swTtsBtn=document.getElementById('ov-tts-btn');if(swTtsBtn)swTtsBtn.textContent=t('tts_p');
@@ -1142,12 +1151,14 @@ function openSW(cat,idx){
 }
 
 function buildIngTab(m){
-  const sc=_guestScale||1;
-  const items=m.ing.map(i=>`<div class="ing-item" onclick="this.classList.toggle('done');this.querySelector('.ing-chk').textContent=this.classList.contains('done')?'✓':''"><div class="ing-chk"></div><span>${sc>1?scaleQty(i,sc):i}</span></div>`).join('');
-  const scaledCost=sc>1?scalePrice(m.cost,sc):m.cost;
-  const scaleNote=sc>1?`<div class="scale-note">📊 Ποσότητες για <b>${sc*m.srv} άτομα</b> (×${sc})</div>`:'';
-  const note=m.cost?`<div class="cost-note">💰 ${scaledCost} σύνολο · ${m.cps||''} ανά μερίδα &nbsp;<span style="color:var(--t3)">(${t('cost_yr')})</span></div>`:'';
-  document.getElementById('ot-ing').innerHTML=`${scaleNote}<div class="ing-grid">${items}</div><button class="copy-list-btn" onclick="copyShoppingList()">📋 Αντιγραφή λίστας αγορών</button>${note}`;
+  const base=m.srv||4;
+  const srv=_curSrv>0?_curSrv:Math.round(base*(_guestScale||1));
+  const sc=srv/base;
+  const items=m.ing.map(i=>`<div class="ing-item" onclick="this.classList.toggle('done');this.querySelector('.ing-chk').textContent=this.classList.contains('done')?'✓':''"><div class="ing-chk"></div><span>${sc!==1?scaleQty(i,sc):i}</span></div>`).join('');
+  const scaledCost=sc!==1?scalePrice(m.cost,sc):m.cost;
+  const scaleNote=sc!==1?`<div class="scale-note">📊 ${t('qty_for')} <b>${srv} ${t('people')}</b></div>`:'';
+  const note=m.cost?`<div class="cost-note">💰 ${scaledCost} ${t('total_cost')} · ${m.cps||''} ${t('per_srv_lbl')} &nbsp;<span style="color:var(--t3)">(${t('cost_yr')})</span></div>`:'';
+  document.getElementById('ot-ing').innerHTML=`${scaleNote}<div class="ing-grid">${items}</div><button class="copy-list-btn" onclick="copyShoppingList()">${t('copy_list')}</button>${note}`;
 }
 
 function buildStepsTab(m){
@@ -1171,7 +1182,7 @@ function ovTab(tab){
 function closeOv(){
   document.getElementById('overlay').classList.remove('show');
   document.body.style.overflow='';
-  _guestScale=1;
+  _guestScale=1;_curSrv=0;
   stopTTS();
 }
 
@@ -1594,6 +1605,7 @@ function scalePrice(costStr,factor){
 }
 function openRWithScale(id,scale){
   _guestScale=scale&&scale>1?Math.ceil(scale):1;
+  _curSrv=0; // let openR compute from _guestScale
   openR(id);
 }
 function selGuest(n,btn){
@@ -1680,11 +1692,37 @@ function updateFavPill(){
   pill.textContent=n>0?`❤️ Αγαπημένα (${n})`:'❤️ Αγαπημένα';
 }
 
+// ── SERVING STEPPER ───────────────────────────────────────────
+function changeSrv(delta){
+  if(!_meal)return;
+  const base=_meal.srv||4;
+  if(_curSrv===0)_curSrv=Math.round(base*(_guestScale||1));
+  _curSrv=Math.max(1,_curSrv+delta);
+  // Update stepper display
+  const sv=document.getElementById('srv-val');if(sv)sv.textContent=_curSrv;
+  // Update cost display
+  const sc=_curSrv/base;
+  const cv=document.getElementById('cost-val');
+  if(cv)cv.textContent=scalePrice(_meal.cost||'~5€',sc);
+  // Rebuild ingredients
+  buildIngTab(_meal);
+}
+
 // ── SHOPPING LIST ─────────────────────────────────────────────
 function copyShoppingList(){
   if(!_meal)return;
   const name=mealName(_meal);
-  const list=`📋 ${name}\n\n${(_meal.ing||[]).map(i=>'• '+i).join('\n')}`;
+  // Copy only unchecked (not-yet-ticked) ingredients
+  const els=document.querySelectorAll('#ot-ing .ing-item');
+  let lines;
+  if(els.length){
+    const unchecked=Array.from(els).filter(el=>!el.classList.contains('done'));
+    if(!unchecked.length){showToast(t('all_have'));return;}
+    lines=unchecked.map(el=>el.querySelector('span').textContent);
+  }else{
+    lines=(_meal.ing||[]);
+  }
+  const list=`📋 ${name}\n\n${lines.map(i=>'• '+i).join('\n')}`;
   if(navigator.clipboard&&navigator.clipboard.writeText){
     navigator.clipboard.writeText(list).then(()=>showToast('✅ Λίστα αντιγράφηκε!')).catch(()=>showToast('⚠️ Σφάλμα αντιγραφής'));
   } else {
