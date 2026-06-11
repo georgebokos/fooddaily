@@ -628,7 +628,6 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 <div class="nmod" id="nmod" style="display:none">
   <div class="nmod-inner">
     <div class="nmod-t">🔔 Υπενθυμίσεις</div>
-    <div id="notif-status" style="font-size:12px;padding:8px 12px;border-radius:8px;margin-bottom:10px;background:#F9F7F2;border:1.5px solid #EDE8DE;"></div>
     <div class="nmod-row">
       <label>Ενεργοποίηση</label>
       <input type="checkbox" id="ntog">
@@ -644,7 +643,6 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
       <button class="nmod-save" onclick="saveNotif()">Αποθήκευση</button>
       <button class="nmod-cls" onclick="closeNotif()">Άκυρο</button>
     </div>
-    <button class="nmod-cls" style="width:100%;margin-top:8px;font-size:13px;" onclick="testNotif()">🔔 Δοκιμαστική ειδοποίηση</button>
   </div>
 </div>
 
@@ -1735,18 +1733,6 @@ function openNmod(){
   const ntog=document.getElementById('ntog');if(ntog)ntog.checked=on;
   document.getElementById('bell').classList.toggle('on',on);
   document.getElementById('ntime').value=localStorage.getItem('notif_time')||'09:00';
-  // Diagnostic status
-  const st=document.getElementById('notif-status');
-  if(st){
-    const hasSW='serviceWorker' in navigator;
-    const perm='Notification' in window?Notification.permission:'N/A';
-    const swCtrl=hasSW&&!!navigator.serviceWorker.controller;
-    const permIcon=perm==='granted'?'✅':perm==='denied'?'❌':'⚠️';
-    const swIcon=hasSW?(swCtrl?'✅':'⚠️'):'❌';
-    st.innerHTML=`${permIcon} Άδεια: <b>${perm==='granted'?'Ενεργή':perm==='denied'?'Απορρίφθηκε':'Εκκρεμεί'}</b> &nbsp;|&nbsp; ${swIcon} SW: <b>${hasSW?(swCtrl?'Ενεργός':'Φόρτωση'):'N/A'}</b>`;
-    st.style.color=perm==='granted'&&swCtrl?'#166534':'#92400E';
-    if(perm==='denied'){st.innerHTML+='<br><small style="color:#991B1B">⚠️ Πήγαινε Android Ρυθμίσεις → Εφαρμογές → FoodDaily → Ειδοποιήσεις → Ενεργοποίηση</small>';}
-  }
 }
 function closeNmod(){document.getElementById('nmod').style.display='none';}
 function openNotif(){openNmod();}
