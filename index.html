@@ -2288,7 +2288,7 @@ function rateRecipe(id,stars){
 }
 
 // ── STEP TIMER ─────────────────────────────────────────────────
-let _timerInterval=null;
+let _timerInterval=null,_timerEndTime=null,_timerBtn=null;
 function parseStepTime(txt){
   // Extract minutes from step text: "20 λεπτά", "30-35 λεπτά", "2 ώρες", "1.5 ώρα", "45-50 λεπτά"
   let m;
@@ -2300,34 +2300,62 @@ function parseStepTime(txt){
   if(m)return +m[1];
   return 0;
 }
+function _timerFireDone(btn){
+  clearInterval(_timerInterval);_timerInterval=null;_timerEndTime=null;_timerBtn=null;
+  btn.classList.remove('running');btn.classList.add('done');btn.textContent='✓ Έτοιμο!';
+  if(navigator.vibrate)navigator.vibrate([300,150,300,150,300]);
+  // Web Audio beep (3 pulses)
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [0,.35,.7].forEach(t=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.type='sine';o.frequency.value=880;
+      g.gain.setValueAtTime(.4,ctx.currentTime+t);
+      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+t+.28);
+      o.start(ctx.currentTime+t);o.stop(ctx.currentTime+t+.3);
+    });
+  }catch(e){}
+  // SW notification (λειτουργεί και σε background/κλειδωμένο)
+  if(navigator.serviceWorker&&navigator.serviceWorker.controller){
+    navigator.serviceWorker.controller.postMessage({type:'SHOW_NOTIFICATION',title:'⏱️ FoodDaily — Timer',body:'Ο χρόνος τελείωσε! Δες το επόμενο βήμα.',tag:'fd-timer'});
+  }
+}
 function startStepTimer(btn,minutes){
   if(btn.classList.contains('done')){
     btn.classList.remove('done');btn.dataset.timer=minutes*60;btn.textContent=`⏱ ${minutes}'`;return;
   }
   if(btn.classList.contains('running')){
-    clearInterval(_timerInterval);_timerInterval=null;
+    clearInterval(_timerInterval);_timerInterval=null;_timerEndTime=null;_timerBtn=null;
     btn.classList.remove('running');btn.textContent=`⏱ ${minutes}'`;
+    if(navigator.serviceWorker&&navigator.serviceWorker.controller)
+      navigator.serviceWorker.controller.postMessage({type:'CANCEL_TIMER'});
     return;
   }
   clearInterval(_timerInterval);
-  let secs=parseInt(btn.dataset.timer||minutes*60);
+  const secs=parseInt(btn.dataset.timer||minutes*60);
+  _timerEndTime=Date.now()+secs*1000;
+  _timerBtn=btn;
   btn.classList.add('running');
+  // Ζητάμε από τον SW να στείλει ειδοποίηση όταν λήξει (ακόμα και αν το screen είναι κλειστό)
+  if(navigator.serviceWorker&&navigator.serviceWorker.controller)
+    navigator.serviceWorker.controller.postMessage({type:'SCHEDULE_TIMER',delay:secs*1000});
   const tick=()=>{
-    secs--;btn.dataset.timer=secs;
-    const m2=Math.floor(secs/60),s2=secs%60;
+    const rem=Math.ceil((_timerEndTime-Date.now())/1000);
+    if(rem<=0){_timerFireDone(btn);return;}
+    const m2=Math.floor(rem/60),s2=rem%60;
     btn.textContent=`⏱ ${m2}:${String(s2).padStart(2,'0')}`;
-    if(secs<=0){
-      clearInterval(_timerInterval);_timerInterval=null;
-      btn.classList.remove('running');btn.classList.add('done');btn.textContent='✓ Έτοιμο!';
-      // Haptic + notification
-      if(navigator.vibrate)navigator.vibrate([200,100,200]);
-      if(Notification.permission==='granted'){
-        new Notification('⏱️ FoodDaily',{body:'Ο χρόνος τελείωσε!',icon:'/icon-192.png'});
-      }
-    }
+    btn.dataset.timer=rem;
   };
-  _timerInterval=setInterval(tick,1000);
+  _timerInterval=setInterval(tick,500);
 }
+// Όταν ξεκλειδώσει το τηλέφωνο, ελέγχει αν ο timer έληξε εν τω μεταξύ
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden&&_timerEndTime&&_timerBtn){
+    const rem=Math.ceil((_timerEndTime-Date.now())/1000);
+    if(rem<=0)_timerFireDone(_timerBtn);
+  }
+});
 
 // ── SHARE INGREDIENTS ──────────────────────────────────────────
 function shareIngredients(){

@@ -1,5 +1,5 @@
 // FoodDaily Service Worker v2.3
-const VERSION = '2026-06-12-08';
+const VERSION = '2026-06-12-09';
 const CACHE = `fooddaily-${VERSION}`;
 const ASSETS = [
   '/',
@@ -58,7 +58,9 @@ self.addEventListener('fetch', e => {
 
 // Message from page: show a notification (most reliable on Android TWA)
 self.addEventListener('message', e => {
-  if (e.data && e.data.type === 'SHOW_NOTIFICATION') {
+  if (!e.data) return;
+
+  if (e.data.type === 'SHOW_NOTIFICATION') {
     e.waitUntil(
       self.registration.showNotification(e.data.title, {
         body: e.data.body,
@@ -69,6 +71,25 @@ self.addEventListener('message', e => {
         requireInteraction: false
       })
     );
+  }
+
+  // Step-timer: schedule a notification after `delay` ms (works while screen is locked)
+  if (e.data.type === 'SCHEDULE_TIMER') {
+    if (self._timerTo) clearTimeout(self._timerTo);
+    self._timerTo = setTimeout(() => {
+      self.registration.showNotification('⏱️ FoodDaily — Timer', {
+        body: 'Ο χρόνος τελείωσε! Δες το επόμενο βήμα.',
+        icon: '/icon-192.png',
+        badge: '/icon-96.png',
+        tag: 'fd-timer',
+        vibrate: [300, 150, 300, 150, 300],
+        requireInteraction: true
+      });
+    }, e.data.delay);
+  }
+
+  if (e.data.type === 'CANCEL_TIMER') {
+    if (self._timerTo) { clearTimeout(self._timerTo); self._timerTo = null; }
   }
 });
 
