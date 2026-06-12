@@ -1756,6 +1756,7 @@ async function saveNotif(){
     localStorage.setItem('notif_on','true');
     document.getElementById('bell').classList.add('on');
     startNotifTimer();
+    storeNotifPrefsForSW(time,'true');
     registerPeriodicSync();
     showToast('✅ Ειδοποιήσεις ενεργοποιήθηκαν!');
   } else {
@@ -1802,6 +1803,29 @@ async function sendNotif(){
   // 3. Desktop fallback
   try{new Notification(title,{body,tag:'fd-meal',icon:'/icon-192.png'});}catch(e){}
 }
+// Store notification prefs in cache so SW can read them during periodicsync
+function storeNotifPrefsForSW(time,on){
+  if(!('caches' in window))return;
+  caches.open('fd-prefs').then(c=>c.put('/fd-notif-prefs',
+    new Response(JSON.stringify({time,on}),{headers:{'Content-Type':'application/json'}})
+  ));
+}
+
+// On app open: if scheduled time has passed today with no notification → send now
+async function checkMissedNotif(){
+  if(localStorage.getItem('notif_on')!=='true')return;
+  if(Notification.permission!=='granted')return;
+  const today=new Date().toDateString();
+  if(localStorage.getItem('notif_last')===today)return;
+  const [h,m]=(localStorage.getItem('notif_time')||'09:00').split(':').map(Number);
+  const now=new Date();
+  const sched=new Date();sched.setHours(h,m,0,0);
+  if(now>=sched){
+    await sendNotif();
+    localStorage.setItem('notif_last',today);
+  }
+}
+
 let _notifInt=null;
 function startNotifTimer(){
   if(_notifInt)clearInterval(_notifInt);
@@ -2150,11 +2174,14 @@ function copyShoppingList(){
   filtSw('keik');
   selGuest(4,null);
   updateFavPill();
-  // Restart notification timer if previously enabled
+  // Restart notification timer + catch-up if previously enabled
   if(localStorage.getItem('notif_on')==='true'&&Notification.permission==='granted'){
     startNotifTimer();
+    const _st=localStorage.getItem('notif_time')||'09:00';
+    storeNotifPrefsForSW(_st,'true');
     registerPeriodicSync();
     document.getElementById('bell').classList.add('on');
+    checkMissedNotif();
   }
   // Service Worker registration
   if('serviceWorker' in navigator){

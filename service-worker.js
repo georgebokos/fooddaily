@@ -1,5 +1,5 @@
 // FoodDaily Service Worker v2.0
-const VERSION = '2026-06-11-06';
+const VERSION = '2026-06-11-07';
 const CACHE = `fooddaily-${VERSION}`;
 const ASSETS = [
   '/',
@@ -84,18 +84,48 @@ self.addEventListener('notificationclick', e => {
   );
 });
 
-// Periodic Background Sync: fire daily notification when app is closed
+// Periodic Background Sync: check stored prefs then fire at the right time window
 self.addEventListener('periodicsync', e => {
   if (e.tag === 'fd-daily-notif') {
-    e.waitUntil(
-      self.registration.showNotification('🍽️ FoodDaily', {
-        body: 'Τι μαγειρεύουμε σήμερα; Δες τις προτάσεις σου!',
-        icon: '/icon-192.png',
-        badge: '/icon-96.png',
-        tag: 'fd-meal',
-        vibrate: [200, 100, 200],
-        data: { url: '/' }
-      })
-    );
+    e.waitUntil((async () => {
+      try {
+        // Read notification prefs stored by the page
+        const cache = await caches.open('fd-prefs');
+        const resp = await cache.match('/fd-notif-prefs');
+        if (!resp) return;
+        const prefs = await resp.json();
+        if (prefs.on !== 'true') return;
+
+        // Check if we already sent one today (stored as ISO date string in cache)
+        const lastCache = await caches.open('fd-prefs');
+        const lastResp = await lastCache.match('/fd-notif-last');
+        const today = new Date().toDateString();
+        if (lastResp) {
+          const lastDate = await lastResp.text();
+          if (lastDate === today) return;
+        }
+
+        // Only fire if within ±3 hours of the scheduled time
+        const [h, m] = (prefs.time || '09:00').split(':').map(Number);
+        const now = new Date();
+        const sched = new Date();
+        sched.setHours(h, m, 0, 0);
+        const diffMs = now - sched;
+        if (diffMs < 0 || diffMs > 3 * 60 * 60 * 1000) return;
+
+        await self.registration.showNotification('🍽️ FoodDaily', {
+          body: 'Τι μαγειρεύουμε σήμερα; Δες τις προτάσεις σου!',
+          icon: '/icon-192.png',
+          badge: '/icon-96.png',
+          tag: 'fd-meal-daily',
+          vibrate: [200, 100, 200]
+        });
+
+        // Mark as sent today
+        await lastCache.put('/fd-notif-last',
+          new Response(today, { headers: { 'Content-Type': 'text/plain' } })
+        );
+      } catch (err) {}
+    })());
   }
 });
