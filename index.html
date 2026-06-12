@@ -541,11 +541,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
         onkeydown="if(event.key==='Enter')addTag()">
       <button class="fbtn-add" onclick="addTag()">＋</button>
     </div>
-    <div class="tags" id="tags">
-      <div class="tag">κολοκυθάκια <button onclick="this.parentElement.remove();smartFridge()">×</button></div>
-      <div class="tag">αυγά <button onclick="this.parentElement.remove();smartFridge()">×</button></div>
-      <div class="tag">φέτα <button onclick="this.parentElement.remove();smartFridge()">×</button></div>
-    </div>
+    <div class="tags" id="tags"></div>
     <button class="fridge-btn" id="fridge-btn" data-i18n="fridge_btn" onclick="smartFridge()">🔍 Βρες μου συνταγές!</button>
   </div>
   <div id="fridge-res" style="padding:0 1.25rem;"></div>
