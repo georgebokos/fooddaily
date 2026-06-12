@@ -532,9 +532,85 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .mpicker-item-name{font-size:14px;font-weight:600;color:var(--txt);}
 .mpicker-item-meta{font-size:11px;color:var(--t3);margin-top:1px;}
 .mpicker-item-prep{font-size:11px;color:#D97706;font-weight:600;margin-top:2px;display:flex;align-items:center;gap:3px;}
+.b-pites{background:#FFF3E0;color:#C85010;border:1px solid #FFCC80;}
+[data-theme="dark"] .b-pites{background:#2A1800;color:#FFCC80;}
+/* ── ONBOARDING ── */
+.onboard{position:fixed;inset:0;z-index:4000;background:#fff;display:flex;flex-direction:column;}
+[data-theme="dark"] .onboard{background:#1A1814;}
+.onboard.hidden{display:none;}
+.onboard-slides{flex:1;display:flex;overflow:hidden;position:relative;}
+.onboard-slide{min-width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 28px;text-align:center;transition:transform .35s ease;}
+.onboard-art{font-size:90px;margin-bottom:20px;line-height:1;}
+.onboard-h{font-size:26px;font-weight:800;color:var(--txt);margin-bottom:10px;line-height:1.2;}
+.onboard-s{font-size:15px;color:var(--t3);line-height:1.6;max-width:300px;}
+.onboard-feats{margin-top:20px;display:flex;flex-direction:column;gap:10px;width:100%;max-width:320px;}
+.onboard-feat{display:flex;align-items:center;gap:12px;background:var(--lt);border-radius:12px;padding:10px 14px;text-align:left;}
+.onboard-feat-ico{font-size:22px;}
+.onboard-feat-txt{font-size:13px;font-weight:600;color:var(--txt);}
+.onboard-dots{display:flex;gap:6px;justify-content:center;padding:16px 0 8px;}
+.onboard-dot{width:8px;height:8px;border-radius:50%;background:var(--bd);transition:all .3s;}
+.onboard-dot.on{width:22px;border-radius:4px;background:var(--pri);}
+.onboard-footer{padding:16px 24px calc(env(safe-area-inset-bottom,0px) + 16px);display:flex;flex-direction:column;gap:10px;}
+.onboard-next{padding:15px;background:var(--pri);color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;width:100%;}
+.onboard-skip{background:transparent;border:none;color:var(--t3);font-size:13px;cursor:pointer;padding:4px;}
+/* ── PROFILE SHEET ── */
+.prof-sheet{display:none;position:fixed;inset:0;z-index:1800;background:rgba(0,0,0,.5);align-items:flex-end;justify-content:center;}
+.prof-sheet.show{display:flex;}
+.prof-inner{background:var(--bg);border-radius:24px 24px 0 0;width:100%;max-width:560px;max-height:88vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,20px);}
+.prof-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 12px;border-bottom:1px solid var(--bd);}
+.prof-title{font-size:17px;font-weight:800;color:var(--txt);}
+.prof-close{background:var(--lt);border:none;border-radius:50%;width:30px;height:30px;font-size:15px;cursor:pointer;color:var(--t3);}
+.prof-section{padding:14px 18px 0;}
+.prof-sect-title{font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;}
+.dislike-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.dislike-chip{display:flex;align-items:center;gap:7px;padding:10px 12px;border:1.5px solid var(--bd);border-radius:12px;cursor:pointer;font-size:13px;font-weight:600;color:var(--t3);background:var(--bg);-webkit-tap-highlight-color:transparent;transition:all .18s;}
+.dislike-chip.on{border-color:#EF4444;background:#FEF2F2;color:#991B1B;}
+[data-theme="dark"] .dislike-chip.on{background:#2A0A0A;border-color:#EF4444;color:#FCA5A5;}
+.dislike-chip-ico{font-size:20px;}
+.prof-prem-note{font-size:12px;color:var(--t3);text-align:center;padding:8px 16px 16px;}
 </style>
 </head>
 <body>
+
+<!-- ONBOARDING -->
+<div class="onboard hidden" id="onboard">
+  <div class="onboard-slides" id="onboard-slides">
+    <div class="onboard-slide">
+      <div class="onboard-art">🍽️</div>
+      <div class="onboard-h">Καλωσόρισες στο FoodDaily!</div>
+      <div class="onboard-s">Οι καλύτερες μεσογειακές συνταγές — κάθε μέρα μια νέα πρόταση για το τραπέζι σου.</div>
+      <div class="onboard-feats">
+        <div class="onboard-feat"><span class="onboard-feat-ico">☀️</span><span class="onboard-feat-txt">Καθημερινές προτάσεις βάσει εποχής</span></div>
+        <div class="onboard-feat"><span class="onboard-feat-ico">⚡</span><span class="onboard-feat-txt">Γρήγορες ιδέες με υλικά που έχεις</span></div>
+        <div class="onboard-feat"><span class="onboard-feat-ico">⏱️</span><span class="onboard-feat-txt">Timer ανά βήμα & αυτόματη ζύγιση</span></div>
+      </div>
+    </div>
+    <div class="onboard-slide">
+      <div class="onboard-art">💎</div>
+      <div class="onboard-h">7 ημέρες Premium δωρεάν</div>
+      <div class="onboard-s">Ξεκλείδωσε το εβδομαδιαίο πρόγραμμα, έξυπνες ειδοποιήσεις και σημειώσεις ανά συνταγή.</div>
+      <div class="onboard-feats">
+        <div class="onboard-feat"><span class="onboard-feat-ico">📅</span><span class="onboard-feat-txt">Εβδομαδιαίο meal plan με λίστα αγορών</span></div>
+        <div class="onboard-feat"><span class="onboard-feat-ico">🔔</span><span class="onboard-feat-txt">"Ξεπάγωσε τον κιμά" — το βράδυ πριν</span></div>
+        <div class="onboard-feat"><span class="onboard-feat-ico">📝</span><span class="onboard-feat-txt">Προσωπικές σημειώσεις ανά συνταγή</span></div>
+      </div>
+    </div>
+    <div class="onboard-slide">
+      <div class="onboard-art">🚀</div>
+      <div class="onboard-h">Έτοιμος να μαγειρέψεις;</div>
+      <div class="onboard-s">Η πρώτη σου πρόταση σε περιμένει. Μπορείς να αλλάξεις τις προτιμήσεις σου ανά πάσα στιγμή.</div>
+    </div>
+  </div>
+  <div class="onboard-dots" id="onboard-dots">
+    <div class="onboard-dot on"></div>
+    <div class="onboard-dot"></div>
+    <div class="onboard-dot"></div>
+  </div>
+  <div class="onboard-footer">
+    <button class="onboard-next" id="onboard-next" onclick="onboardNext()">Συνέχεια →</button>
+    <button class="onboard-skip" onclick="onboardFinish()">Παράλειψη</button>
+  </div>
+</div>
 
 <div class="hero-hdr">
   <div class="hero-hdr-img"></div>
@@ -548,6 +624,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
       <div class="hero-btns">
         <button id="dark-btn" class="hero-btn" onclick="toggleDark()" title="Dark mode">🌙</button>
         <button id="bell" class="hero-btn" onclick="openNotif()">🔔</button>
+        <button id="prof-btn" class="hero-btn" onclick="openProfile()" title="Προφίλ">👤</button>
         <button id="prem-btn" class="hero-btn" onclick="openPremiumScreen()" title="Premium" style="font-size:14px;font-weight:700;letter-spacing:-.3px;">💎</button>
       </div>
     </div>
@@ -626,6 +703,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
         <button class="cpill" onclick="selCat('vegetables',this)">🥦 Λαχανικά</button>
         <button class="cpill" onclick="selCat('salads',this)">🥗 Σαλάτες</button>
         <button class="cpill" onclick="selCat('soups',this)">🍲 Σούπες</button>
+        <button class="cpill" onclick="selCat('pites',this)">🫓 Πίτες</button>
         <button class="cpill" onclick="selCat('sauces',this)">🫙 Σάλτσες & Ντιπ</button>
         <button class="cpill" id="fav-pill" onclick="selCat('favs',this)">❤️ Αγαπημένα</button>
       </div>
@@ -862,6 +940,21 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
   </div>
 </div>
 
+<!-- PROFILE SHEET -->
+<div class="prof-sheet" id="prof-sheet" onclick="if(event.target===this)closeProfile()">
+  <div class="prof-inner">
+    <div class="prof-head">
+      <div class="prof-title">👤 Προφίλ & Προτιμήσεις</div>
+      <button class="prof-close" onclick="closeProfile()">✕</button>
+    </div>
+    <div class="prof-section">
+      <div class="prof-sect-title">Δεν μου αρέσει / Αποφεύγω</div>
+      <div class="dislike-grid" id="dislike-grid"></div>
+    </div>
+    <div class="prof-prem-note" id="prof-prem-note"></div>
+  </div>
+</div>
+
 <!-- FAB: submit recipe -->
 <button class="fab-recipe" onclick="openUrform()" title="Στείλε τη συνταγή σου">👨‍🍳 Η συνταγή μου</button>
 
@@ -903,7 +996,8 @@ const TH={
   vegetables:{bg:'#F4FBF4',pri:'#388054',lt:'#C8ECD0',bd:'#A0D8B0'},
   salads:{bg:'#F0FAFA',pri:'#28888A',lt:'#C4E8E8',bd:'#8AD0D0'},
   soups:{bg:'#FFF9F0',pri:'#9A6010',lt:'#FFE5B4',bd:'#EED088'},
-  sauces:{bg:'#FFF5F5',pri:'#B72840',lt:'#FFD6DC',bd:'#F4A0B0'}
+  sauces:{bg:'#FFF5F5',pri:'#B72840',lt:'#FFD6DC',bd:'#F4A0B0'},
+  pites:{bg:'#FFF8F0',pri:'#C85010',lt:'#FFE5CC',bd:'#FFCC80'}
 };
 const CAT_GRAD={
   pasta:'linear-gradient(145deg,#FFF8E7,#FFE082)',
@@ -913,10 +1007,11 @@ const CAT_GRAD={
   vegetables:'linear-gradient(145deg,#E8F5E9,#A5D6A7)',
   salads:'linear-gradient(145deg,#E0F7FA,#80DEEA)',
   soups:'linear-gradient(145deg,#FFFDE7,#FFF176)',
-  sauces:'linear-gradient(145deg,#FFF0F0,#FFAAB8)'
+  sauces:'linear-gradient(145deg,#FFF0F0,#FFAAB8)',
+  pites:'linear-gradient(145deg,#FFF3E0,#FFCC80)'
 };
 const CAT_CL={pasta:'b-pasta',seafood:'b-seafood',meat:'b-meat',
-  legumes:'b-legumes',vegetables:'b-vegetables',salads:'b-salads',soups:'b-soups',sauces:'b-sauces'};
+  legumes:'b-legumes',vegetables:'b-vegetables',salads:'b-salads',soups:'b-soups',sauces:'b-sauces',pites:'b-pites'};
 // Meal priority: 1=everyday affordable, 2=regular weekday, 3=weekend, 4=special occasion
 const MEAL_PRIORITY={
   fasolada:1,fakes:1,aglio:1,spanakoryzo:1,keftedes:1,kima:1,briami:1,revythada:1,
@@ -967,7 +1062,7 @@ const TR={
     c0:'🌿 Όλα',c1:'🍝 Ζυμαρικά',c2:'🐟 Θαλασσινά',c3:'🥩 Κρεατικά',
     c4:'🫘 Όσπρια',c5:'🥦 Λαχανικά',c6:'🥗 Σαλάτες',c7:'🍲 Σούπες',
     cl_pasta:'Ζυμαρικό',cl_seafood:'Θαλασσινό',cl_meat:'Κρεατικό',cl_legumes:'Όσπριο',
-    cl_vegetables:'Λαχανικό',cl_salads:'Σαλάτα',cl_soups:'Σούπα',cl_sauces:'Σάλτσα',
+    cl_vegetables:'Λαχανικό',cl_salads:'Σαλάτα',cl_soups:'Σούπα',cl_sauces:'Σάλτσα',cl_pites:'Πίτα',
     daily_lbl:'Προτάσεις για σήμερα',fresh:'✦ Φρέσκο',new_sug:'✨ Νέα πρόταση',days_ago:'μέρες πριν',
     remind:'Έχεις καιρό χωρίς:',bal_t:'Εβδομαδιαία ισορροπία',reshuf:'🔀 Νέες προτάσεις',
     cal:'Θερμίδες',time:'Χρόνος',srv:'Μερίδες',cost:'Κόστος υλικών',per_srv:'/μερ.',cost_yr:'τιμές 2026',
@@ -994,7 +1089,7 @@ const TR={
     c0:'🌿 All',c1:'🍝 Pasta',c2:'🐟 Seafood',c3:'🥩 Meat',
     c4:'🫘 Legumes',c5:'🥦 Vegetables',c6:'🥗 Salads',c7:'🍲 Soups',
     cl_pasta:'Pasta',cl_seafood:'Seafood',cl_meat:'Meat',cl_legumes:'Legume',
-    cl_vegetables:'Vegetable',cl_salads:'Salad',cl_soups:'Soup',cl_sauces:'Sauce',
+    cl_vegetables:'Vegetable',cl_salads:'Salad',cl_soups:'Soup',cl_sauces:'Sauce',cl_pites:'Pie',
     daily_lbl:"Today's suggestions",fresh:'✦ New',new_sug:'✨ New',days_ago:'days ago',
     remind:"Haven't had recently:",bal_t:'Weekly balance',reshuf:'🔀 New suggestions',
     cal:'Calories',time:'Time',srv:'Servings',cost:'Ingredient cost',per_srv:'/serv.',cost_yr:'prices 2026',
@@ -1210,6 +1305,31 @@ const MEALS={
     steps:['Ροδίζεις αρνί. Σοτάρεις κρεμμύδι, σκόρδο.','Σβήνεις με κρασί. Ντομάτα, μπαχαρικά, αλάτι.','Σιγοβράζεις 70-80 λεπτά μέχρι το κρέας να μαλακώσει.'],
     wine:'Αγιωργίτικο ή Ξινόμαυρο.',beer:'Mythos.',plate:'Βαθύ πιάτο, σάλτσα πλούσια, ψωμί.'},
 
+  tyropita:{en:'Greek Cheese Pie',n:'Τυρόπιτα',e:'🧀',cats:['pites'],cal:380,time:60,srv:8,pop:1,cost:'~7€',cps:'~0.90€',
+    ing:['Φύλλο κρούστας 500γρ','Φέτα τριμμένη 500γρ','Αυγά 3','Γάλα 100ml','Βούτυρο λιωμένο 100γρ','Αλάτι & πιπέρι','Σουσάμι (προαιρετικά)'],
+    steps:['Λιώνεις βούτυρο. Ανακατεύεις φέτα + αυγά + γάλα + πιπέρι — δοκίμαζε πριν αλατίσεις, η φέτα είναι ήδη αλμυρή.','Λαδώνεις ταψί. Στρώνεις 6-8 φύλλα βουτυρώνοντας κάθε ένα. Απλώνεις γέμιση ομοιόμορφα.','Κλείνεις με άλλα 6-8 φύλλα βουτυρωμένα. Χαράζεις σε κομμάτια, σουσάμι από πάνω. 180°C για 45-50 λεπτά μέχρι χρυσαφένια.'],
+    wine:'Λευκό ξηρό ή ροζέ.',beer:'Lager.',plate:'Κομμάτια ζεστά, σαλάτα στο πλάι.'},
+  spanakopita:{en:'Spinach & Feta Pie',n:'Σπανακόπιτα',e:'🌿',cats:['pites'],cal:320,time:75,srv:8,pop:1,cost:'~8€',cps:'~1€',
+    ing:['Φύλλο κρούστας 500γρ','Σπανάκι 1kg','Φέτα τριμμένη 400γρ','Κρεμμυδάκια φρέσκα 6','Αυγά 3','Άνηθος φρέσκος','Ελαιόλαδο 4 κ.σ.','Βούτυρο λιωμένο 80γρ'],
+    steps:['Σπανάκι πλυμένο, ψιλοκομμένο. Αλατίζεις, ζυμώνεις με τα χέρια, στύβεις πολύ καλά — αυτό κρατά την πίτα τραγανή.','Ανακατεύεις σπανάκι + φέτα + κρεμμυδάκια + άνηθο + αυγά + ελαιόλαδο. Πιπέρι — δοκίμαζε πριν αλατίσεις.','Στρώνεις φύλλα βουτυρωμένα, γέμιση, κλείνεις με φύλλα. Χαράζεις. 180°C για 50-55 λεπτά.'],
+    wine:'Ροζέ ή λευκό Μαλαγουζιά.',beer:'Wheat beer.',plate:'Ζεστή, γιαούρτι στο πλάι.'},
+  kreatopita:{en:'Greek Meat Pie',n:'Κρεατόπιτα',e:'🥩',cats:['pites','meat'],cal:450,time:90,srv:8,pop:2,cost:'~10€',cps:'~1.25€',
+    ing:['Φύλλο κρούστας 500γρ','Κιμάς μοσχαρίσιος 600γρ','Κρεμμύδι 2','Ντομάτα τριμμένη 200γρ','Κεφαλοτύρι 150γρ','Αυγά 2','Κανέλα & μπαχάρι','Βούτυρο 80γρ'],
+    steps:['Σοτάρεις κρεμμύδι. Ροδίζεις κιμά. Ντομάτα, κανέλα, μπαχάρι, αλάτι. Σιγοβράζεις 20 λεπτά. Κρυώνεις ελαφρά.','Ανακατεύεις κιμά + τυρί + αυγά.','Στρώνεις φύλλα βουτυρωμένα, γέμιση, κλείνεις. Χαράζεις. 180°C για 55-60 λεπτά.'],
+    wine:'Αγιωργίτικο.',beer:'Mythos.',plate:'Κομμάτια ζεστά, χωριάτικη σαλάτα.'},
+  hortopita:{en:'Wild Greens Pie',n:'Χορτόπιτα',e:'🌱',cats:['pites','vegetables'],cal:290,time:65,srv:8,pop:2,cost:'~6€',cps:'~0.75€',
+    ing:['Φύλλο κρούστας 500γρ','Χόρτα αγρού 1kg (σέσκουλα, σπανάκι, μάραθο)','Φέτα 300γρ','Κρεμμυδάκια 4','Αυγά 2','Ελαιόλαδο 5 κ.σ.','Άνηθος & μαϊντανός'],
+    steps:['Βράζεις χόρτα 5 λεπτά. Στραγγίζεις και στύβεις πολύ καλά — το μυστικό της τραγανής πίτας!','Ανακατεύεις χόρτα + φέτα + κρεμμυδάκια + αυγά + μυρωδικά + ελαιόλαδο.','Στρώνεις λαδωμένα φύλλα, γέμιση, κλείνεις. 180°C για 45-50 λεπτά.'],
+    wine:'Ασύρτικο ή ελαφρύ λευκό.',beer:'Pilsner.',plate:'Με γιαούρτι ή φέτα στο πλάι.'},
+  kolokythopita:{en:'Zucchini Pie',n:'Κολοκυθόπιτα',e:'🥒',cats:['pites','vegetables'],cal:310,time:70,srv:8,pop:2,cost:'~6.50€',cps:'~0.80€',
+    ing:['Φύλλο κρούστας 500γρ','Κολοκυθάκια 1kg','Φέτα 300γρ','Αυγά 3','Κρεμμύδι 1','Άνηθος & μέντα','Ελαιόλαδο 4 κ.σ.','Βούτυρο 80γρ'],
+    steps:['Τρίβεις κολοκυθάκια, αλατίζεις, αφήνεις 15 λεπτά. Στύβεις πολύ καλά — αφαίρεση υγρών = τραγανή πίτα.','Ανακατεύεις κολοκυθάκια + φέτα + αυγά + κρεμμύδι + μυρωδικά.','Στρώνεις βουτυρωμένα φύλλα, γέμιση, κλείνεις. 180°C για 50-55 λεπτά.'],
+    wine:'Λευκό ξηρό.',beer:'Wheat beer.',plate:'Ζεστή ή κρύα, εξίσου νόστιμη!'},
+  prasopita:{en:'Leek & Feta Pie',n:'Πρασόπιτα',e:'🧅',cats:['pites','vegetables'],cal:340,time:70,srv:8,pop:2,cost:'~7€',cps:'~0.90€',
+    ing:['Φύλλο κρούστας 500γρ','Πράσα 1kg','Φέτα 400γρ','Αυγά 3','Ελαιόλαδο 4 κ.σ.','Βούτυρο 80γρ','Αλάτι & πιπέρι','Μοσχοκάρυδο'],
+    steps:['Πλένεις πράσα καλά — κρύβουν χώμα! Ψιλοκόβεις. Σοτάρεις σε ελαιόλαδο 8-10 λεπτά μέχρι μαλακά.','Κρυώνεις. Ανακατεύεις πράσα + φέτα + αυγά + μοσχοκάρυδο + πιπέρι.','Στρώνεις βουτυρωμένα φύλλα, γέμιση, κλείνεις. 180°C για 50-55 λεπτά.'],
+    wine:'Λευκό ξηρό ή ροζέ.',beer:'Pilsner.',plate:'Κομμάτια, σαλάτα, φέτα επιπλέον.'},
+
   // ── Σάλτσες & Ντιπ — εμφανίζονται μόνο στη δική τους κατηγορία ────────────
   melitzanosalata:{en:'Eggplant Dip',n:'Μελιτζανοσαλάτα',e:'🍆',cats:['sauces','vegetables'],noDaily:true,cal:110,time:30,srv:6,pop:1,cost:'~3€',cps:'~0.50€',
     ing:['Μελιτζάνες 3 μεγάλες','Σκόρδο 2 σκελίδες','Ελαιόλαδο 3 κ.σ.','Χυμός λεμονιού 1 κ.σ.','Μαϊντανός','Αλάτι & πιπέρι'],
@@ -1333,6 +1453,12 @@ const MEAL_IMAGES={
   avga_matia:'images/avga_matia.svg',
   ryzi_voutirou:'images/ryzi_voutirou.svg',
   tost_tyri:'images/tost_tyri.svg',
+  tyropita:'images/tyropita.svg',
+  spanakopita:'images/spanakopita.svg',
+  kreatopita:'images/kreatopita.svg',
+  hortopita:'images/hortopita.svg',
+  kolokythopita:'images/kolokythopita.svg',
+  prasopita:'images/prasopita.svg',
 };
 
 const SWEET_IMAGES={
@@ -1584,6 +1710,21 @@ function renderMeals(cat){
   } else {
     pool=pool.filter(m=>m.cats.includes(cat)&&!m.quickOnly);
   }
+  // Apply dislikes filter
+  const dislikes=getDislikes();
+  if(dislikes.length&&(cat==='all'||cat==='quick')){
+    pool=pool.filter(m=>{
+      if(dislikes.includes('meat')&&m.cats.includes('meat')&&!m.cats.includes('pites'))return false;
+      if(dislikes.includes('seafood')&&m.cats.includes('seafood'))return false;
+      if(dislikes.includes('legumes')&&m.cats.includes('legumes'))return false;
+      if(dislikes.includes('vegetables')&&m.cats.includes('vegetables'))return false;
+      if(dislikes.includes('pork')&&['souvlakia','keftedes','kontosouvi','gourounopoulo'].includes(m.id))return false;
+      if(dislikes.includes('lamb')&&['arnaki_lemonato','giouvetsi','mageiritsa','stifado','kokkinisto','arni_souvia'].includes(m.id))return false;
+      if(dislikes.includes('garlic')&&['aglio','skordalia','bakaliaro','tzatziki_dish'].includes(m.id))return false;
+      if(dislikes.includes('eggplant')&&['moussaka','briami','melitzanosalata'].includes(m.id))return false;
+      return true;
+    });
+  }
 
   const grid=document.getElementById('meals-grid');
 
@@ -1597,7 +1738,7 @@ function renderMeals(cat){
       return;
     }
     const CATLBLS={pasta:'🍝 Ζυμαρικά',seafood:'🐟 Θαλασσινά',meat:'🥩 Κρεατικά',
-      legumes:'🫘 Όσπρια',vegetables:'🥦 Λαχανικά',salads:'🥗 Σαλάτες',soups:'🍲 Σούπες',sauces:'🫙 Σάλτσες & Ντιπ'};
+      legumes:'🫘 Όσπρια',vegetables:'🥦 Λαχανικά',salads:'🥗 Σαλάτες',soups:'🍲 Σούπες',sauces:'🫙 Σάλτσες & Ντιπ',pites:'🫓 Πίτες'};
     const SWLBLS={keik:'🎂 Κέικ',koulourakia:'🍪 Κουλουράκια',tiganites:'🥞 Τηγανίτες',
       paradosiaka:'🍯 Παραδοσιακά',epochiaka:'🌸 Εποχιακά'};
     const byCat={};
@@ -2966,6 +3107,95 @@ function copyShoppingList(){
   }
 }
 
+// ── ONBOARDING ─────────────────────────────────────────────────
+let _obSlide=0;
+const OB_SLIDES=3;
+function initOnboarding(){
+  if(localStorage.getItem('fd_onboard_done'))return;
+  document.getElementById('onboard').classList.remove('hidden');
+  document.body.style.overflow='hidden';
+}
+function onboardNext(){
+  _obSlide++;
+  if(_obSlide>=OB_SLIDES){onboardFinish();return;}
+  const slides=document.getElementById('onboard-slides');
+  slides.style.transform=`translateX(-${_obSlide*100}%)`;
+  document.querySelectorAll('.onboard-dot').forEach((d,i)=>d.classList.toggle('on',i===_obSlide));
+  if(_obSlide===OB_SLIDES-1){
+    document.getElementById('onboard-next').textContent='Ξεκινάμε! 🍽️';
+  }
+}
+function onboardFinish(){
+  localStorage.setItem('fd_onboard_done','1');
+  startTrial(); // start trial when onboarding completes
+  document.getElementById('onboard').classList.add('hidden');
+  document.body.style.overflow='';
+  renderTrialBanner();
+}
+
+// ── SWIPE NAVIGATION ───────────────────────────────────────────
+(function(){
+  const SECS=['daily','festive','sweets','fridge','guests','seasonal'];
+  let _tx=0,_ty=0;
+  document.addEventListener('touchstart',e=>{
+    if(document.getElementById('overlay').classList.contains('show'))return;
+    if(document.getElementById('wplan-sheet').classList.contains('show'))return;
+    _tx=e.touches[0].clientX;_ty=e.touches[0].clientY;
+  },{passive:true});
+  document.addEventListener('touchend',e=>{
+    if(document.getElementById('overlay').classList.contains('show'))return;
+    if(document.getElementById('wplan-sheet').classList.contains('show'))return;
+    const dx=e.changedTouches[0].clientX-_tx;
+    const dy=e.changedTouches[0].clientY-_ty;
+    if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.5)return; // not horizontal enough
+    const cur=SECS.indexOf(curSec);
+    if(cur<0)return;
+    const next=dx<0?Math.min(cur+1,SECS.length-1):Math.max(cur-1,0);
+    if(next!==cur)showSec(SECS[next],SECS[next]);
+  },{passive:true});
+})();
+
+// ── PROFILE & DISLIKES ─────────────────────────────────────────
+const DISLIKE_OPTS=[
+  {id:'meat',ico:'🥩',lbl:'Κρεατικά'},
+  {id:'seafood',ico:'🐟',lbl:'Θαλασσινά'},
+  {id:'pork',ico:'🐷',lbl:'Χοιρινό'},
+  {id:'lamb',ico:'🐑',lbl:'Αρνί'},
+  {id:'legumes',ico:'🫘',lbl:'Όσπρια'},
+  {id:'vegetables',ico:'🥦',lbl:'Λαχανικά'},
+  {id:'garlic',ico:'🧄',lbl:'Σκόρδο'},
+  {id:'eggplant',ico:'🍆',lbl:'Μελιτζάνα'},
+];
+function getDislikes(){try{return JSON.parse(localStorage.getItem('fd_dislikes')||'[]');}catch(e){return [];}}
+function saveDislikes(arr){localStorage.setItem('fd_dislikes',JSON.stringify(arr));}
+function toggleDislike(id){
+  if(!isPremium()){showPremiumGate('Οι αντιπάθειες είναι διαθέσιμες στο Premium.');return;}
+  const d=getDislikes();
+  const idx=d.indexOf(id);
+  if(idx>=0)d.splice(idx,1);else d.push(id);
+  saveDislikes(d);
+  renderDislikeGrid();
+  renderMeals(curCat);
+}
+function renderDislikeGrid(){
+  const d=getDislikes();
+  document.getElementById('dislike-grid').innerHTML=DISLIKE_OPTS.map(o=>`
+    <div class="dislike-chip${d.includes(o.id)?' on':''}" onclick="toggleDislike('${o.id}')">
+      <span class="dislike-chip-ico">${o.ico}</span>${o.lbl}
+    </div>`).join('');
+  const note=document.getElementById('prof-prem-note');
+  if(note)note.textContent=isPremium()?'Οι αντιπάθειες φιλτράρουν τις καθημερινές προτάσεις.':'💎 Οι αντιπάθειες είναι Premium — Δοκίμασε 7 ημέρες δωρεάν.';
+}
+function openProfile(){
+  renderDislikeGrid();
+  document.getElementById('prof-sheet').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeProfile(){
+  document.getElementById('prof-sheet').classList.remove('show');
+  document.body.style.overflow='';
+}
+
 (function init(){
   // Dark mode
   if(localStorage.getItem('fd_dark')==='1'){
@@ -2986,6 +3216,8 @@ function copyShoppingList(){
   const dailyPool=Object.keys(MEALS).filter(id=>!excl2.includes(id)&&!MEALS[id]?.noDaily&&!MEALS[id]?.quickOnly);
   const dailyCount=Math.min(dailyPool.length,6);
   if(sl)sl.textContent=`🍽️ ${dailyCount} προτάσεις σήμερα · ${mealCount}+ συνταγές`;
+  // Onboarding for new users
+  initOnboarding();
   // Premium: start trial on first launch, render banner
   startTrial();
   renderTrialBanner();
