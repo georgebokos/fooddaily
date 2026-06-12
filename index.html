@@ -3258,39 +3258,6 @@ function onboardFinish(){
   renderTrialBanner();
 }
 
-// ── SWIPE NAVIGATION ───────────────────────────────────────────
-(function(){
-  const SECS=['daily','festive','sweets','fridge','guests','seasonal'];
-  let _tx=0,_ty=0,_swipeOk=false;
-  function isHScroll(el){
-    while(el&&el!==document.body){
-      const st=getComputedStyle(el);
-      const ox=st.overflowX;
-      if((ox==='auto'||ox==='scroll')&&el.scrollWidth>el.clientWidth+4)return true;
-      el=el.parentElement;
-    }
-    return false;
-  }
-  document.addEventListener('touchstart',e=>{
-    _swipeOk=false;
-    if(document.getElementById('overlay').classList.contains('show'))return;
-    if(document.getElementById('wplan-sheet').classList.contains('show'))return;
-    if(isHScroll(e.target))return; // finger on a horizontally scrollable row
-    _tx=e.touches[0].clientX;_ty=e.touches[0].clientY;_swipeOk=true;
-  },{passive:true});
-  document.addEventListener('touchend',e=>{
-    if(!_swipeOk)return;
-    if(document.getElementById('overlay').classList.contains('show'))return;
-    if(document.getElementById('wplan-sheet').classList.contains('show'))return;
-    const dx=e.changedTouches[0].clientX-_tx;
-    const dy=e.changedTouches[0].clientY-_ty;
-    if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.5)return;
-    const cur=SECS.indexOf(curSec);
-    if(cur<0)return;
-    const next=dx<0?Math.min(cur+1,SECS.length-1):Math.max(cur-1,0);
-    if(next!==cur)showSec(SECS[next],SECS[next]);
-  },{passive:true});
-})();
 
 // ── PROFILE & DISLIKES ─────────────────────────────────────────
 const DISLIKE_OPTS=[
