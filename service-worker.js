@@ -1,5 +1,5 @@
-// FoodDaily Service Worker v2.1
-const VERSION = '2026-06-12-02';
+// FoodDaily Service Worker v2.2
+const VERSION = '2026-06-12-03';
 const CACHE = `fooddaily-${VERSION}`;
 const ASSETS = [
   '/',
@@ -64,7 +64,7 @@ self.addEventListener('message', e => {
         body: e.data.body,
         icon: '/icon-192.png',
         badge: '/icon-96.png',
-        tag: 'fd-meal',
+        tag: e.data.tag || 'fd-meal',
         vibrate: [200, 100, 200],
         requireInteraction: false
       })
@@ -84,27 +84,52 @@ self.addEventListener('notificationclick', e => {
   );
 });
 
-// Periodic Background Sync: fire once per day when app is closed
-// Chrome controls *when* it fires, so we only filter out night hours (11 PM – 7 AM)
-// and deduplicate with a "sent today" cache entry.
+// Periodic Background Sync
+// Handles both daily meal suggestion and evening prep reminders
 self.addEventListener('periodicsync', e => {
   if (e.tag === 'fd-daily-notif') {
     e.waitUntil((async () => {
       try {
         const cache = await caches.open('fd-prefs');
+        const nowH = new Date().getHours();
+        const today = new Date().toDateString();
 
-        // Read notification prefs stored by the page
+        // ── Evening prep reminder (18:00–22:00) ──────────────────
+        if (nowH >= 18 && nowH < 22) {
+          const prepResp = await cache.match('/fd-tomorrow-prep');
+          if (prepResp) {
+            const prepData = await prepResp.json();
+            if (prepData.prepMsg) {
+              const lastPrepResp = await cache.match('/fd-prep-last');
+              const lastPrep = lastPrepResp ? await lastPrepResp.text() : '';
+              if (lastPrep !== today) {
+                await self.registration.showNotification(
+                  `🍽️ Αύριο: ${prepData.mealName}`,
+                  {
+                    body: prepData.prepMsg,
+                    icon: '/icon-192.png',
+                    badge: '/icon-96.png',
+                    tag: 'fd-prep',
+                    vibrate: [200, 100, 200, 100, 200]
+                  }
+                );
+                await cache.put('/fd-prep-last',
+                  new Response(today, { headers: { 'Content-Type': 'text/plain' } })
+                );
+                return; // Only one notification per sync cycle
+              }
+            }
+          }
+        }
+
+        // ── Daily meal suggestion (7:00–23:00) ───────────────────
+        if (nowH >= 23 || nowH < 7) return;
+
         const resp = await cache.match('/fd-notif-prefs');
         if (!resp) return;
         const prefs = await resp.json();
         if (prefs.on !== 'true') return;
 
-        // Skip night hours so notification doesn't arrive at 2 AM
-        const nowH = new Date().getHours();
-        if (nowH >= 23 || nowH < 7) return;
-
-        // Skip if already sent today
-        const today = new Date().toDateString();
         const lastResp = await cache.match('/fd-notif-last');
         if (lastResp && (await lastResp.text()) === today) return;
 
@@ -116,7 +141,6 @@ self.addEventListener('periodicsync', e => {
           vibrate: [200, 100, 200]
         });
 
-        // Mark as sent today
         await cache.put('/fd-notif-last',
           new Response(today, { headers: { 'Content-Type': 'text/plain' } })
         );

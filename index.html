@@ -493,6 +493,45 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .pscreen-cta{display:block;width:100%;padding:16px;background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;margin-bottom:10px;box-shadow:0 4px 16px rgba(245,158,11,.4);}
 .pscreen-cta-note{text-align:center;font-size:12px;color:var(--t3);margin-bottom:16px;}
 .pscreen-restore{background:transparent;border:none;color:var(--t3);font-size:12px;cursor:pointer;padding:4px;margin-bottom:8px;display:block;width:100%;text-align:center;}
+/* ── WEEK PLAN SHEET ── */
+.wplan-sheet{display:none;position:fixed;inset:0;z-index:1900;background:rgba(0,0,0,.55);align-items:flex-end;justify-content:center;}
+.wplan-sheet.show{display:flex;}
+.wplan-inner{background:var(--bg);border-radius:24px 24px 0 0;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,20px);}
+.wplan-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 10px;border-bottom:1px solid var(--bd);}
+.wplan-title{font-size:17px;font-weight:800;color:var(--txt);display:flex;align-items:center;gap:7px;}
+.wplan-close{background:var(--lt);border:none;border-radius:50%;width:30px;height:30px;font-size:15px;cursor:pointer;color:var(--t3);display:flex;align-items:center;justify-content:center;}
+.wplan-sub{font-size:12px;color:var(--t3);padding:6px 18px 10px;}
+.wplan-day{display:flex;align-items:center;gap:10px;padding:11px 18px;border-bottom:1px solid var(--bd);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s;}
+.wplan-day:active{background:var(--lt);}
+.wplan-day.today{background:linear-gradient(90deg,rgba(58,117,88,.07),transparent);}
+.wplan-day-lbl{min-width:44px;}
+.wplan-day-name{font-size:12px;font-weight:700;color:var(--pri);text-transform:uppercase;letter-spacing:.5px;}
+.wplan-day-date{font-size:11px;color:var(--t3);}
+.wplan-day-meal{flex:1;display:flex;align-items:center;gap:8px;}
+.wplan-day-meal-ico{font-size:24px;}
+.wplan-day-meal-txt{font-size:13px;font-weight:600;color:var(--txt);}
+.wplan-day-meal-prep{font-size:11px;color:#D97706;font-weight:500;display:flex;align-items:center;gap:3px;}
+.wplan-day-empty{flex:1;font-size:13px;color:var(--t3);font-style:italic;}
+.wplan-day-add{background:var(--lt);border:1.5px dashed var(--bd);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--t3);cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;}
+.wplan-day-clr{background:transparent;border:none;color:var(--t3);font-size:16px;cursor:pointer;padding:4px;margin-left:2px;}
+.wplan-today-badge{display:inline-block;background:var(--pri);color:#fff;border-radius:4px;font-size:9px;font-weight:800;padding:1px 5px;margin-left:4px;vertical-align:middle;}
+/* ── MEAL PICKER ── */
+.mpicker{display:none;position:fixed;inset:0;z-index:2100;background:rgba(0,0,0,.55);align-items:flex-end;justify-content:center;}
+.mpicker.show{display:flex;}
+.mpicker-inner{background:var(--bg);border-radius:24px 24px 0 0;width:100%;max-width:560px;max-height:88vh;display:flex;flex-direction:column;}
+.mpicker-head{padding:14px 18px 10px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.mpicker-title{font-size:15px;font-weight:700;color:var(--txt);flex:1;}
+.mpicker-close{background:var(--lt);border:none;border-radius:50%;width:30px;height:30px;font-size:15px;cursor:pointer;color:var(--t3);}
+.mpicker-search{margin:10px 18px 6px;padding:10px 14px;border:1.5px solid var(--bd);border-radius:12px;font-size:14px;color:var(--txt);background:var(--bg);flex-shrink:0;}
+.mpicker-search:focus{outline:none;border-color:var(--pri);}
+.mpicker-list{overflow-y:auto;flex:1;padding:4px 0 20px;}
+.mpicker-item{display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;-webkit-tap-highlight-color:transparent;border-bottom:1px solid var(--bd);}
+.mpicker-item:active{background:var(--lt);}
+.mpicker-item-ico{font-size:26px;}
+.mpicker-item-txt{flex:1;}
+.mpicker-item-name{font-size:14px;font-weight:600;color:var(--txt);}
+.mpicker-item-meta{font-size:11px;color:var(--t3);margin-top:1px;}
+.mpicker-item-prep{font-size:11px;color:#D97706;font-weight:600;margin-top:2px;display:flex;align-items:center;gap:3px;}
 </style>
 </head>
 <body>
@@ -550,6 +589,10 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
   <button class="bntab" id="bnt-guests" onclick="showSec('guests','guests')">
     <span class="bntab-ico">👥</span>
     <span class="bntab-lbl">Καλεσμένοι</span>
+  </button>
+  <button class="bntab" id="bnt-plan" onclick="openWeekPlanGated()">
+    <span class="bntab-ico">📅</span>
+    <span class="bntab-lbl">Πρόγραμμα</span>
   </button>
 </nav>
 
@@ -795,6 +838,30 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
   </div>
 </div>
 
+<!-- WEEK PLAN SHEET -->
+<div class="wplan-sheet" id="wplan-sheet" onclick="if(event.target===this)closeWeekPlan()">
+  <div class="wplan-inner">
+    <div class="wplan-head">
+      <div class="wplan-title">📅 Εβδομαδιαίο Πρόγραμμα</div>
+      <button class="wplan-close" onclick="closeWeekPlan()">✕</button>
+    </div>
+    <div class="wplan-sub">Επίλεξε φαγητό για κάθε μέρα — θα σου στέλνουμε έξυπνες υπενθυμίσεις για προετοιμασία!</div>
+    <div id="wplan-days"></div>
+  </div>
+</div>
+
+<!-- MEAL PICKER -->
+<div class="mpicker" id="mpicker" onclick="if(event.target===this)closeMealPicker()">
+  <div class="mpicker-inner">
+    <div class="mpicker-head">
+      <div class="mpicker-title" id="mpicker-title">Επίλεξε φαγητό</div>
+      <button class="mpicker-close" onclick="closeMealPicker()">✕</button>
+    </div>
+    <input class="mpicker-search" id="mpicker-search" type="text" placeholder="Αναζήτηση..." oninput="filterMealPicker(this.value)">
+    <div class="mpicker-list" id="mpicker-list"></div>
+  </div>
+</div>
+
 <!-- FAB: submit recipe -->
 <button class="fab-recipe" onclick="openUrform()" title="Στείλε τη συνταγή σου">👨‍🍳 Η συνταγή μου</button>
 
@@ -859,6 +926,35 @@ const MEAL_PRIORITY={
   moussaka:3,pastitsio:3,giouvetsi:3,arnaki_lemonato:3,htapodi:3,bakaliaro:3,
   stifado:3,kokkinisto:3,garides:3,
   arni_souvia:4,kontosouvi:4,mageiritsa:4,gourounopoulo:4,galopoula:4
+};
+
+// Prep instructions: what needs to happen the evening BEFORE cooking
+const MEAL_PREP={
+  fasolada:   {ico:'💧',msg:'Μούλιασε τα φασόλια από το βράδυ — χρειάζονται 8+ ώρες στο νερό!'},
+  revythada:  {ico:'💧',msg:'Μούλιασε τα ρεβύθια όλη τη νύχτα — τουλάχιστον 12 ώρες.'},
+  gigantes:   {ico:'💧',msg:'Μούλιασε τους γίγαντες όλη τη νύχτα — φουσκώνουν πολύ!'},
+  bakaliaro:  {ico:'💧⏰',msg:'Μούλιασε τον μπακαλιάρο 24-36 ώρες αλλάζοντας νερό 3-4 φορές.'},
+  kotopoulo:  {ico:'🧊',msg:'Βγάλε το κοτόπουλο από την κατάψυξη να ξεπαγώσει στο ψυγείο.'},
+  kima:       {ico:'🧊',msg:'Βγάλε τον κιμά από την κατάψυξη να ξεπαγώσει.'},
+  biftekia:   {ico:'🧊',msg:'Βγάλε τον κιμά από την κατάψυξη να ξεπαγώσει.'},
+  moussaka:   {ico:'🧊',msg:'Βγάλε τον κιμά από την κατάψυξη να ξεπαγώσει.'},
+  pastitsio:  {ico:'🧊',msg:'Βγάλε τον κιμά από την κατάψυξη να ξεπαγώσει.'},
+  souvlakia:  {ico:'🥩',msg:'Βγάλε το χοιρινό να ξεπαγώσει και μαρινάρισε το από το βράδυ.'},
+  arnaki_lemonato:{ico:'🥩',msg:'Βγάλε το αρνί να ξεπαγώσει και μαρινάρισε το από το βράδυ.'},
+  kokkinisto: {ico:'🧊',msg:'Βγάλε το αρνί να ξεπαγώσει στο ψυγείο.'},
+  giouvetsi:  {ico:'🧊',msg:'Βγάλε το αρνί να ξεπαγώσει στο ψυγείο.'},
+  stifado:    {ico:'🥩',msg:'Βγάλε το κουνέλι να ξεπαγώσει και μαρινάρισε το με κρασί.'},
+  htapodi:    {ico:'🧊',msg:'Βγάλε το χταπόδι να ξεπαγώσει — χρειάζεται 8-12 ώρες.'},
+  psarosoupa: {ico:'🧊',msg:'Βγάλε το ψάρι να ξεπαγώσει στο ψυγείο.'},
+  psari_plaki:{ico:'🧊',msg:'Βγάλε το ψάρι να ξεπαγώσει στο ψυγείο.'},
+  tsipoura:   {ico:'🧊',msg:'Βγάλε την τσιπούρα να ξεπαγώσει στο ψυγείο.'},
+  mageiritsa: {ico:'🧊',msg:'Βγάλε τα εντόσθια να ξεπαγώσουν.'},
+  gourounopoulo:{ico:'🥩',msg:'Μαρινάρισε το γουρουνόπουλο από το βράδυ — ελαιόλαδο, λεμόνι, σκόρδο, ρίγανη.'},
+  galopoula:  {ico:'🦃',msg:'Ετοίμασε τη γέμιση για τη γαλοπούλα και μαρινάρισε την από το βράδυ.'},
+  arni_souvia:{ico:'🥩',msg:'Αλάτισε και μαρινάρισε το αρνί από το βράδυ.'},
+  kontosouvi: {ico:'🥩',msg:'Βγάλε τα κρέατα να ξεπαγώσουν και μαρινάρισε τα.'},
+  lagana:     {ico:'🕐',msg:'Ετοίμασε τη ζύμη — χρειάζεται 1 ώρα να φουσκώσει πριν ψηθεί.'},
+  giouvarlaakia:{ico:'🧊',msg:'Βγάλε τον κιμά να ξεπαγώσει.'},
 };
 
 function applyTheme(c){
@@ -2004,6 +2100,148 @@ function submitUserRecipe(){
   showToast('📤 Ανοίγει το email σου...');
 }
 
+// ── WEEK PLAN ─────────────────────────────────────────────────
+function getWeekPlan(){try{return JSON.parse(localStorage.getItem('fd_week_plan')||'{}');}catch(e){return {};}}
+function setMealForDay(dateStr,mealId){
+  const p=getWeekPlan();
+  if(mealId)p[dateStr]=mealId;else delete p[dateStr];
+  localStorage.setItem('fd_week_plan',JSON.stringify(p));
+  storeWeekPlanForSW(p);
+}
+function getWeekDates(){
+  const today=new Date();today.setHours(0,0,0,0);
+  return Array.from({length:7},(_,i)=>{
+    const d=new Date(today);d.setDate(today.getDate()+i);return d;
+  });
+}
+function dateKey(d){return d.toISOString().split('T')[0];}
+const DAY_NAMES=['Κυρ','Δευ','Τρι','Τετ','Πεμ','Παρ','Σαβ'];
+const MONTHS_SHORT=['Ιαν','Φεβ','Μαρ','Απρ','Μαΐ','Ιουν','Ιουλ','Αυγ','Σεπ','Οκτ','Νοε','Δεκ'];
+
+function openWeekPlanGated(){
+  if(!isPremium()){openPremiumScreen();return;}
+  openWeekPlan();
+}
+function openWeekPlan(){
+  renderWeekPlanDays();
+  document.getElementById('wplan-sheet').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeWeekPlan(){
+  document.getElementById('wplan-sheet').classList.remove('show');
+  document.body.style.overflow='';
+}
+function renderWeekPlanDays(){
+  const plan=getWeekPlan();
+  const today=new Date();today.setHours(0,0,0,0);
+  const todayKey=dateKey(today);
+  const html=getWeekDates().map(d=>{
+    const dk=dateKey(d);
+    const isToday=dk===todayKey;
+    const mealId=plan[dk];
+    const m=mealId?MEALS[mealId]:null;
+    const prep=mealId?MEAL_PREP[mealId]:null;
+    const dayName=DAY_NAMES[d.getDay()];
+    const dateTxt=`${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`;
+    const todayBadge=isToday?`<span class="wplan-today-badge">ΣΗΜΕΡΑ</span>`:'';
+    const mealHtml=m
+      ?`<div class="wplan-day-meal">
+          <span class="wplan-day-meal-ico">${m.e}</span>
+          <div><div class="wplan-day-meal-txt">${m.n}</div>${prep?`<div class="wplan-day-meal-prep">${prep.ico} ${prep.msg.split('—')[0].trim()}</div>`:''}</div>
+        </div>
+        <button class="wplan-day-clr" onclick="event.stopPropagation();setMealForDay('${dk}',null);renderWeekPlanDays();" title="Αφαίρεση">✕</button>`
+      :`<span class="wplan-day-empty">Δεν έχει επιλεγεί</span><button class="wplan-day-add" onclick="event.stopPropagation();openMealPicker('${dk}','${dayName} ${dateTxt}')">+ Επίλεξε</button>`;
+    return `<div class="wplan-day${isToday?' today':''}" onclick="openMealPicker('${dk}','${dayName} ${dateTxt}')">
+      <div class="wplan-day-lbl"><div class="wplan-day-name">${dayName}${todayBadge}</div><div class="wplan-day-date">${dateTxt}</div></div>
+      ${mealHtml}
+    </div>`;
+  }).join('');
+  document.getElementById('wplan-days').innerHTML=html;
+}
+
+// Meal picker
+let _pickerDateKey='',_pickerAllMeals=[];
+function openMealPicker(dateKey,dayLabel){
+  _pickerDateKey=dateKey;
+  document.getElementById('mpicker-title').textContent=`${dayLabel} — Επίλεξε φαγητό`;
+  document.getElementById('mpicker-search').value='';
+  _pickerAllMeals=Object.entries(MEALS)
+    .filter(([,m])=>!m.quickOnly&&!m.noDaily||Object.values(MEAL_PREP).length) // include all non-quick
+    .filter(([,m])=>!m.quickOnly)
+    .map(([id,m])=>({id,...m}))
+    .sort((a,b)=>a.n.localeCompare(b.n,'el'));
+  filterMealPicker('');
+  document.getElementById('mpicker').classList.add('show');
+}
+function closeMealPicker(){document.getElementById('mpicker').classList.remove('show');}
+function filterMealPicker(q){
+  const dq=q.toLowerCase().trim();
+  const items=dq
+    ?_pickerAllMeals.filter(m=>m.n.toLowerCase().includes(dq)||m.en?.toLowerCase().includes(dq))
+    :_pickerAllMeals;
+  const prep=MEAL_PREP;
+  document.getElementById('mpicker-list').innerHTML=items.map(m=>{
+    const p=prep[m.id];
+    return `<div class="mpicker-item" onclick="selectMealForDay('${m.id}')">
+      <span class="mpicker-item-ico">${m.e}</span>
+      <div class="mpicker-item-txt">
+        <div class="mpicker-item-name">${m.n}</div>
+        <div class="mpicker-item-meta">⏱ ${m.time}' · 🔥 ${m.cal} kcal</div>
+        ${p?`<div class="mpicker-item-prep">${p.ico} Χρειάζεται προετοιμασία</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function selectMealForDay(mealId){
+  setMealForDay(_pickerDateKey,mealId);
+  closeMealPicker();
+  renderWeekPlanDays();
+}
+
+// Store tomorrow's prep in SW cache for background notifications
+async function storeWeekPlanForSW(plan){
+  try{
+    const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);tomorrow.setHours(0,0,0,0);
+    const dk=dateKey(tomorrow);
+    const mealId=plan[dk];
+    const prep=mealId?MEAL_PREP[mealId]:null;
+    const meal=mealId?MEALS[mealId]:null;
+    const data={mealId,mealName:meal?.n||'',prepMsg:prep?.msg||null,prepIco:prep?.ico||'',date:dk};
+    const cache=await caches.open('fd-prefs');
+    await cache.put('/fd-tomorrow-prep',new Response(JSON.stringify(data),{headers:{'Content-Type':'application/json'}}));
+  }catch(e){}
+}
+
+// Smart prep notification check (called when app is open)
+function checkPrepNotif(){
+  if(!isPremium())return;
+  if(Notification.permission!=='granted')return;
+  const h=new Date().getHours();
+  if(h<18||h>=22)return; // only 18:00–22:00
+  const lastKey='fd_prep_notif_last';
+  const today=new Date().toDateString();
+  if(localStorage.getItem(lastKey)===today)return; // already sent today
+  const plan=getWeekPlan();
+  const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);tomorrow.setHours(0,0,0,0);
+  const dk=dateKey(tomorrow);
+  const mealId=plan[dk];
+  if(!mealId)return;
+  const prep=MEAL_PREP[mealId];
+  if(!prep)return;
+  const meal=MEALS[mealId];
+  // Send via SW if available, else direct
+  if(navigator.serviceWorker?.controller){
+    navigator.serviceWorker.controller.postMessage({
+      type:'SHOW_NOTIFICATION',
+      title:`🍽️ Αύριο: ${meal?.n||mealId}`,
+      body:prep.msg
+    });
+  }else if(Notification.permission==='granted'){
+    new Notification(`🍽️ Αύριο: ${meal?.n||mealId}`,{body:prep.msg,icon:'/icon-192.png'});
+  }
+  localStorage.setItem(lastKey,today);
+}
+
 // ── FESTIVE ───────────────────────────────────────────────────
 // Map festive menu text → meal ID
 function findMealByMenuText(text){
@@ -2399,6 +2637,8 @@ function startNotifTimer(){
         localStorage.setItem('notif_last',nd.toDateString());
       }
     }
+    // Smart prep notification every minute while app is open
+    checkPrepNotif();
   },60000);
 }
 // Register Periodic Background Sync for notifications when app is closed
@@ -2749,6 +2989,8 @@ function copyShoppingList(){
   // Premium: start trial on first launch, render banner
   startTrial();
   renderTrialBanner();
+  // Sync week plan prep data to SW cache
+  storeWeekPlanForSW(getWeekPlan());
   applyTheme('all');
   renderMeals('all');
   rendFest('all');
