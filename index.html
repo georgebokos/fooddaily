@@ -568,6 +568,37 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 [data-theme="dark"] .dislike-chip.on{background:#2A0A0A;border-color:#EF4444;color:#FCA5A5;}
 .dislike-chip-ico{font-size:20px;}
 .prof-prem-note{font-size:12px;color:var(--t3);text-align:center;padding:8px 16px 16px;}
+/* #21 Vegan badge */
+.mc-vegan{position:absolute;top:7px;left:7px;background:rgba(27,94,32,.88);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;pointer-events:none;}
+.ov-vegan{display:inline-flex;align-items:center;gap:4px;background:#E8F5E9;color:#1B5E20;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;border:1px solid #A5D6A7;margin:.25rem 1.5rem .5rem;}
+[data-theme="dark"] .ov-vegan{background:#1A3A1C;color:#81C784;border-color:#388E3C;}
+/* #22 Nutrition panel */
+.nutr-panel{display:flex;gap:8px;padding:.5rem 1.25rem .75rem;overflow-x:auto;scrollbar-width:none;}
+.nutr-panel::-webkit-scrollbar{display:none;}
+.nutr-item{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:8px 14px;min-width:60px;}
+.nutr-item span{font-size:14px;font-weight:700;color:var(--pri);}
+.nutr-item small{font-size:10px;color:var(--t3);margin-top:1px;}
+.nutr-ico{font-size:15px;margin-bottom:2px;}
+/* #23 Seasonal guide */
+.sea-guide{margin:.5rem 1.25rem 1rem;background:var(--lt);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;}
+.sea-guide-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--t3);margin-bottom:6px;}
+.sea-guide-title{font-size:17px;font-weight:800;color:var(--pri);margin-bottom:10px;}
+.sea-ing-list{display:flex;flex-wrap:wrap;gap:6px;}
+.sea-ing-chip{background:var(--w);border:1px solid var(--bd);border-radius:20px;font-size:12px;padding:4px 11px;color:var(--txt);}
+/* #24 Newsletter */
+.nl-card{margin:0 1.25rem 1.5rem;background:linear-gradient(135deg,#F1F8E9,#DCEDC8);border:1px solid #AED581;border-radius:var(--r);padding:16px;}
+[data-theme="dark"] .nl-card{background:linear-gradient(135deg,#1A3A1C,#0F2A10);border-color:#388E3C;}
+.nl-card-hdr{font-size:14px;font-weight:700;color:#33691E;margin-bottom:3px;}
+[data-theme="dark"] .nl-card-hdr{color:#AED581;}
+.nl-card-sub{font-size:12px;color:#558B2F;margin-bottom:12px;line-height:1.5;}
+[data-theme="dark"] .nl-card-sub{color:#8BC34A;}
+.nl-row{display:flex;gap:8px;}
+.nl-input{flex:1;min-width:0;padding:10px 12px;border:1.5px solid #AED581;border-radius:12px;font-size:13px;background:var(--w);color:var(--txt);outline:none;}
+.nl-input:focus{border-color:#33691E;}
+.nl-submit{background:#33691E;color:#fff;border:none;border-radius:12px;padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity .2s;}
+.nl-submit:active{opacity:.8;}
+.nl-done{font-size:13px;font-weight:600;color:#33691E;text-align:center;padding:6px 0;}
+[data-theme="dark"] .nl-done{color:#AED581;}
 </style>
 </head>
 <body>
@@ -705,6 +736,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
         <button class="cpill" onclick="selCat('soups',this)">🍲 Σούπες</button>
         <button class="cpill" onclick="selCat('pites',this)">🫓 Πίτες</button>
         <button class="cpill" onclick="selCat('sauces',this)">🫙 Σάλτσες & Ντιπ</button>
+        <button class="cpill" onclick="selCat('vegan',this)">🌱 Vegan</button>
         <button class="cpill" id="fav-pill" onclick="selCat('favs',this)">❤️ Αγαπημένα</button>
       </div>
     </div>
@@ -791,6 +823,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 
 <!-- SEASONAL -->
 <div class="sec" id="s-seasonal">
+  <div id="sea-guide-wrap"></div>
   <div class="season-grid">
     <div class="season-card" onclick="openR('anginaresPolita')">
       <div class="sc-top" style="background:linear-gradient(145deg,#E8F5E9,#A5D6A7)"><span style="font-size:52px">🌿</span></div>
@@ -817,6 +850,17 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
       <div class="sc-info"><div class="sc-n">Μπριάμ</div><div class="sc-s">☀️ Καλοκαίρι</div></div>
     </div>
   </div>
+  <!-- Newsletter card -->
+  <div class="nl-card" id="nl-card">
+    <div class="nl-card-hdr">📬 Εβδομαδιαίο Newsletter</div>
+    <div class="nl-card-sub">Νέες συνταγές, εποχικές ιδέες & tips κάθε εβδομάδα στο email σου.</div>
+    <div id="nl-form-wrap">
+      <div class="nl-row">
+        <input type="email" class="nl-input" id="nl-email" placeholder="το email σου...">
+        <button class="nl-submit" onclick="submitNewsletter()">Εγγραφή</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- OVERLAY -->
@@ -825,6 +869,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
     <div class="ovhdl"></div>
     <div class="ovhero" id="ov-hero"></div>
     <div class="ovstats" id="ov-stats"></div>
+    <div id="ov-nutr"></div>
     <div class="ov-rating" id="ov-rating"></div>
     <div class="ovtabs">
       <button class="otab on" id="otab-ing" data-i18n="ot_ing" onclick="ovTab('ing')">Υλικά</button>
@@ -1052,6 +1097,63 @@ const MEAL_PREP={
   giouvarlaakia:{ico:'🧊',msg:'Βγάλε τον κιμά να ξεπαγώσει.'},
 };
 
+// ── Phase 3 ────────────────────────────────────────────────
+
+// #22 Macro estimator (category-based)
+function estimateMacros(m){
+  const cal=m.cal||300;
+  const r={
+    meat:[.35,.38,.27],seafood:[.45,.22,.33],pasta:[.14,.18,.68],
+    legumes:[.24,.12,.64],vegetables:[.13,.38,.49],salads:[.11,.52,.37],
+    soups:[.19,.24,.57],sauces:[.04,.68,.28],pites:[.14,.34,.52]
+  }[m.cats[0]]||[.20,.30,.50];
+  return{
+    prot:Math.round(cal*r[0]/4),
+    fat:Math.round(cal*r[1]/9),
+    carbs:Math.round(cal*r[2]/4)
+  };
+}
+
+// #23 Seasonal guide
+const SEASONAL_GUIDE={
+  spring:{ico:'🌸',name:'Άνοιξη',
+    ings:['🌿 Αγκινάρες','🥬 Σπανάκι','🍓 Φράουλες','🟢 Μπιζέλια','🌱 Αρακάς','🧅 Φρέσκα κρεμμύδια']},
+  summer:{ico:'☀️',name:'Καλοκαίρι',
+    ings:['🍅 Ντομάτες','🍆 Μελιτζάνες','🥒 Κολοκυθάκια','🫑 Πιπεριές','🌽 Καλαμπόκι','🍑 Ροδάκινα']},
+  autumn:{ico:'🍂',name:'Φθινόπωρο',
+    ings:['🍄 Μανιτάρια','🍇 Σταφύλια','🍎 Μήλα','🌰 Κάστανα','🟠 Κολοκύθα','🧅 Κρεμμύδια']},
+  winter:{ico:'❄️',name:'Χειμώνας',
+    ings:['🍊 Πορτοκάλια','🥦 Κουνουπίδι','🥬 Λάχανο','🌿 Σπανάκι','🥕 Καρότα','🫒 Ελιές']}
+};
+function getCurrentSeason(){
+  const mo=new Date().getMonth();
+  if(mo>=2&&mo<=4)return'spring';
+  if(mo>=5&&mo<=7)return'summer';
+  if(mo>=8&&mo<=10)return'autumn';
+  return'winter';
+}
+function buildSeasonalGuide(){
+  const s=getCurrentSeason();
+  const g=SEASONAL_GUIDE[s];
+  return`<div class="sea-guide">
+    <div class="sea-guide-lbl">Τώρα στην εποχή τους</div>
+    <div class="sea-guide-title">${g.ico} ${g.name}</div>
+    <div class="sea-ing-list">${g.ings.map(i=>`<span class="sea-ing-chip">${i}</span>`).join('')}</div>
+  </div>`;
+}
+
+// #24 Newsletter
+function submitNewsletter(){
+  const inp=document.getElementById('nl-email');
+  if(!inp)return;
+  const email=inp.value.trim();
+  if(!email||!email.includes('@')){inp.focus();inp.style.borderColor='#EF4444';return;}
+  inp.style.borderColor='';
+  localStorage.setItem('fd_nl_email',email);
+  const wrap=document.getElementById('nl-form-wrap');
+  if(wrap)wrap.innerHTML=`<div class="nl-done">✅ Σε βάλαμε στη λίστα! Σύντομα θα λαμβάνεις νέα στο ${email}</div>`;
+}
+
 function applyTheme(c){
   // Color stays fixed — terracotta palette only
 }
@@ -1119,7 +1221,7 @@ function catLabel(cat){return t('cl_'+cat)||cat;}
 
 
 const MEALS={
-  fasolada:{en:'Greek Bean Soup',n:'Φασολάδα',e:'🫘',cats:['legumes','soups'],cal:320,time:50,srv:4,pop:1,cost:'~5€',cps:'~1.25€',
+  fasolada:{en:'Greek Bean Soup',n:'Φασολάδα',e:'🫘',vegan:true,cats:['legumes','soups'],cal:320,time:50,srv:4,pop:1,cost:'~5€',cps:'~1.25€',
     ing:['Φασόλια λευκά 500γρ','Καρότα 2','Σέλινο 2 κλαδιά','Κρεμμύδι 1','Ντομάτα τριμμένη 200γρ','Ελαιόλαδο 4 κ.σ.','Αλάτι, πιπέρι','Δαφνόφυλλο 2'],
     steps:['Μουλιάζεις τα φασόλια όλη τη νύχτα. Στραγγίζεις, βράζεις σε καθαρό νερό 10 λεπτά και ξαφρίζεις.','Προσθέτεις κρεμμύδι, καρότα, σέλινο, δαφνόφυλλα και σιγοβράζεις 30 λεπτά.','Ρίχνεις ντομάτα, ελαιόλαδο, αλάτι και πιπέρι. Συνεχίζεις άλλα 20 λεπτά μέχρι να μαλακώσουν τελείως.','Σερβίρεις με ωμό ελαιόλαδο, ελιές Καλαμών και χωριάτικο ψωμί.'],
     wine:'Ασύρτικο Σαντορίνης ή Ροδίτης.',beer:'Mythos ή ελαφριά pilsner.',plate:'Βαθύ πιάτο, ωμό ελαιόλαδο, 2-3 ελιές.'},
@@ -1143,7 +1245,7 @@ const MEALS={
     ing:['Γαρίδες ωμές 500γρ','Ντομάτα τριμμένη 200γρ','Φέτα 100γρ','Ούζο 2 κ.σ.','Σκόρδο 2','Ελαιόλαδο','Μαϊντανός','Ρίγανη'],
     steps:['Σοτάρεις γαρίδες 1-2 λεπτά ανά πλευρά μέχρι να ροδίσουν. Τις βγάζεις.','Στο ίδιο τηγάνι: σκόρδο, ντομάτα, ρίγανη. Σιγοβράζεις 5 λεπτά.','Σβήνεις με ούζο. Ξαναβάζεις γαρίδες, σκορπίζεις φέτα. Γκριλ 3-4 λεπτά.'],
     wine:'Ασύρτικο Σαντορίνης.',beer:'Lager ή ούζο.',plate:'Σαγανάκι κατευθείαν, μαϊντανός, ψωμί.'},
-  fakes:{en:'Greek Lentil Soup',n:'Φακές σούπα',e:'🍲',cats:['legumes','soups'],cal:290,time:40,srv:4,pop:1,cost:'~3€',cps:'~0.75€',
+  fakes:{en:'Greek Lentil Soup',n:'Φακές σούπα',e:'🍲',vegan:true,cats:['legumes','soups'],cal:290,time:40,srv:4,pop:1,cost:'~3€',cps:'~0.75€',
     ing:['Φακές 400γρ','Κρεμμύδι 1','Καρότα 2','Σκόρδο 2','Ντομάτα τριμμένη 150γρ','Ελαιόλαδο 3 κ.σ.','Δαφνόφυλλο','Ξύδι 1 κ.σ.'],
     steps:['Σοτάρεις κρεμμύδι, καρότα, σκόρδο 5 λεπτά. Προσθέτεις ντομάτα και μυρωδικά.','Ρίχνεις φακές και νερό να σκεπάζονται. Βράζεις 30-35 λεπτά.','Ξύδι στο τέλος — το κλασικό ελληνικό μυστικό! Αλάτι, πιπέρι.'],
     wine:'Ξηρό ρόδινο.',beer:'Pilsner.',plate:'Βαθύ πιάτο, ωμό ελαιόλαδο, ξύδι, ελιές.'},
@@ -1155,7 +1257,7 @@ const MEALS={
     ing:['Ντομάτες 6','Πιπεριές 4','Ρύζι 300γρ','Κρεμμύδι 2','Μαϊντανός & δυόσμος','Ελαιόλαδο 5 κ.σ.','Ζάχαρη 1 κ.γ.'],
     steps:['Κόβεις καπάκια, αδειάζεις, κρατάς χυμούς. Τοποθετείς σε ταψί.','Γέμιση: ρύζι, κρεμμύδι, μυρωδικά, ελαιόλαδο, χυμοί, ζάχαρη. Γεμίζεις στα 3/4.','Βάζεις καπάκια, λίγο νερό στον πάτο. 180°C για 60-70 λεπτά.'],
     wine:'Αγιωργίτικο ή ροζέ.',beer:'Lager.',plate:'Με καπάκια, βασιλικός, ελαιόλαδο.'},
-  spanakoryzo:{en:'Spinach Rice',n:'Σπανακόρυζο',e:'🌿',cats:['vegetables'],cal:310,time:35,srv:4,pop:1,cost:'~4.50€',cps:'~1.15€',
+  spanakoryzo:{en:'Spinach Rice',n:'Σπανακόρυζο',e:'🌿',vegan:true,cats:['vegetables'],cal:310,time:35,srv:4,pop:1,cost:'~4.50€',cps:'~1.15€',
     ing:['Σπανάκι 600γρ','Ρύζι 150γρ','Κρεμμύδι 1','Κρεμμυδάκια 4','Ελαιόλαδο 4 κ.σ.','Άνηθος','Λεμόνι 1'],
     steps:['Σοτάρεις κρεμμύδια σε ελαιόλαδο. Σπανάκι μαραίνεται.','Ρύζι, 350ml νερό, αλάτι. Σιγοβράζεις 18-20 λεπτά με καπάκι.','Χυμός λεμονιού, άνηθος. Φέτα στο πλάι.'],
     wine:'Μαλαγουζιά.',beer:'Ελαφριά lager.',plate:'Βαθύ πιάτο, λεμόνι, φέτα στο πλάι.'},
@@ -1211,11 +1313,11 @@ const MEALS={
     ing:['Κοτόπουλο ολόκληρο 1','Ρύζι 100γρ','Αυγά 2','Λεμόνι 1','Καρότα 2','Σέλινο'],
     steps:['Βράζεις κοτόπουλο + λαχανικά 45 λεπτά. Βγάζεις, ξεκοκκαλίζεις.','Ρύζι στον ζωμό 15 λεπτά.','Αυγολέμονο αραιωμένο με ζωμό. Ρίχνεις εκτός φωτιάς. Άνηθος.'],
     wine:'Λευκό ξηρό.',beer:'Pilsner.',plate:'Βαθύ πιάτο, κοτόπουλο, άνηθος.'},
-  revythada:{en:'Chickpea Stew',n:'Ρεβυθάδα Σύρου',e:'🫘',cats:['legumes'],cal:360,time:180,srv:4,pop:3,cost:'~4€',cps:'~1€',
+  revythada:{en:'Chickpea Stew',n:'Ρεβυθάδα Σύρου',e:'🫘',vegan:true,cats:['legumes'],cal:360,time:180,srv:4,pop:3,cost:'~4€',cps:'~1€',
     ing:['Ρεβύθια 500γρ','Κρεμμύδι 2','Ελαιόλαδο 6 κ.σ.','Δεντρολίβανο','Λεμόνι 1'],
     steps:['Μουλιάζεις βραδύς. Βράζεις 10 λεπτά.','Κρεμμύδι, ελαιόλαδο, δεντρολίβανο, νερό. 160°C για 2.5-3 ώρες.','Χυμός λεμονιού στο τέλος.'],
     wine:'Ασύρτικο Κυκλαδίτικο.',beer:'Ελαφριά lager.',plate:'Βαθύ μπολ, ωμό ελαιόλαδο, δεντρολίβανο.'},
-  briami:{en:'Greek Roasted Vegetables',n:'Μπριάμ',e:'🥦',cats:['vegetables'],cal:270,time:75,srv:4,pop:2,cost:'~6€',cps:'~1.50€',
+  briami:{en:'Greek Roasted Vegetables',n:'Μπριάμ',e:'🥦',vegan:true,cats:['vegetables'],cal:270,time:75,srv:4,pop:2,cost:'~6€',cps:'~1.50€',
     ing:['Κολοκυθάκια 3','Μελιτζάνες 2','Πατάτες 3','Πιπεριές 2','Ντομάτες 3','Κρεμμύδι 1','Σκόρδο 4','Ελαιόλαδο 6 κ.σ.'],
     steps:['Κόβεις όλα σε ροδέλες. Βάζεις σε ταψί.','Ελαιόλαδο, αλάτι, πιπέρι, μυρωδικά. Ανακατεύεις καλά.','190°C για 60-70 λεπτά. Στα μισά ανακατεύεις. Σερβίρεις με φέτα.'],
     wine:'Ελαφρύ ρόδινο.',beer:'Lager.',plate:'Πιατέλα, βασιλικός, φέτα.'},
@@ -1227,11 +1329,11 @@ const MEALS={
     ing:['Γιαούρτι στραγγιστό 500γρ','Αγγούρι 1 μεγάλο','Σκόρδο 2-3 σκελίδες','Ελαιόλαδο 2 κ.σ.','Ξύδι 1 κ.γ.','Άνηθος','Αλάτι'],
     steps:['Τρίβεις αγγούρι, αλάτισμα 10 λεπτά. Στύβεις πολύ καλά — αυτό κάνει το τζατζίκι σφιχτό.','Γιαούρτι + σκόρδο λιωμένο + αγγούρι + ξύδι + αλάτι. Ανακατεύεις.','Άνηθος, ελαιόλαδο. 1 ώρα στο ψυγείο πριν σερβίρεις.'],
     wine:'Λευκό ξηρό.',beer:'Lager.',plate:'Μπολ, ελαιόλαδο spiral, άνηθος.'},
-  gigantes:{en:'Giant Beans in Tomato',n:'Γίγαντες πλακί',e:'🫘',cats:['legumes','vegetables'],cal:310,time:90,srv:4,pop:2,cost:'~4€',cps:'~1€',
+  gigantes:{en:'Giant Beans in Tomato',n:'Γίγαντες πλακί',e:'🫘',vegan:true,cats:['legumes','vegetables'],cal:310,time:90,srv:4,pop:2,cost:'~4€',cps:'~1€',
     ing:['Γίγαντες 400γρ','Ντομάτα τριμμένη 400γρ','Κρεμμύδι 2','Σκόρδο 3','Καρότο 1','Μέλι 1 κ.γ.','Ελαιόλαδο 4 κ.σ.'],
     steps:['Μουλιάζεις βραδύς. Βράζεις 30-40 λεπτά.','Σοτάρεις λαχανικά. Ντομάτα, μέλι, μπαχαρικά.','Γίγαντες σε ταψί. 180°C για 40-45 λεπτά.'],
     wine:'Λευκό ξηρό.',beer:'Lager.',plate:'Με χοντρό ψωμί και ελιές.'},
-  fava:{en:'Santorini Split Pea Dip',n:'Φάβα Σαντορίνης',e:'🟡',cats:['legumes'],cal:260,time:45,srv:4,pop:2,cost:'~4€',cps:'~1€',
+  fava:{en:'Santorini Split Pea Dip',n:'Φάβα Σαντορίνης',e:'🟡',vegan:true,cats:['legumes'],cal:260,time:45,srv:4,pop:2,cost:'~4€',cps:'~1€',
     ing:['Φάβα Σαντορίνης 300γρ','Κρεμμύδι 1','Σκόρδο 2','Ελαιόλαδο 5 κ.σ.','Λεμόνι 1','Κρεμμυδάκι','Κάππαρη'],
     steps:['Βράζεις φάβα με κρεμμύδι+σκόρδο 30-35 λεπτά μέχρι να λιώσει.','Μπλέντερ με ελαιόλαδο, λεμόνι, αλάτι — βελούδινη υφή.','Ωμό ελαιόλαδο, κάππαρη, κρεμμυδάκι. Αυθεντική Σαντορίνη!'],
     wine:'Ασύρτικο Σαντορίνης!',beer:'Lager ή ούζο.',plate:'Μπολ, ελαιόλαδο spiral, κάππαρη.'},
@@ -1260,7 +1362,7 @@ const MEALS={
     ing:['Χοιρινό σπάλα 1kg','Χοιρινά πλευρά 1kg','Κοτόπουλο μπούτια 4','Λουκάνικα χωριάτικα 4','Ελαιόλαδο 100ml','Ρίγανη & μπαχαρικά','Αλάτι & πιπέρι'],
     steps:['Κόβεις κρέατα σε μπουκιές. Μαρινάρεις με ελαιόλαδο, ρίγανη, αλάτι, πιπέρι για 2+ ώρες.','Περνάς εναλλάξ χοιρινό, κοτόπουλο, λουκάνικο στη μεγάλη σούβλα. Σφίγγεις καλά.','Ψήνεις 2-2.5 ώρες σε μέτρια φωτιά, γυρνώντας συχνά. Σερβίρεις με πίτες, τζατζίκι, κρεμμύδι.'],
     wine:'Ξινόμαυρο ή Αγιωργίτικο.',beer:'Mythos παγωμένη!',plate:'Πλατό με πίτες, τζατζίκι, ντομάτα. Πανηγύρι!'},
-  anginaresPolita:{en:'Artichokes à la Polita',n:'Αγκινάρες αλά πολίτα',e:'🌿',cats:['vegetables'],cal:290,time:50,srv:4,pop:2,cost:'~7€',cps:'~1.75€',
+  anginaresPolita:{en:'Artichokes à la Polita',n:'Αγκινάρες αλά πολίτα',e:'🌿',vegan:true,cats:['vegetables'],cal:290,time:50,srv:4,pop:2,cost:'~7€',cps:'~1.75€',
     ing:['Αγκινάρες 6','Αρακάς 300γρ','Καρότα 4','Πατάτες 4','Άνηθος','Λεμόνι 2','Ελαιόλαδο 4 κ.σ.'],
     steps:['Καθαρίζεις αγκινάρες. Νερό με λεμόνι για να μη μαυρίσουν.','Σοτάρεις κρεμμύδι. Όλα μαζί με νερό+λεμόνι+ελαιόλαδο.','35-40 λεπτά. Σερβίρεις με άνηθο και λεμόνι.'],
     wine:'Ασύρτικο.',beer:'Pilsner.',plate:'Βαθύ πιάτο, άνηθος, λεμόνι.'},
@@ -1272,7 +1374,7 @@ const MEALS={
     ing:['Αρνίσια εντόσθια 500γρ','Κρεμμυδάκια φρέσκα 8','Ρύζι 100γρ','Άνηθος φρέσκος','Μαρουλόφυλλα 6','Αυγά 3','Λεμόνι 2','Βούτυρο 2 κ.σ.'],
     steps:['Βράζεις εντόσθια 10 λεπτά, στραγγίζεις. Ψιλοκόβεις.','Σοτάρεις κρεμμυδάκια σε βούτυρο. Εντόσθια, ρύζι, μαρούλι, άνηθος, ζωμός. 20 λεπτά.','Αυγολέμονο εκτός φωτιάς. Σερβίρεις μετά την Ανάσταση!'],
     wine:'Λευκό ξηρό.',beer:'',plate:'Βαθύ πιάτο, άνηθος.'},
-  skordalia:{en:'Garlic Potato Dip',n:'Σκορδαλιά',e:'🧄',cats:['sauces'],noDaily:true,cal:180,time:20,srv:6,pop:1,cost:'~2€',cps:'~0.35€',
+  skordalia:{en:'Garlic Potato Dip',n:'Σκορδαλιά',e:'🧄',vegan:true,cats:['sauces'],noDaily:true,cal:180,time:20,srv:6,pop:1,cost:'~2€',cps:'~0.35€',
     ing:['Πατάτες 4 μεγάλες','Σκόρδο 6-8 σκελίδες','Ελαιόλαδο 150ml','Ξύδι 2 κ.σ.','Αλάτι'],
     steps:['Βράζεις πατάτες. Ξεφλουδίζεις ζεστές.','Λιώνεις με σκόρδο και αλάτι σε γουδί ή μπλέντερ.','Ελαιόλαδο + ξύδι εναλλάξ μέχρι κρεμώδης.'],
     wine:'Ούζο!',beer:'Κρύα pilsner.',plate:'Μπολ, ελαιόλαδο, ελιές. Με μπακαλιάρο.'},
@@ -1296,7 +1398,7 @@ const MEALS={
     ing:['Ψάρι (λαβράκι ή μπακαλιάρος) 800γρ','Ντομάτες 3','Κρεμμύδι 2','Σκόρδο 4','Ελαιόλαδο 5 κ.σ.','Σέλινο','Μαϊντανός'],
     steps:['Σοτάρεις κρεμμύδι, σκόρδο, σέλινο. Ντομάτες, αλάτι, 10 λεπτά.','Ψάρι σε ταψί. Σάλτσα από πάνω. Ελαιόλαδο, λεμόνι.','180°C για 35-40 λεπτά. Μαϊντανός.'],
     wine:'Ασύρτικο.',beer:'Pilsner.',plate:'Σε ταψί, άφθονη σάλτσα, μαϊντανός.'},
-  eliestoursi:{en:'Olives & Pickles',n:'Ελιές & τουρσί',e:'🫒',cats:['salads'],cal:80,time:5,srv:6,pop:1,cost:'~3€',cps:'~0.50€',
+  eliestoursi:{en:'Olives & Pickles',n:'Ελιές & τουρσί',e:'🫒',vegan:true,cats:['salads'],cal:80,time:5,srv:6,pop:1,cost:'~3€',cps:'~0.50€',
     ing:['Ελιές Καλαμών 200γρ','Τουρσί ανάμεικτο 200γρ','Ελαιόλαδο 2 κ.σ.','Ρίγανη','Ξύδι 1 κ.γ.','Σκόρδο 1'],
     steps:['Στραγγίζεις ελιές και τουρσί.','Ανακατεύεις με ελαιόλαδο, ρίγανη, σκόρδο, ξύδι.','Σερβίρεις αμέσως ή 30 λεπτά παύσης για γεύση. Με ούζο & λαγάνα!'],
     wine:'Ούζο ή τσίπουρο.',beer:'Lager.',plate:'Μικρή πιατέλα, ελαιόλαδο, ρίγανη.'},
@@ -1331,7 +1433,7 @@ const MEALS={
     wine:'Λευκό ξηρό ή ροζέ.',beer:'Pilsner.',plate:'Κομμάτια, σαλάτα, φέτα επιπλέον.'},
 
   // ── Σάλτσες & Ντιπ — εμφανίζονται μόνο στη δική τους κατηγορία ────────────
-  melitzanosalata:{en:'Eggplant Dip',n:'Μελιτζανοσαλάτα',e:'🍆',cats:['sauces','vegetables'],noDaily:true,cal:110,time:30,srv:6,pop:1,cost:'~3€',cps:'~0.50€',
+  melitzanosalata:{en:'Eggplant Dip',n:'Μελιτζανοσαλάτα',e:'🍆',vegan:true,cats:['sauces','vegetables'],noDaily:true,cal:110,time:30,srv:6,pop:1,cost:'~3€',cps:'~0.50€',
     ing:['Μελιτζάνες 3 μεγάλες','Σκόρδο 2 σκελίδες','Ελαιόλαδο 3 κ.σ.','Χυμός λεμονιού 1 κ.σ.','Μαϊντανός','Αλάτι & πιπέρι'],
     steps:['Τρυπάς μελιτζάνες με πιρούνι. Ψήνεις κατευθείαν στη φωτιά ή στο γκριλ του φούρνου 15-20 λεπτά, γυρνώντας, μέχρι να καούν έξω και να μαλακώσουν μέσα.','Αφήνεις να κρυώσουν, ξεφλουδίζεις προσεκτικά. Στύβεις καλά τα υγρά — αυτό είναι το μυστικό!','Ψιλοκόβεις ή λιώνεις με πιρούνι. Ανακατεύεις με σκόρδο, λεμόνι, ελαιόλαδο, αλάτι. Μαϊντανός από πάνω.'],
     wine:'Ούζο ή ξηρό λευκό.',beer:'Lager.',plate:'Μπολ, ελαιόλαδο, μαϊντανός, ψωμί.'},
@@ -1676,6 +1778,7 @@ function featNext(){
           <div class="memoji" id="me-${m.id}">${m.e}</div>
           <div class="mtop-grad"></div>
           <div class="mtop-badge"><span class="badge ${cl}">${catLabel(mc)}</span></div>
+          ${m.vegan?'<div class="mc-vegan">🌱 Vegan</div>':''}
         </div>
         <div class="mbtm">
           <div class="mname-row"><div class="mname">${mealName(m)}</div><button class="fav-btn-sm" data-id="${m.id}" onclick="toggleFav('${m.id}',event)">${fav?'❤️':'🤍'}</button></div>
@@ -1705,6 +1808,8 @@ function renderMeals(cat){
     .map(([id,m])=>({...m,id}));
   if(cat==='quick'){
     // no pool filter here — handled in show-building below
+  } else if(cat==='vegan'){
+    pool=pool.filter(m=>m.vegan&&!m.quickOnly&&!m.noDaily);
   } else if(cat==='all'||cat==='favs'){
     pool=pool.filter(m=>!m.quickOnly&&!m.noDaily);
   } else {
@@ -1892,6 +1997,18 @@ function openR(id){
     <div class="ovstat"><label>${t('time')}</label><span>${m.time}'</span></div>
     <div class="ovstat"><label>${t('srv')}</label><div class="srv-stepper"><button class="srv-btn" onclick="changeSrv(-1)">−</button><span id="srv-val">${_curSrv}</span><button class="srv-btn" onclick="changeSrv(1)">+</button></div></div>
     <div class="ovstat" id="ov-cost"><label>${t('cost')}</label><span id="cost-val" style="color:var(--pri)">${initCost}</span></div>`;
+  // Nutrition panel
+  const mac=estimateMacros(m);
+  const nutrEl=document.getElementById('ov-nutr');
+  if(nutrEl){
+    nutrEl.innerHTML=(m.vegan?`<div class="ov-vegan">🌱 Vegan</div>`:'')
+      +`<div class="nutr-panel">
+        <div class="nutr-item"><div class="nutr-ico">🔥</div><span>${m.cal}</span><small>kcal</small></div>
+        <div class="nutr-item"><div class="nutr-ico">🥩</div><span>${mac.prot}γ</span><small>Πρωτεΐνη</small></div>
+        <div class="nutr-item"><div class="nutr-ico">🍚</div><span>${mac.carbs}γ</span><small>Υδατάνθρακες</small></div>
+        <div class="nutr-item"><div class="nutr-ico">🫒</div><span>${mac.fat}γ</span><small>Λιπαρά</small></div>
+      </div>`;
+  }
   // Tabs content
   buildIngTab(m);buildStepsTab(m);buildPairTab(m);buildNotesTab(m);
   renderOvRating(id);
@@ -1968,6 +2085,7 @@ function closeOv(){
   _guestScale=1;_curSrv=0;
   stopTTS();
   if(_timerInterval){clearInterval(_timerInterval);_timerInterval=null;}
+  const nutrEl=document.getElementById('ov-nutr');if(nutrEl)nutrEl.innerHTML='';
 }
 
 function ovBgClick(e){if(e.target===document.getElementById('overlay'))closeOv();}
@@ -3223,6 +3341,12 @@ function closeProfile(){
   renderTrialBanner();
   // Sync week plan prep data to SW cache
   storeWeekPlanForSW(getWeekPlan());
+  // #23 Seasonal guide
+  const sgw=document.getElementById('sea-guide-wrap');
+  if(sgw)sgw.innerHTML=buildSeasonalGuide();
+  // #24 Newsletter — restore subscribed state
+  const nlEmail=localStorage.getItem('fd_nl_email');
+  if(nlEmail){const w=document.getElementById('nl-form-wrap');if(w)w.innerHTML=`<div class="nl-done">✅ Εγγεγραμμένος ως ${nlEmail}</div>`}
   applyTheme('all');
   renderMeals('all');
   rendFest('all');
