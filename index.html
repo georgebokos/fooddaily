@@ -1137,7 +1137,7 @@ function selMode(mode,btn){
 function selCat(cat,btn){
   document.querySelectorAll('#cat-row .cpill').forEach(b=>b.classList.remove('on'));
   if(btn)btn.classList.add('on');
-  curCat=cat; applyTheme(cat); featIdx=0; renderMeals(cat);
+  curCat=cat; applyTheme(cat); renderMeals(cat);
 }
 
 function renderFeatured(show,cat,todayPlan){
@@ -1172,6 +1172,9 @@ function renderFeatured(show,cat,todayPlan){
 function featNext(){
   if(_featPool.length<2)return;
   featIdx=(featIdx+1)%_featPool.length;
+  // Persist the new choice so it survives refreshes today
+  const today=new Date().toDateString();
+  localStorage.setItem('fd_feat',JSON.stringify({id:_featPool[featIdx].id,date:today}));
   // Re-render featured and grid
   const todayPlan=getTodayPlan();
   renderFeatured(_featPool,curCat,todayPlan);
@@ -1281,6 +1284,21 @@ function renderMeals(cat){
   const salads=allShow.filter(m=>m.cats.includes('salads'));
   const show=[...nonSalads,...salads];
   _featPool=show;
+  // Restore today's featured meal so it doesn't change on refresh
+  if(cat==='all'&&show.length){
+    const today=new Date().toDateString();
+    let stored={};try{stored=JSON.parse(localStorage.getItem('fd_feat')||'{}');}catch(e){}
+    if(stored.date===today&&stored.id){
+      const si=show.findIndex(m=>m.id===stored.id);
+      featIdx=si>=0?si:0;
+      if(si<0)localStorage.setItem('fd_feat',JSON.stringify({id:show[0].id,date:today}));
+    }else{
+      featIdx=0;
+      localStorage.setItem('fd_feat',JSON.stringify({id:show[0].id,date:today}));
+    }
+  }else{
+    featIdx=0;
+  }
   if(featIdx>=show.length)featIdx=0;
 
   // Featured card (first meal, only on all/quick categories view)
