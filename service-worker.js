@@ -1,5 +1,5 @@
-// FoodDaily Service Worker v2.0
-const VERSION = '2026-06-11-07';
+// FoodDaily Service Worker v2.1
+const VERSION = '2026-06-12-01';
 const CACHE = `fooddaily-${VERSION}`;
 const ASSETS = [
   '/',
@@ -23,7 +23,7 @@ self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
-        keys.filter(k => k !== CACHE).map(k => caches.delete(k))
+        keys.filter(k => k !== CACHE && !k.startsWith('fd-')).map(k => caches.delete(k))
       ))
       .then(() => self.clients.claim())
       .then(() => {
@@ -105,13 +105,14 @@ self.addEventListener('periodicsync', e => {
           if (lastDate === today) return;
         }
 
-        // Only fire if within ±3 hours of the scheduled time
+        // Only fire after the scheduled time; not before 6 AM or after 10 PM
         const [h, m] = (prefs.time || '09:00').split(':').map(Number);
         const now = new Date();
+        const nowH = now.getHours();
+        if (nowH < 6 || nowH >= 22) return; // Quiet hours
         const sched = new Date();
         sched.setHours(h, m, 0, 0);
-        const diffMs = now - sched;
-        if (diffMs < 0 || diffMs > 3 * 60 * 60 * 1000) return;
+        if (now < sched) return; // Scheduled time hasn't arrived yet
 
         await self.registration.showNotification('🍽️ FoodDaily', {
           body: 'Τι μαγειρεύουμε σήμερα; Δες τις προτάσεις σου!',

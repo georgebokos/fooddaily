@@ -1841,6 +1841,13 @@ async function checkMissedNotif(){
   if(now>=sched){
     await sendNotif();
     localStorage.setItem('notif_last',today);
+    // Also update SW cache so background sync won't double-fire
+    if('caches' in window){
+      try{
+        const c=await caches.open('fd-prefs');
+        await c.put('/fd-notif-last',new Response(today,{headers:{'Content-Type':'text/plain'}}));
+      }catch(e){}
+    }
   }
 }
 
@@ -1865,10 +1872,28 @@ async function registerPeriodicSync(){
   try{
     const reg=await navigator.serviceWorker.ready;
     if('periodicSync' in reg){
-      const status=await navigator.permissions.query({name:'periodic-background-sync'});
-      if(status.state==='granted'){
-        await reg.periodicSync.register('fd-daily-notif',{minInterval:8*60*60*1000});
+      // Try without permission check first (TWA grants it automatically)
+      try{
+        await reg.periodicSync.register('fd-daily-notif',{minInterval:3*60*60*1000});
+      }catch(e){
+        // Fallback: check permission explicitly
+        const status=await navigator.permissions.query({name:'periodic-background-sync'});
+        if(status.state==='granted'){
+          await reg.periodicSync.register('fd-daily-notif',{minInterval:3*60*60*1000});
+        }
       }
+    }
+  }catch(e){}
+}
+// Sync SW cache's "sent today" marker back to localStorage to prevent double-fire
+async function syncNotifLastFromSW(){
+  if(!('caches' in window))return;
+  try{
+    const cache=await caches.open('fd-prefs');
+    const resp=await cache.match('/fd-notif-last');
+    if(resp){
+      const d=await resp.text();
+      if(d)localStorage.setItem('notif_last',d);
     }
   }catch(e){}
 }
@@ -2199,7 +2224,7 @@ function copyShoppingList(){
     storeNotifPrefsForSW(_st,'true');
     registerPeriodicSync();
     document.getElementById('bell').classList.add('on');
-    checkMissedNotif();
+    syncNotifLastFromSW().then(()=>checkMissedNotif());
   }
   // Service Worker registration
   if('serviceWorker' in navigator){
