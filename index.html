@@ -1279,7 +1279,11 @@ function renderMeals(cat){
     return (pa-pb)||(Math.random()-.5); // Weekdays: everyday meals first
   });
   const old=pool.filter(m=>rids.includes(m.id));
-  const show=[...fresh,...old].slice(0,8);
+  // Salads are sides — keep them in grid but never feature them first
+  const allShow=[...fresh,...old].slice(0,8);
+  const nonSalads=allShow.filter(m=>!m.cats.includes('salads'));
+  const salads=allShow.filter(m=>m.cats.includes('salads'));
+  const show=[...nonSalads,...salads];
   _featPool=show;
   if(featIdx>=show.length)featIdx=0;
 
