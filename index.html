@@ -2842,6 +2842,7 @@ function stopVoice(){if(recog){try{recog.stop();}catch(e){}recog=null;}isLis=fal
 // ── NOTIFICATIONS ─────────────────────────────────────────────
 function openNmod(){
   document.getElementById('nmod').style.display='flex';
+  const fab=document.querySelector('.fab-recipe');if(fab)fab.style.display='none';
   const on=localStorage.getItem('notif_on')==='true';
   const ntog=document.getElementById('ntog');if(ntog)ntog.checked=on;
   document.getElementById('bell').classList.toggle('on',on);
@@ -2863,7 +2864,7 @@ function openNmod(){
     }catch(e){el.textContent='';}
   })();
 }
-function closeNmod(){document.getElementById('nmod').style.display='none';}
+function closeNmod(){document.getElementById('nmod').style.display='none';const fab=document.querySelector('.fab-recipe');if(fab)fab.style.display='';}
 function openNotif(){openNmod();}
 function closeNotif(){closeNmod();}
 async function saveNotif(){
