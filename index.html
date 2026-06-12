@@ -454,7 +454,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .fab-recipe{position:fixed;bottom:80px;right:16px;z-index:900;background:var(--pri);color:#fff;border:none;border-radius:28px;padding:12px 18px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 18px rgba(58,117,88,.4);display:flex;align-items:center;gap:7px;-webkit-tap-highlight-color:transparent;}
 .ov.show ~ .fab-recipe{display:none;}
 /* ── TRIAL BANNER ── */
-.trial-banner{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 1.25rem 0;padding:10px 14px;background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(217,119,6,.1));border:1.5px solid rgba(245,158,11,.4);border-radius:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.trial-banner{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 1.25rem 0;padding:10px 14px;background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(217,119,6,.08));border:1.5px solid rgba(245,158,11,.35);border-radius:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .trial-banner-l{display:flex;align-items:center;gap:8px;}
 .trial-banner-icon{font-size:20px;}
 .trial-banner-txt{font-size:13px;font-weight:600;color:#92400E;}
@@ -667,9 +667,9 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
       <span class="hero-search-icon">🔍</span>
       <input type="text" placeholder="Ψάξε συνταγή, υλικό..." readonly>
     </div>
-    <div id="trial-banner"></div>
   </div>
 </div>
+<div id="trial-banner"></div>
 
 <div class="nav" aria-hidden="true">
   <button class="ntab on" onclick="showSec('daily',this)">☀️ Σήμερα</button>
@@ -1707,8 +1707,15 @@ function selMode(mode,btn){
   curMode=mode;
   document.querySelectorAll('.hshct').forEach(b=>b.classList.remove('on'));
   if(btn)btn.classList.add('on');
+  // Always navigate to the daily section first
+  if(curSec!=='daily'){
+    curSec='daily';
+    document.querySelectorAll('.sec').forEach(s=>s.classList.remove('show'));
+    const sd=document.getElementById('s-daily');if(sd)sd.classList.add('show');
+    document.querySelectorAll('.bntab').forEach(b=>b.classList.remove('on'));
+    const bd=document.getElementById('bnt-daily');if(bd)bd.classList.add('on');
+  }
   if(mode==='quick'){
-    // Sync category pills
     selCat('quick',document.getElementById('cpill-quick'));
   } else {
     selCat('all',document.getElementById('cpill-all'));
