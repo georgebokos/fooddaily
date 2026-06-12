@@ -1984,7 +1984,7 @@ function renderMeals(cat){
       ?`<span class="cooked-badge">✓ ${_cd===0?'Μαγειρεύτηκε σήμερα':_cd+' μέρ. πριν'}</span>`
       :planStatus==='plan'
       ?`<span class="thumb-planned">✓ Θα το φτιάξω σήμερα!</span>`
-      :`<button class="thumb-up" onclick="thumbUp('${m.id}',event)">👍 Θα το φτιάξω!</button><button class="thumb-cook" onclick="markCooked('${m.id}',event)">✓ Έγινε!</button><button class="thumb-dn" onclick="thumbDown('${m.id}',event)">👎</button>`;
+      :`<button class="thumb-up" onclick="thumbUp('${m.id}',event)">👍 Θα το φτιάξω!</button><button class="thumb-cook" onclick="markCooked('${m.id}',event)">✓ Το έφτιαξα</button><button class="thumb-dn" onclick="thumbDown('${m.id}',event)">👎</button>`;
     return `<div class="mcard" data-mid="${m.id}" onclick="openR('${m.id}')">
       <div class="mtop" style="background:${bg}">
         <img id="mi-${m.id}" alt="${m.n}" src="${MEAL_IMAGES[m.id]||''}" onload="this.classList.add('loaded');document.getElementById('me-${m.id}').style.opacity=0" onerror="this.style.display='none'">
@@ -2885,6 +2885,7 @@ async function saveNotif(){
     localStorage.setItem('notif_on','true');
     document.getElementById('bell').classList.add('on');
     startNotifTimer();
+    scheduleSwDailyNotif();
     storeNotifPrefsForSW(time,'true');
     registerPeriodicSync();
     showToast('✅ Ειδοποιήσεις ενεργοποιήθηκαν!');
@@ -2900,7 +2901,7 @@ async function toggleNotif(){
   if(!tog.checked){
     if(!('Notification' in window)){alert('Browser δεν υποστηρίζει ειδοποιήσεις.');return;}
     const p=await Notification.requestPermission();
-    if(p==='granted'){tog.checked=true;document.getElementById('bell').classList.add('on');localStorage.setItem('notif_on','true');startNotifTimer();showToast('✅ Ειδοποιήσεις ενεργοποιήθηκαν!');}
+    if(p==='granted'){tog.checked=true;document.getElementById('bell').classList.add('on');localStorage.setItem('notif_on','true');startNotifTimer();scheduleSwDailyNotif();showToast('✅ Ειδοποιήσεις ενεργοποιήθηκαν!');}
     else showToast('⚠️ Δεν δόθηκε άδεια');
   } else {tog.checked=false;document.getElementById('bell').classList.remove('on');localStorage.setItem('notif_on','false');showToast('Απενεργοποιήθηκαν');}
 }
@@ -2931,6 +2932,20 @@ async function sendNotif(){
   }
   // 3. Desktop fallback
   try{new Notification(title,{body,tag:'fd-meal',icon:'/icon-192.png'});}catch(e){}
+}
+// Schedule daily notification via SW setTimeout (fires even with app closed/screen locked)
+function scheduleSwDailyNotif(){
+  if(localStorage.getItem('notif_on')!=='true')return;
+  const doSchedule=ctrl=>{
+    const [h,mn]=(localStorage.getItem('notif_time')||'09:00').split(':').map(Number);
+    const now=new Date(),next=new Date();
+    next.setHours(h,mn,0,0);
+    if(next<=now)next.setDate(next.getDate()+1);
+    ctrl.postMessage({type:'SCHEDULE_DAILY_NOTIF',delay:next-now});
+  };
+  const ctrl=navigator.serviceWorker?.controller;
+  if(ctrl){doSchedule(ctrl);return;}
+  if('serviceWorker' in navigator)navigator.serviceWorker.ready.then(r=>{if(r.active)doSchedule(r.active);});
 }
 // Store notification prefs in cache so SW can read them during periodicsync
 function storeNotifPrefsForSW(time,on){
@@ -3414,6 +3429,7 @@ function closeProfile(){
   // Restart notification timer + catch-up if previously enabled
   if(localStorage.getItem('notif_on')==='true'&&Notification.permission==='granted'){
     startNotifTimer();
+    scheduleSwDailyNotif();
     const _st=localStorage.getItem('notif_time')||'09:00';
     storeNotifPrefsForSW(_st,'true');
     registerPeriodicSync();

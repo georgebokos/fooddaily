@@ -1,5 +1,5 @@
 // FoodDaily Service Worker v2.3
-const VERSION = '2026-06-12-10';
+const VERSION = '2026-06-12-11';
 const CACHE = `fooddaily-${VERSION}`;
 const ASSETS = [
   '/',
@@ -90,6 +90,28 @@ self.addEventListener('message', e => {
 
   if (e.data.type === 'CANCEL_TIMER') {
     if (self._timerTo) { clearTimeout(self._timerTo); self._timerTo = null; }
+  }
+
+  // Daily meal suggestion notification — scheduled via setTimeout so it fires even with app closed.
+  // The page sends this on every app-open; the SW reschedules automatically every 24h.
+  if (e.data.type === 'SCHEDULE_DAILY_NOTIF') {
+    if (self._dailyNotifTo) clearTimeout(self._dailyNotifTo);
+    const fireAndReschedule = () => {
+      self.registration.showNotification('🍽️ FoodDaily', {
+        body: 'Τι μαγειρεύουμε σήμερα; Δες τις προτάσεις σου!',
+        icon: '/icon-192.png',
+        badge: '/icon-96.png',
+        tag: 'fd-meal-daily',
+        vibrate: [200, 100, 200],
+        requireInteraction: false
+      });
+      self._dailyNotifTo = setTimeout(fireAndReschedule, 24 * 60 * 60 * 1000);
+    };
+    self._dailyNotifTo = setTimeout(fireAndReschedule, e.data.delay);
+  }
+
+  if (e.data.type === 'CANCEL_DAILY_NOTIF') {
+    if (self._dailyNotifTo) { clearTimeout(self._dailyNotifTo); self._dailyNotifTo = null; }
   }
 });
 
