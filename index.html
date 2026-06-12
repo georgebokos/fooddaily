@@ -1268,8 +1268,9 @@ function renderMeals(cat){
   let pool=Object.entries(MEALS)
     .filter(([id])=>!excl.includes(id)&&!skipped.includes(id))
     .map(([id,m])=>({...m,id}));
-  if(cat==='quick'){pool=pool.filter(m=>parseInt(m.time)<=35);}
-  else if(cat!=='all'&&cat!=='favs'){pool=pool.filter(m=>m.cats.includes(cat)&&!m.quickOnly);}
+  if(cat==='quick'){
+    // no pool filter here — handled in show-building below
+  } else if(cat!=='all'&&cat!=='favs'){pool=pool.filter(m=>m.cats.includes(cat)&&!m.quickOnly);}
   else{pool=pool.filter(m=>!m.quickOnly);} // quickOnly meals only appear in Γρήγορα
 
   const grid=document.getElementById('meals-grid');
@@ -1321,19 +1322,27 @@ function renderMeals(cat){
     return;
   }
 
-  const dow=new Date().getDay(); // 0=Sun
-  const isSunday=dow===0;
-  const fresh=pool.filter(m=>!rids.includes(m.id)).sort((a,b)=>{
-    const pa=MEAL_PRIORITY[a.id]||2, pb=MEAL_PRIORITY[b.id]||2;
-    if(isSunday) return (pb-pa)||(Math.random()-.5); // Sunday: elaborate first
-    return (pa-pb)||(Math.random()-.5); // Weekdays: everyday meals first
-  });
-  const old=pool.filter(m=>rids.includes(m.id));
-  // Salads are sides — keep them in grid but never feature them first
-  const allShow=[...fresh,...old].slice(0,8);
-  const nonSalads=allShow.filter(m=>!m.cats.includes('salads'));
-  const salads=allShow.filter(m=>m.cats.includes('salads'));
-  const show=[...nonSalads,...salads];
+  let show;
+  if(cat==='quick'){
+    // quickOnly pantry meals first (sorted by time), then genuinely fast existing meals (≤20 min)
+    const qOnly=pool.filter(m=>m.quickOnly).sort((a,b)=>parseInt(a.time)-parseInt(b.time));
+    const fast=pool.filter(m=>!m.quickOnly&&parseInt(m.time)<=20).sort(()=>Math.random()-.5);
+    show=[...qOnly,...fast];
+  }else{
+    const dow=new Date().getDay();
+    const isSunday=dow===0;
+    const fresh=pool.filter(m=>!rids.includes(m.id)).sort((a,b)=>{
+      const pa=MEAL_PRIORITY[a.id]||2, pb=MEAL_PRIORITY[b.id]||2;
+      if(isSunday) return (pb-pa)||(Math.random()-.5);
+      return (pa-pb)||(Math.random()-.5);
+    });
+    const old=pool.filter(m=>rids.includes(m.id));
+    // Salads are sides — never feature them first
+    const allShow=[...fresh,...old].slice(0,8);
+    const nonSalads=allShow.filter(m=>!m.cats.includes('salads'));
+    const salads=allShow.filter(m=>m.cats.includes('salads'));
+    show=[...nonSalads,...salads];
+  }
   _featPool=show;
   // Restore today's featured meal so it doesn't change on refresh
   if(cat==='all'&&show.length){
