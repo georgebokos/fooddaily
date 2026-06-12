@@ -379,6 +379,11 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .thumb-dn{width:32px;padding:5px;border-radius:var(--rs);border:1.5px solid #EDE8DE;background:var(--w);font-size:14px;cursor:pointer;transition:all .2s;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
 .thumb-dn:hover{background:#FEE2E2;border-color:#FCA5A5;}
 .thumb-planned{font-size:12px;color:#166534;font-weight:600;display:flex;align-items:center;gap:4px;}
+.thumb-cook{padding:6px 10px;border-radius:var(--rs);border:1.5px solid #D1D5DB;background:var(--w);color:var(--t2);font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;white-space:nowrap;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+.thumb-cook:hover{background:#F3F4F6;border-color:#9CA3AF;}
+.cooked-badge{font-size:12px;color:#6B7280;font-weight:500;display:flex;align-items:center;gap:4px;}
+[data-theme="dark"] .thumb-cook{background:#1C1A16;border-color:#2A2820;color:var(--t2);}
+[data-theme="dark"] .cooked-badge{color:#6B7280;}
 [data-theme="dark"] .card-actions{border-top-color:#2A2820;}
 [data-theme="dark"] .thumb-dn{background:#1C1A16;border-color:#2A2820;}
 [data-theme="dark"] .thumb-up{background:#14291A;border-color:#166534;color:#4ADE80;}
@@ -1060,12 +1065,23 @@ const CAT_CL={pasta:'b-pasta',seafood:'b-seafood',meat:'b-meat',
   legumes:'b-legumes',vegetables:'b-vegetables',salads:'b-salads',soups:'b-soups',sauces:'b-sauces',pites:'b-pites'};
 // Meal priority: 1=everyday affordable, 2=regular weekday, 3=weekend, 4=special occasion
 const MEAL_PRIORITY={
+  // 1 — καθημερινά / φθηνά
   fasolada:1,fakes:1,aglio:1,spanakoryzo:1,keftedes:1,kima:1,briami:1,revythada:1,
   horiatiki:1,gigantes:1,fava:1,salata_rokka:1,
-  kotopoulo:2,souvlakia:2,biftekia:2,kalamaria:2,tsipoura:2,psarosoupa:2,
+  strapatsada:1,patates_avga:1,omeleta_laxanikon:1,pasta_voutirou:1,
+  ryzi_voutirou:1,tiganites_patates:1,avga_matia:1,tost_tyri:1,
+  tzatziki_dish:1,melitzanosalata:1,htipiti:1,tirokafteri:1,
+  mayoneza:1,saltsa_kotopoulo:1,skordalia:1,
+  hortopita:1,kolokythopita:1,prasopita:1,
+  // 2 — απλά κυριακάτικα / μεσαία
+  kotopoulo:2,souvlakia:2,biftekia:2,kalamaria:2,psarosoupa:2,
   kotosopa:2,dolmades:2,gemista:2,psari_plaki:2,giouvarlaakia:2,
-  moussaka:3,pastitsio:3,giouvetsi:3,arnaki_lemonato:3,htapodi:3,bakaliaro:3,
-  stifado:3,kokkinisto:3,garides:3,
+  bakaliaro:2,tyropita:2,spanakopita:2,kreatopita:2,
+  taramosalata:2,anginaresPolita:2,lagana:2,salata_rodi:2,
+  // 3 — Κυριακή / ειδικές περιστάσεις
+  moussaka:3,pastitsio:3,giouvetsi:3,arnaki_lemonato:3,htapodi:3,
+  stifado:3,kokkinisto:3,garides:3,tsipoura:3,tartaFragola:3,
+  // 4 — εορτές / ακριβά
   arni_souvia:4,kontosouvi:4,mageiritsa:4,gourounopoulo:4,galopoula:4
 };
 
@@ -1804,6 +1820,15 @@ function showShimmer(){
   if(!grid)return;
   grid.innerHTML=Array(6).fill(`<div class="shim-card"><div class="shim-top"></div><div class="shim-line wide"></div><div class="shim-line short"></div></div>`).join('');
 }
+function getCookedLog(){try{return JSON.parse(localStorage.getItem('fd_cooked_log')||'{}');}catch(e){return {};}}
+function markCooked(id,ev){
+  if(ev)ev.stopPropagation();
+  const log=getCookedLog();log[id]=Date.now();
+  localStorage.setItem('fd_cooked_log',JSON.stringify(log));
+  const ca=document.getElementById('ca-'+id);
+  if(ca)ca.innerHTML='<span class="cooked-badge">✓ Μαγειρεύτηκε σήμερα</span>';
+  showToast('✓ Καταχωρήθηκε!');
+}
 let _shimmerShown=false;
 function renderMeals(cat){
   if(!_shimmerShown){_shimmerShown=true;showShimmer();}
@@ -1890,6 +1915,8 @@ function renderMeals(cat){
   }
 
   let show;
+  const _clog=getCookedLog();
+  const _cookedRecently=id=>_clog[id]&&(Date.now()-_clog[id])<4*86400000;
   if(cat==='quick'){
     // quickOnly pantry meals first (sorted by time), then genuinely fast existing meals (≤20 min)
     const qOnly=pool.filter(m=>m.quickOnly).sort((a,b)=>parseInt(a.time)-parseInt(b.time));
@@ -1898,14 +1925,19 @@ function renderMeals(cat){
   }else{
     const dow=new Date().getDay();
     const isSunday=dow===0;
-    const fresh=pool.filter(m=>!rids.includes(m.id)).sort((a,b)=>{
-      const pa=MEAL_PRIORITY[a.id]||2, pb=MEAL_PRIORITY[b.id]||2;
-      if(isSunday) return (pb-pa)||(Math.random()-.5);
-      return (pa-pb)||(Math.random()-.5);
+    // Weekday: tier ascending (1→4). Sunday: cheap meat first, then rest by tier, expensive last.
+    const fresh=pool.filter(m=>!rids.includes(m.id)&&!_cookedRecently(m.id)).sort((a,b)=>{
+      const pa=MEAL_PRIORITY[a.id]||2,pb=MEAL_PRIORITY[b.id]||2;
+      if(isSunday){
+        const am=a.cats.includes('meat')?0:1,bm=b.cats.includes('meat')?0:1;
+        if(am!==bm)return am-bm;
+      }
+      return pa-pb;
     });
-    const old=pool.filter(m=>rids.includes(m.id));
-    // Salads are sides — never feature them first
-    const allShow=[...fresh,...old].slice(0,8);
+    const old=pool.filter(m=>rids.includes(m.id)&&!_cookedRecently(m.id));
+    // Cooked within 4 days → always at the end
+    const cooked=pool.filter(m=>_cookedRecently(m.id));
+    const allShow=[...fresh,...old,...cooked].slice(0,8);
     const nonSalads=allShow.filter(m=>!m.cats.includes('salads'));
     const salads=allShow.filter(m=>m.cats.includes('salads'));
     show=[...nonSalads,...salads];
@@ -1947,9 +1979,12 @@ function renderMeals(cat){
     const freshBadge=ds>6?`<div class="mtop-fresh">${t('fresh')}</div>`:'';
     const fav=isFav(m.id);
     const planStatus=todayPlan[m.id];
-    const actHtml=planStatus==='plan'
+    const _cd=_clog[m.id]?Math.floor((Date.now()-_clog[m.id])/86400000):null;
+    const actHtml=_cd!==null&&_cd<4
+      ?`<span class="cooked-badge">✓ ${_cd===0?'Μαγειρεύτηκε σήμερα':_cd+' μέρ. πριν'}</span>`
+      :planStatus==='plan'
       ?`<span class="thumb-planned">✓ Θα το φτιάξω σήμερα!</span>`
-      :`<button class="thumb-up" onclick="thumbUp('${m.id}',event)">👍 Θα το φτιάξω!</button><button class="thumb-dn" onclick="thumbDown('${m.id}',event)">👎</button>`;
+      :`<button class="thumb-up" onclick="thumbUp('${m.id}',event)">👍 Θα το φτιάξω!</button><button class="thumb-cook" onclick="markCooked('${m.id}',event)">✓ Έγινε!</button><button class="thumb-dn" onclick="thumbDown('${m.id}',event)">👎</button>`;
     return `<div class="mcard" data-mid="${m.id}" onclick="openR('${m.id}')">
       <div class="mtop" style="background:${bg}">
         <img id="mi-${m.id}" alt="${m.n}" src="${MEAL_IMAGES[m.id]||''}" onload="this.classList.add('loaded');document.getElementById('me-${m.id}').style.opacity=0" onerror="this.style.display='none'">
