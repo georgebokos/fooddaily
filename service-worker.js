@@ -1,5 +1,5 @@
 // FoodDaily Service Worker v2.1
-const VERSION = '2026-06-12-01';
+const VERSION = '2026-06-12-02';
 const CACHE = `fooddaily-${VERSION}`;
 const ASSETS = [
   '/',
@@ -84,35 +84,29 @@ self.addEventListener('notificationclick', e => {
   );
 });
 
-// Periodic Background Sync: check stored prefs then fire at the right time window
+// Periodic Background Sync: fire once per day when app is closed
+// Chrome controls *when* it fires, so we only filter out night hours (11 PM – 7 AM)
+// and deduplicate with a "sent today" cache entry.
 self.addEventListener('periodicsync', e => {
   if (e.tag === 'fd-daily-notif') {
     e.waitUntil((async () => {
       try {
-        // Read notification prefs stored by the page
         const cache = await caches.open('fd-prefs');
+
+        // Read notification prefs stored by the page
         const resp = await cache.match('/fd-notif-prefs');
         if (!resp) return;
         const prefs = await resp.json();
         if (prefs.on !== 'true') return;
 
-        // Check if we already sent one today (stored as ISO date string in cache)
-        const lastCache = await caches.open('fd-prefs');
-        const lastResp = await lastCache.match('/fd-notif-last');
-        const today = new Date().toDateString();
-        if (lastResp) {
-          const lastDate = await lastResp.text();
-          if (lastDate === today) return;
-        }
+        // Skip night hours so notification doesn't arrive at 2 AM
+        const nowH = new Date().getHours();
+        if (nowH >= 23 || nowH < 7) return;
 
-        // Only fire after the scheduled time; not before 6 AM or after 10 PM
-        const [h, m] = (prefs.time || '09:00').split(':').map(Number);
-        const now = new Date();
-        const nowH = now.getHours();
-        if (nowH < 6 || nowH >= 22) return; // Quiet hours
-        const sched = new Date();
-        sched.setHours(h, m, 0, 0);
-        if (now < sched) return; // Scheduled time hasn't arrived yet
+        // Skip if already sent today
+        const today = new Date().toDateString();
+        const lastResp = await cache.match('/fd-notif-last');
+        if (lastResp && (await lastResp.text()) === today) return;
 
         await self.registration.showNotification('🍽️ FoodDaily', {
           body: 'Τι μαγειρεύουμε σήμερα; Δες τις προτάσεις σου!',
@@ -123,7 +117,7 @@ self.addEventListener('periodicsync', e => {
         });
 
         // Mark as sent today
-        await lastCache.put('/fd-notif-last',
+        await cache.put('/fd-notif-last',
           new Response(today, { headers: { 'Content-Type': 'text/plain' } })
         );
       } catch (err) {}
