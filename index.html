@@ -453,6 +453,46 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 /* ── BOTTOM FAB BUTTON ── */
 .fab-recipe{position:fixed;bottom:80px;right:16px;z-index:900;background:var(--pri);color:#fff;border:none;border-radius:28px;padding:12px 18px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 18px rgba(58,117,88,.4);display:flex;align-items:center;gap:7px;-webkit-tap-highlight-color:transparent;}
 .ov.show ~ .fab-recipe{display:none;}
+/* ── TRIAL BANNER ── */
+.trial-banner{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 1.25rem 0;padding:10px 14px;background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(217,119,6,.1));border:1.5px solid rgba(245,158,11,.4);border-radius:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.trial-banner-l{display:flex;align-items:center;gap:8px;}
+.trial-banner-icon{font-size:20px;}
+.trial-banner-txt{font-size:13px;font-weight:600;color:#92400E;}
+.trial-banner-txt span{font-weight:800;}
+[data-theme="dark"] .trial-banner-txt{color:#FCD34D;}
+.trial-banner-cta{font-size:12px;font-weight:700;color:#D97706;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.4);border-radius:20px;padding:5px 12px;white-space:nowrap;}
+.trial-expired-banner{background:linear-gradient(135deg,rgba(239,68,68,.12),rgba(220,38,38,.08));border-color:rgba(239,68,68,.35);}
+.trial-expired-banner .trial-banner-txt{color:#991B1B;}
+.trial-expired-banner .trial-banner-cta{color:#DC2626;background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.3);}
+[data-theme="dark"] .trial-expired-banner .trial-banner-txt{color:#FCA5A5;}
+/* ── PREMIUM SCREEN ── */
+.pscreen{display:none;position:fixed;inset:0;z-index:2500;background:rgba(0,0,0,.6);align-items:flex-end;justify-content:center;}
+.pscreen.show{display:flex;}
+.pscreen-inner{background:var(--bg);border-radius:24px 24px 0 0;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,16px);}
+.pscreen-head{background:linear-gradient(145deg,#F59E0B,#D97706);padding:28px 20px 24px;border-radius:24px 24px 0 0;position:relative;text-align:center;}
+.pscreen-close{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.25);border:none;border-radius:50%;width:32px;height:32px;font-size:16px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.pscreen-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.25);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;color:#fff;margin-bottom:10px;}
+.pscreen-title{font-size:26px;font-weight:800;color:#fff;margin-bottom:4px;}
+.pscreen-sub{font-size:14px;color:rgba(255,255,255,.85);}
+.pscreen-trial-badge{display:inline-block;margin-top:10px;background:#fff;color:#D97706;border-radius:20px;padding:5px 16px;font-size:13px;font-weight:800;}
+.pscreen-body{padding:20px 20px 0;}
+.pscreen-feats{margin-bottom:20px;}
+.pscreen-feat{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--bd);}
+.pscreen-feat:last-child{border-bottom:none;}
+.pscreen-feat-ico{font-size:22px;flex-shrink:0;width:32px;text-align:center;}
+.pscreen-feat-txt{flex:1;}
+.pscreen-feat-name{font-size:14px;font-weight:700;color:var(--txt);}
+.pscreen-feat-desc{font-size:12px;color:var(--t3);margin-top:2px;line-height:1.4;}
+.pscreen-plan-toggle{display:flex;background:var(--lt);border-radius:12px;padding:3px;margin-bottom:16px;gap:0;}
+.pplan-btn{flex:1;padding:9px;border:none;border-radius:10px;background:transparent;font-size:13px;font-weight:600;color:var(--t3);cursor:pointer;transition:all .2s;text-align:center;}
+.pplan-btn.on{background:var(--bg);color:var(--txt);box-shadow:0 1px 4px rgba(0,0,0,.12);}
+.pplan-save{display:inline-block;margin-left:6px;background:#22C55E;color:#fff;border-radius:10px;font-size:10px;font-weight:800;padding:1px 7px;vertical-align:middle;}
+.pscreen-price{text-align:center;margin-bottom:20px;}
+.pscreen-price-main{font-size:36px;font-weight:800;color:var(--txt);}
+.pscreen-price-sub{font-size:13px;color:var(--t3);margin-top:2px;}
+.pscreen-cta{display:block;width:100%;padding:16px;background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;margin-bottom:10px;box-shadow:0 4px 16px rgba(245,158,11,.4);}
+.pscreen-cta-note{text-align:center;font-size:12px;color:var(--t3);margin-bottom:16px;}
+.pscreen-restore{background:transparent;border:none;color:var(--t3);font-size:12px;cursor:pointer;padding:4px;margin-bottom:8px;display:block;width:100%;text-align:center;}
 </style>
 </head>
 <body>
@@ -469,6 +509,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
       <div class="hero-btns">
         <button id="dark-btn" class="hero-btn" onclick="toggleDark()" title="Dark mode">🌙</button>
         <button id="bell" class="hero-btn" onclick="openNotif()">🔔</button>
+        <button id="prem-btn" class="hero-btn" onclick="openPremiumScreen()" title="Premium" style="font-size:14px;font-weight:700;letter-spacing:-.3px;">💎</button>
       </div>
     </div>
     <div class="hero-spacer"></div>
@@ -479,6 +520,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
       <span class="hero-search-icon">🔍</span>
       <input type="text" placeholder="Ψάξε συνταγή, υλικό..." readonly>
     </div>
+    <div id="trial-banner"></div>
   </div>
 </div>
 
@@ -715,6 +757,40 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
     <div class="urform-btns">
       <button class="urform-cancel" onclick="closeUrform()">Άκυρο</button>
       <button class="urform-submit" onclick="submitUserRecipe()">📤 Αποστολή</button>
+    </div>
+  </div>
+</div>
+
+<!-- PREMIUM SCREEN -->
+<div class="pscreen" id="pscreen" onclick="if(event.target===this)closePremiumScreen()">
+  <div class="pscreen-inner">
+    <div class="pscreen-head">
+      <button class="pscreen-close" onclick="closePremiumScreen()">✕</button>
+      <div class="pscreen-badge">💎 FoodDaily Premium</div>
+      <div class="pscreen-title">Μαγείρεψε καλύτερα</div>
+      <div class="pscreen-sub">Το πλήρες εργαλείο για την κουζίνα σου</div>
+      <div class="pscreen-trial-badge" id="pscreen-trial-badge">🎁 7 ημέρες δωρεάν</div>
+    </div>
+    <div class="pscreen-body">
+      <div class="pscreen-feats">
+        <div class="pscreen-feat"><div class="pscreen-feat-ico">📝</div><div class="pscreen-feat-txt"><div class="pscreen-feat-name">Σημειώσεις ανά συνταγή</div><div class="pscreen-feat-desc">Κράτα τις δικές σου παραλλαγές, μυστικά και αλλαγές σε κάθε συνταγή.</div></div></div>
+        <div class="pscreen-feat"><div class="pscreen-feat-ico">📅</div><div class="pscreen-feat-txt"><div class="pscreen-feat-name">Εβδομαδιαίο meal plan</div><div class="pscreen-feat-desc">Προγραμμάτισε τα φαγητά της εβδομάδας με αυτόματη λίστα αγορών.</div></div></div>
+        <div class="pscreen-feat"><div class="pscreen-feat-ico">🔔</div><div class="pscreen-feat-txt"><div class="pscreen-feat-name">Έξυπνες ειδοποιήσεις</div><div class="pscreen-feat-desc">Εξατομικευμένες υπενθυμίσεις βάσει των προτιμήσεών σου.</div></div></div>
+        <div class="pscreen-feat"><div class="pscreen-feat-ico">❤️</div><div class="pscreen-feat-txt"><div class="pscreen-feat-name">Απεριόριστα αγαπημένα</div><div class="pscreen-feat-desc">Οργάνωσε τις αγαπημένες σου συνταγές χωρίς όριο.</div></div></div>
+        <div class="pscreen-feat"><div class="pscreen-feat-ico">🚫</div><div class="pscreen-feat-txt"><div class="pscreen-feat-name">Χωρίς διαφημίσεις</div><div class="pscreen-feat-desc">Καθαρή εμπειρία χωρίς διακοπές.</div></div></div>
+        <div class="pscreen-feat"><div class="pscreen-feat-ico">⭐</div><div class="pscreen-feat-txt"><div class="pscreen-feat-name">Νέες συνταγές πρώτος</div><div class="pscreen-feat-desc">Πρόσβαση σε νέες συνταγές πριν βγουν στο δωρεάν.</div></div></div>
+      </div>
+      <div class="pscreen-plan-toggle">
+        <button class="pplan-btn on" id="pplan-monthly" onclick="setPlan('monthly')">Μηνιαία</button>
+        <button class="pplan-btn" id="pplan-annual" onclick="setPlan('annual')">Ετήσια <span class="pplan-save">-37%</span></button>
+      </div>
+      <div class="pscreen-price" id="pscreen-price">
+        <div class="pscreen-price-main">1,99€<span style="font-size:18px;font-weight:400">/μήνα</span></div>
+        <div class="pscreen-price-sub">Ακύρωση οποιαδήποτε στιγμή</div>
+      </div>
+      <button class="pscreen-cta" id="pscreen-cta" onclick="handlePremiumCTA()">🎁 Ξεκίνα δωρεάν για 7 ημέρες</button>
+      <div class="pscreen-cta-note" id="pscreen-cta-note">Δεν απαιτείται κάρτα για το trial · Ακύρωση οποιαδήποτε στιγμή</div>
+      <button class="pscreen-restore" onclick="restorePurchase()">Επαναφορά αγοράς</button>
     </div>
   </div>
 </div>
@@ -1692,12 +1768,128 @@ function startTTS(){
 }
 function stopTTS(){if(window.speechSynthesis)speechSynthesis.cancel();isTTS=false;const b=document.getElementById('ov-tts-btn');if(b)b.textContent=t('tts_p');}
 
-// ── PREMIUM ────────────────────────────────────────────────────
-function isPremium(){return localStorage.getItem('fd_premium')==='true';}
+// ── PREMIUM STATE MACHINE ──────────────────────────────────────
+const TRIAL_DAYS=7;
+function getPremiumState(){
+  if(localStorage.getItem('fd_premium')==='true')return 'premium';
+  const ts=parseInt(localStorage.getItem('fd_trial_start')||'0');
+  if(!ts)return 'free';
+  const elapsed=(Date.now()-ts)/(1000*60*60*24);
+  return elapsed<=TRIAL_DAYS?'trial':'expired';
+}
+function trialDaysLeft(){
+  const ts=parseInt(localStorage.getItem('fd_trial_start')||'0');
+  if(!ts)return TRIAL_DAYS;
+  return Math.max(0,TRIAL_DAYS-Math.floor((Date.now()-ts)/(1000*60*60*24)));
+}
+function startTrial(){
+  if(!localStorage.getItem('fd_trial_start')){
+    localStorage.setItem('fd_trial_start',Date.now().toString());
+  }
+}
+function isPremium(){
+  const s=getPremiumState();return s==='premium'||s==='trial';
+}
+
+// Trial banner in hero
+function renderTrialBanner(){
+  const el=document.getElementById('trial-banner');if(!el)return;
+  const state=getPremiumState();
+  if(state==='premium'){el.innerHTML='';return;}
+  if(state==='free'){
+    el.innerHTML=`<div class="trial-banner" onclick="openPremiumScreen()"><div class="trial-banner-l"><span class="trial-banner-icon">💎</span><span class="trial-banner-txt">Δοκίμασε <span>Premium</span> δωρεάν 7 ημέρες</span></div><span class="trial-banner-cta">Δωρεάν →</span></div>`;
+    return;
+  }
+  if(state==='trial'){
+    const d=trialDaysLeft();
+    el.innerHTML=`<div class="trial-banner" onclick="openPremiumScreen()"><div class="trial-banner-l"><span class="trial-banner-icon">🎁</span><span class="trial-banner-txt">Trial: <span>${d} ${d===1?'ημέρα':'ημέρες'}</span> απομένουν</span></div><span class="trial-banner-cta">Αναβάθμιση →</span></div>`;
+    return;
+  }
+  if(state==='expired'){
+    el.innerHTML=`<div class="trial-banner trial-expired-banner" onclick="openPremiumScreen()"><div class="trial-banner-l"><span class="trial-banner-icon">⚠️</span><span class="trial-banner-txt">Το trial σου <span>έληξε</span></span></div><span class="trial-banner-cta">Συνδρομή →</span></div>`;
+  }
+}
+
+// Premium screen
+let _curPlan='monthly';
+function openPremiumScreen(){
+  _curPlan='monthly';
+  const state=getPremiumState();
+  // Update header badge
+  const badge=document.getElementById('pscreen-trial-badge');
+  if(badge){
+    if(state==='trial'){badge.textContent=`⏳ ${trialDaysLeft()} ημέρες trial απομένουν`;}
+    else if(state==='expired'){badge.textContent='⚠️ Trial έληξε';}
+    else if(state==='premium'){badge.textContent='✅ Είσαι Premium!';}
+    else{badge.textContent='🎁 7 ημέρες δωρεάν';}
+  }
+  updatePremiumCTA(state);
+  document.getElementById('pscreen').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closePremiumScreen(){
+  document.getElementById('pscreen').classList.remove('show');
+  document.body.style.overflow='';
+}
+function setPlan(plan){
+  _curPlan=plan;
+  document.getElementById('pplan-monthly').classList.toggle('on',plan==='monthly');
+  document.getElementById('pplan-annual').classList.toggle('on',plan==='annual');
+  const priceEl=document.getElementById('pscreen-price');
+  if(plan==='monthly'){
+    priceEl.innerHTML=`<div class="pscreen-price-main">1,99€<span style="font-size:18px;font-weight:400">/μήνα</span></div><div class="pscreen-price-sub">Ακύρωση οποιαδήποτε στιγμή</div>`;
+  }else{
+    priceEl.innerHTML=`<div class="pscreen-price-main">14,99€<span style="font-size:18px;font-weight:400">/χρόνο</span></div><div class="pscreen-price-sub">Εξοικονόμηση ~9€ · Ισοδύναμο 1,25€/μήνα</div>`;
+  }
+  updatePremiumCTA(getPremiumState());
+}
+function updatePremiumCTA(state){
+  const btn=document.getElementById('pscreen-cta');
+  const note=document.getElementById('pscreen-cta-note');
+  if(!btn)return;
+  if(state==='premium'){
+    btn.textContent='✅ Είσαι ήδη Premium!';btn.disabled=true;btn.style.opacity='.7';
+    if(note)note.textContent='Η συνδρομή σου είναι ενεργή.';
+  }else if(state==='trial'){
+    btn.textContent='💎 Αναβάθμισε πριν λήξει το trial';btn.disabled=false;btn.style.opacity='1';
+    if(note)note.textContent='Σύνδεσε κάρτα για να συνεχίσεις χωρίς διακοπή.';
+  }else if(state==='expired'){
+    btn.textContent='💎 Συνδρομή Premium';btn.disabled=false;btn.style.opacity='1';
+    if(note)note.textContent='Ανάκτησε πλήρη πρόσβαση αμέσως.';
+  }else{
+    btn.textContent='🎁 Ξεκίνα δωρεάν για 7 ημέρες';btn.disabled=false;btn.style.opacity='1';
+    if(note)note.textContent='Δεν απαιτείται κάρτα για το trial · Ακύρωση οποιαδήποτε στιγμή';
+  }
+}
+function handlePremiumCTA(){
+  const state=getPremiumState();
+  if(state==='free'){
+    // Start trial + close screen
+    startTrial();
+    localStorage.setItem('fd_premium','false'); // explicitly free, trial running
+    closePremiumScreen();
+    renderTrialBanner();
+    showToast('🎉 Το 7-day trial ξεκίνησε! Απόλαυσε το Premium.');
+  }else{
+    // Redirect to payment — placeholder until payment is integrated
+    showToast('💎 Σύντομα διαθέσιμο! Θα ειδοποιηθείς.');
+    closePremiumScreen();
+  }
+}
+function restorePurchase(){
+  showToast('⏳ Έλεγχος συνδρομής...');
+  setTimeout(()=>showToast('Δεν βρέθηκε ενεργή συνδρομή.'),1500);
+}
+
+// Gate modal (quick inline prompt when a feature is tapped)
 function showPremiumGate(msg){
-  const el=document.getElementById('pgate-s');
-  if(el)el.textContent=msg||'Αυτή η λειτουργία είναι διαθέσιμη στο Premium.';
-  document.getElementById('pgate').classList.add('show');
+  const state=getPremiumState();
+  if(state==='free'||state==='expired'){
+    // Just open the full premium screen
+    openPremiumScreen();return;
+  }
+  // Should not reach here if isPremium() is checked before calling
+  openPremiumScreen();
 }
 function closePremiumGate(){document.getElementById('pgate').classList.remove('show');}
 
@@ -2554,6 +2746,9 @@ function copyShoppingList(){
   const dailyPool=Object.keys(MEALS).filter(id=>!excl2.includes(id)&&!MEALS[id]?.noDaily&&!MEALS[id]?.quickOnly);
   const dailyCount=Math.min(dailyPool.length,6);
   if(sl)sl.textContent=`🍽️ ${dailyCount} προτάσεις σήμερα · ${mealCount}+ συνταγές`;
+  // Premium: start trial on first launch, render banner
+  startTrial();
+  renderTrialBanner();
   applyTheme('all');
   renderMeals('all');
   rendFest('all');
