@@ -2902,7 +2902,7 @@ async function toggleNotif(){
   if(!tog.checked){
     if(!('Notification' in window)){alert('Browser δεν υποστηρίζει ειδοποιήσεις.');return;}
     const p=await Notification.requestPermission();
-    if(p==='granted'){tog.checked=true;document.getElementById('bell').classList.add('on');localStorage.setItem('notif_on','true');startNotifTimer();scheduleSwDailyNotif();showToast('✅ Ειδοποιήσεις ενεργοποιήθηκαν!');}
+    if(p==='granted'){tog.checked=true;document.getElementById('bell').classList.add('on');localStorage.setItem('notif_on','true');startNotifTimer();scheduleSwDailyNotif();const _t=localStorage.getItem('notif_time')||'09:00';storeNotifPrefsForSW(_t,'true');registerPeriodicSync();showToast('✅ Ειδοποιήσεις ενεργοποιήθηκαν!');}
     else showToast('⚠️ Δεν δόθηκε άδεια');
   } else {tog.checked=false;document.getElementById('bell').classList.remove('on');localStorage.setItem('notif_on','false');showToast('Απενεργοποιήθηκαν');}
 }

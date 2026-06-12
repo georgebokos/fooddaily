@@ -1,5 +1,5 @@
 // FoodDaily Service Worker v2.3
-const VERSION = '2026-06-12-12';
+const VERSION = '2026-06-12-13';
 const CACHE = `fooddaily-${VERSION}`;
 const ASSETS = [
   '/',
@@ -165,13 +165,20 @@ self.addEventListener('periodicsync', e => {
           }
         }
 
-        // ── Daily meal suggestion (7:00–23:00) ───────────────────
-        if (nowH >= 23 || nowH < 7) return;
+        // ── Daily meal suggestion — respect user's scheduled time ────
+        if (nowH >= 23 || nowH < 6) return;
 
         const resp = await cache.match('/fd-notif-prefs');
         if (!resp) return;
         const prefs = await resp.json();
         if (prefs.on !== 'true') return;
+
+        // Don't fire before the user's chosen time
+        const now = new Date();
+        const [schedH, schedM] = (prefs.time || '09:00').split(':').map(Number);
+        const nowMins  = nowH * 60 + now.getMinutes();
+        const schedMins = schedH * 60 + schedM;
+        if (nowMins < schedMins) return;
 
         const lastResp = await cache.match('/fd-notif-last');
         if (lastResp && (await lastResp.text()) === today) return;
