@@ -1106,7 +1106,7 @@ function estimateMacros(m){
     meat:[.35,.38,.27],seafood:[.45,.22,.33],pasta:[.14,.18,.68],
     legumes:[.24,.12,.64],vegetables:[.13,.38,.49],salads:[.11,.52,.37],
     soups:[.19,.24,.57],sauces:[.04,.68,.28],pites:[.14,.34,.52]
-  }[m.cats[0]]||[.20,.30,.50];
+  }[(m.cats&&m.cats[0])||'']||[.20,.30,.50];
   return{
     prot:Math.round(cal*r[0]/4),
     fat:Math.round(cal*r[1]/9),
@@ -1134,7 +1134,7 @@ function getCurrentSeason(){
 }
 function buildSeasonalGuide(){
   const s=getCurrentSeason();
-  const g=SEASONAL_GUIDE[s];
+  const g=SEASONAL_GUIDE[s]||SEASONAL_GUIDE.winter;
   return`<div class="sea-guide">
     <div class="sea-guide-lbl">Τώρα στην εποχή τους</div>
     <div class="sea-guide-title">${g.ico} ${g.name}</div>
@@ -1713,6 +1713,7 @@ function selMode(mode,btn){
     document.querySelectorAll('.sec').forEach(s=>s.classList.remove('show'));
     const sd=document.getElementById('s-daily');if(sd)sd.classList.add('show');
     document.querySelectorAll('.bntab').forEach(b=>b.classList.remove('on'));
+    document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('on'));
     const bd=document.getElementById('bnt-daily');if(bd)bd.classList.add('on');
   }
   if(mode==='quick'){
@@ -1823,8 +1824,8 @@ function renderMeals(cat){
     pool=pool.filter(m=>m.cats.includes(cat)&&!m.quickOnly);
   }
   // Apply dislikes filter
-  const dislikes=getDislikes();
-  if(dislikes.length&&(cat==='all'||cat==='quick')){
+  const dislikes=isPremium()?getDislikes():[];
+  if(dislikes.length&&(cat==='all'||cat==='quick'||cat==='vegan')){
     pool=pool.filter(m=>{
       if(dislikes.includes('meat')&&m.cats.includes('meat')&&!m.cats.includes('pites'))return false;
       if(dislikes.includes('seafood')&&m.cats.includes('seafood'))return false;
@@ -1870,7 +1871,7 @@ function renderMeals(cat){
         const planStatus=todayPlan[m.id];
         const actHtml=planStatus==='plan'?`<span class="thumb-planned">✓ Θα το φτιάξω!</span>`:`<button class="thumb-up" onclick="thumbUp('${m.id}',event)">👍 Θα το φτιάξω!</button><button class="thumb-dn" onclick="thumbDown('${m.id}',event)">👎</button>`;
         return `<div class="mcard" data-mid="${m.id}" onclick="openR('${m.id}')">
-          <div class="mtop" style="background:${bg}"><div class="memoji">${m.e}</div><div class="mtop-grad"></div><div class="mtop-badge"><span class="badge ${cl}">${catLabel(m.cats[0])}</span></div></div>
+          <div class="mtop" style="background:${bg}"><div class="memoji">${m.e}</div><div class="mtop-grad"></div><div class="mtop-badge"><span class="badge ${cl}">${catLabel(m.cats[0])}</span></div>${m.vegan?'<div class="mc-vegan">🌱 Vegan</div>':''}</div>
           <div class="mbtm"><div class="mname-row"><div class="mname">${mealName(m)}</div><button class="fav-btn-sm" data-id="${m.id}" onclick="toggleFav('${m.id}',event)">❤️</button></div>
           <div class="mmeta">⏱ ${m.time}' &nbsp;🔥 ${m.cal} &nbsp;💰 ${m.cps||'~2€'}${t('per_srv')}</div>
           <div class="card-actions" id="ca-${m.id}">${actHtml}</div></div></div>`;
@@ -1967,13 +1968,19 @@ function renderMeals(cat){
     </div>`;
   }).join('');
 
-  // Reminder
+  // Reminder — only meaningful in the 'all' daily view
   const rw=document.getElementById('remind-wrap');
-  const nf=!recIds(5).some(id=>MEALS[id]?.cats.includes('seafood'));
-  const nl=!recIds(5).some(id=>MEALS[id]?.cats.includes('legumes'));
-  rw.innerHTML=nf||nl
-    ?`<div class="remind">⚠️ <span style="font-size:13px;color:var(--pri);font-weight:500;">${t('remind')}</span>${nf?`<button class="rpill" onclick="selCat('seafood',null)">🐟</button>`:''} ${nl?`<button class="rpill" onclick="selCat('legumes',null)">🫘</button>`:''}</div>`
-    :'';
+  if(rw){
+    if(cat==='all'){
+      const nf=!recIds(5).some(id=>MEALS[id]?.cats.includes('seafood'));
+      const nl=!recIds(5).some(id=>MEALS[id]?.cats.includes('legumes'));
+      rw.innerHTML=nf||nl
+        ?`<div class="remind">⚠️ <span style="font-size:13px;color:var(--pri);font-weight:500;">${t('remind')}</span>${nf?`<button class="rpill" onclick="selCat('seafood',null)">🐟</button>`:''} ${nl?`<button class="rpill" onclick="selCat('legumes',null)">🫘</button>`:''}</div>`
+        :'';
+    }else{
+      rw.innerHTML='';
+    }
+  }
 }
 
 function reshuffle(){renderMeals(curCat);}
@@ -2041,6 +2048,7 @@ function openSW(cat,idx){
     <div class="ovhero-grad"></div>
     <div class="ovtitle"><h2>${s.n}</h2></div>`;
   _guestScale=1;_curSrv=0;
+  const nutrSW=document.getElementById('ov-nutr');if(nutrSW)nutrSW.innerHTML='';
   document.getElementById('ov-stats').innerHTML=`<div class="ovstat"><label>${t('cal')}</label><span>${s.cal} / μερ.</span></div><div class="ovstat"><label>${t('srv')}</label><span>${s.srv}</span></div>`;
   buildIngTab(s);buildStepsTab(s);
   document.getElementById('ot-pair').innerHTML=`<a class="ext-btn" href="https://www.google.com/search?q=${encodeURIComponent(s.q+' συνταγή')}" target="_blank">${t('ext')}</a>`;
