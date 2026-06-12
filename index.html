@@ -1597,15 +1597,15 @@ function addTag(){
 document.getElementById('fridge-inp').addEventListener('keydown',e=>{if(e.key==='Enter')addTag();});
 
 function smartFridge(){
-  const tags=Array.from(document.querySelectorAll('#tags .tag')).map(x=>x.textContent.replace('×','').trim().toLowerCase());
+  const tags=Array.from(document.querySelectorAll('#tags .tag')).map(x=>deaccent(x.textContent.replace('×','').trim()));
   const res=document.getElementById('fridge-res');
   if(!tags.length){res.innerHTML='';return;}
   const scored=Object.entries(MEALS)
     .map(([id,m])=>{
-      const ingAll=m.ing.join(' ').toLowerCase();
-      const matched=tags.filter(tg=>ingAll.includes(tg)||tg.split(' ').some(w=>w.length>2&&ingAll.includes(w)));
+      const ingAll=deaccent(m.ing.join(' '));
+      const matched=tags.filter(tg=>tg.length>1&&(ingAll.includes(tg)||tg.split(' ').some(w=>w.length>2&&ingAll.includes(w))));
       if(!matched.length)return null;
-      const missing=m.ing.filter(i=>!tags.some(tg=>i.toLowerCase().includes(tg)&&tg.length>2)).slice(0,3);
+      const missing=m.ing.filter(i=>!tags.some(tg=>deaccent(i).includes(tg)&&tg.length>2)).slice(0,3);
       const pct=Math.min(100,Math.round(matched.length/Math.max(tags.length,m.ing.length*0.35)*100));
       return{id,m,score:matched.length,pct,matched,missing};
     })
@@ -1896,9 +1896,11 @@ function doSearch(q){
   }
   const dq=deaccent(q.trim());
   const results=[];
-  // Search MEALS
+  // Search MEALS — by name or ingredient
   for(const[id,m] of Object.entries(MEALS)){
-    if(deaccent(m.n).includes(dq)||deaccent(m.en||'').includes(dq)){
+    const nameMatch=deaccent(m.n).includes(dq)||deaccent(m.en||'').includes(dq);
+    const ingMatch=m.ing&&deaccent(m.ing.join(' ')).includes(dq);
+    if(nameMatch||ingMatch){
       results.push({type:'meal',id,name:mealName(m),emoji:m.e,cat:catLabel(m.cats[0]),onclick:`openR('${id}')`});
     }
   }
