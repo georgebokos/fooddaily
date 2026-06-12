@@ -3436,6 +3436,13 @@ function closeProfile(){
     registerPeriodicSync();
     document.getElementById('bell').classList.add('on');
     syncNotifLastFromSW().then(()=>checkMissedNotif());
+    // Catch-up: αν η εφαρμογή ήταν στο background και ο χρήστης επιστρέψει
+    document.addEventListener('visibilitychange',()=>{
+      if(!document.hidden&&localStorage.getItem('notif_on')==='true'&&Notification.permission==='granted'){
+        syncNotifLastFromSW().then(()=>checkMissedNotif());
+        scheduleSwDailyNotif();
+      }
+    });
   }
   // Service Worker registration
   if('serviceWorker' in navigator){

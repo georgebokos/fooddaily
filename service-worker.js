@@ -1,5 +1,5 @@
 // FoodDaily Service Worker v2.3
-const VERSION = '2026-06-12-11';
+const VERSION = '2026-06-12-12';
 const CACHE = `fooddaily-${VERSION}`;
 const ASSETS = [
   '/',
@@ -176,17 +176,19 @@ self.addEventListener('periodicsync', e => {
         const lastResp = await cache.match('/fd-notif-last');
         if (lastResp && (await lastResp.text()) === today) return;
 
-        await self.registration.showNotification('🍽️ FoodDaily', {
-          body: 'Τι μαγειρεύουμε σήμερα; Δες τις προτάσεις σου!',
-          icon: '/icon-192.png',
-          badge: '/icon-96.png',
-          tag: 'fd-meal-daily',
-          vibrate: [200, 100, 200]
-        });
-
-        await cache.put('/fd-notif-last',
-          new Response(today, { headers: { 'Content-Type': 'text/plain' } })
-        );
+        // Only mark as sent if notification actually shows — prevents blocking future attempts
+        try {
+          await self.registration.showNotification('🍽️ FoodDaily', {
+            body: 'Τι μαγειρεύουμε σήμερα; Δες τις προτάσεις σου!',
+            icon: '/icon-192.png',
+            badge: '/icon-96.png',
+            tag: 'fd-meal-daily',
+            vibrate: [200, 100, 200]
+          });
+          await cache.put('/fd-notif-last',
+            new Response(today, { headers: { 'Content-Type': 'text/plain' } })
+          );
+        } catch(notifErr) { /* leave notif-last unset so next sync retries */ }
       } catch (err) {}
     })());
   }
