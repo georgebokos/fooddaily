@@ -2378,11 +2378,18 @@ function startStepTimer(btn,minutes){
   };
   _timerInterval=setInterval(tick,500);
 }
-// Όταν ξεκλειδώσει το τηλέφωνο, ελέγχει αν ο timer έληξε εν τω μεταξύ
+// Visibility changes: catchup on unlock, re-show notification on minimize
 document.addEventListener('visibilitychange',()=>{
-  if(!document.hidden&&_timerEndTime&&_timerBtn){
-    const rem=Math.ceil((_timerEndTime-Date.now())/1000);
-    if(rem<=0)_timerFireDone(_timerBtn);
+  if(!document.hidden){
+    // Phone unlocked or app foregrounded — check if timer expired while away
+    if(_timerEndTime&&_timerBtn){
+      const rem=Math.ceil((_timerEndTime-Date.now())/1000);
+      if(rem<=0)_timerFireDone(_timerBtn);
+    }
+  } else {
+    // App minimized — ask SW to re-show running notification (unless user dismissed it)
+    if(_timerEndTime&&_timerEndTime>Date.now()&&navigator.serviceWorker&&navigator.serviceWorker.controller)
+      navigator.serviceWorker.controller.postMessage({type:'TIMER_APP_HIDDEN'});
   }
 });
 

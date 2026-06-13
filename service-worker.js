@@ -1,5 +1,5 @@
-// FoodDaily Service Worker v2.5
-const VERSION = '2026-06-13-02';
+// FoodDaily Service Worker v2.6
+const VERSION = '2026-06-13-03';
 const CACHE = `fooddaily-${VERSION}`;
 const ASSETS = [
   '/',
@@ -82,6 +82,7 @@ self.addEventListener('message', e => {
     self._timerMealId = e.data.mealId || '';
     self._timerStepIdx = e.data.stepIdx || 0;
     self._timerLastMins = Math.ceil(e.data.delay / 60000);
+    self._timerNotifDismissed = false; // reset so re-show works for new timer
 
     const _showRunning = mins => self.registration.showNotification('⏱️ Timer FoodDaily', {
       body: `Απομένουν ${mins} λεπτ${mins === 1 ? 'ό' : 'ά'}…`,
@@ -127,8 +128,24 @@ self.addEventListener('message', e => {
     if (self._timerTo) { clearTimeout(self._timerTo); self._timerTo = null; }
     if (self._timerPoll) { clearInterval(self._timerPoll); self._timerPoll = null; }
     self._timerEnd = null;
+    self._timerNotifDismissed = false;
     self.registration.getNotifications({ tag: 'fd-timer' })
       .then(notifs => notifs.forEach(n => n.close()));
+  }
+
+  // App was minimised — re-show running notification unless user dismissed it
+  if (e.data.type === 'TIMER_APP_HIDDEN') {
+    if (self._timerEnd && Date.now() < self._timerEnd && !self._timerNotifDismissed) {
+      const remMins = Math.ceil((self._timerEnd - Date.now()) / 60000);
+      self.registration.showNotification('⏱️ Timer FoodDaily', {
+        body: `Απομένουν ${remMins} λεπτ${remMins === 1 ? 'ό' : 'ά'}…`,
+        icon: '/icon-192.png',
+        badge: '/icon-96.png',
+        tag: 'fd-timer',
+        silent: true,
+        requireInteraction: true
+      });
+    }
   }
 
   // Page requests any pending navigation (e.g. opened via timer notification tap)
@@ -159,6 +176,13 @@ self.addEventListener('message', e => {
 
   if (e.data.type === 'CANCEL_DAILY_NOTIF') {
     if (self._dailyNotifTo) { clearTimeout(self._dailyNotifTo); self._dailyNotifTo = null; }
+  }
+});
+
+// Notification dismissed by swipe — if timer still running, mark so we don't re-show
+self.addEventListener('notificationclose', e => {
+  if (e.notification.tag === 'fd-timer' && self._timerEnd && Date.now() < self._timerEnd) {
+    self._timerNotifDismissed = true;
   }
 });
 
