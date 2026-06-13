@@ -1879,6 +1879,8 @@ function renderMeals(cat){
   const grid=document.getElementById('meals-grid');
 
   if(cat==='favs'){
+    // Clear featured card — it belongs to the 'all' view only
+    const fwFav=document.getElementById('featured-wrap');if(fwFav)fwFav.innerHTML='';
     const allFavIds=getFavs();
     const mealFavIds=allFavIds.filter(id=>!id.startsWith('sw:'));
     const sweetFavIds=allFavIds.filter(id=>id.startsWith('sw:'));
@@ -3168,10 +3170,12 @@ function showSec(id,btn){
   // Update shortcuts active state
   if(id==='fridge'){const hf=document.getElementById('hshct-fridge');if(hf)hf.classList.add('on');}
   else if(id==='daily'){const hd=document.getElementById('hshct-daily');if(hd)hd.classList.add('on');}
-  // Tapping "Συνταγές" tab always resets to all-categories view and scrolls to top
+  // Tapping "Συνταγές" tab always resets to all-categories view and scrolls to categories
   if(id==='daily'){
     selCat('all',document.getElementById('cpill-all'));
-    window.scrollTo({top:0,behavior:'smooth'});
+    const catWrap=document.querySelector('.cat-row-wrap');
+    if(catWrap)catWrap.scrollIntoView({behavior:'smooth',block:'start'});
+    else window.scrollTo({top:0,behavior:'smooth'});
   }
 }
 
