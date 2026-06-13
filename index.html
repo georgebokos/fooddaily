@@ -76,14 +76,14 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .bell-dot{position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:#EF4444;border:2px solid var(--bg);}
 .vst{font-size:11px;color:var(--t3);}
 /* BOTTOM NAV */
-.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:700px;z-index:150;background:rgba(251,245,236,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1.5px solid rgba(0,0,0,.09);display:flex;justify-content:space-around;align-items:stretch;padding:6px 0 max(8px,env(safe-area-inset-bottom));}
-.bntab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 4px 2px;border:none;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;color:var(--t3);-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:700px;z-index:150;background:rgba(10,10,10,.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1.5px solid rgba(255,255,255,.08);display:flex;justify-content:space-around;align-items:stretch;padding:6px 0 max(8px,env(safe-area-inset-bottom));}
+.bntab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 4px 2px;border:none;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;color:rgba(255,255,255,.45);-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
 .bntab-ico{font-size:22px;line-height:1;}
 .bntab-lbl{font-size:10px;font-weight:600;letter-spacing:.01em;}
-.bntab.on{color:#111;}
+.bntab.on{color:#fff;}
 .bntab.on .bntab-ico{transform:translateY(-2px);}
-[data-theme="dark"] .bnav{background:rgba(20,18,15,.92);border-top-color:rgba(255,255,255,.08);}
-[data-theme="dark"] .bntab{color:var(--t3);}
+[data-theme="dark"] .bnav{background:rgba(10,10,10,.97);border-top-color:rgba(255,255,255,.08);}
+[data-theme="dark"] .bntab{color:rgba(255,255,255,.45);}
 [data-theme="dark"] .bntab.on{color:#fff;}
 /* Hero shortcuts strip */
 .hero-shcts{display:flex;gap:8px;padding:10px 1.1rem 4px;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap;touch-action:pan-x;}
