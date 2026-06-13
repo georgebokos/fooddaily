@@ -1932,6 +1932,8 @@ function renderMeals(cat){
   }
 
   let show;
+  const _clog=getCookedLog();
+  const _cookedRecently=id=>_clog[id]&&(Date.now()-_clog[id])<7*86400000;
   if(cat==='quick'){
     // quickOnly pantry meals first (sorted by time), then genuinely fast existing meals (≤20 min)
     const qOnly=pool.filter(m=>m.quickOnly).sort((a,b)=>parseInt(a.time)-parseInt(b.time));
@@ -1940,12 +1942,12 @@ function renderMeals(cat){
   }else{
     const dow=new Date().getDay();
     const isSunday=dow===0;
-    const fresh=pool.filter(m=>!rids.includes(m.id)).sort((a,b)=>{
+    const fresh=pool.filter(m=>!rids.includes(m.id)&&!_cookedRecently(m.id)).sort((a,b)=>{
       const pa=MEAL_PRIORITY[a.id]||2, pb=MEAL_PRIORITY[b.id]||2;
       if(isSunday) return (pb-pa)||(Math.random()-.5);
       return (pa-pb)||(Math.random()-.5);
     });
-    const old=pool.filter(m=>rids.includes(m.id));
+    const old=pool.filter(m=>rids.includes(m.id)&&!_cookedRecently(m.id));
     // Salads are sides — never feature them first
     const allShow=[...fresh,...old].slice(0,8);
     const nonSalads=allShow.filter(m=>!m.cats.includes('salads'));
