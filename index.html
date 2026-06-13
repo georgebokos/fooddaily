@@ -1024,7 +1024,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
       <input type="time" id="nt2" value="12:00" style="display:none">
       <input type="time" id="nt3" value="18:00" style="display:none">
     </div>
-    <div id="nmod-status" style="font-size:12px;color:var(--t3);padding:6px 0 2px;text-align:center;min-height:18px"></div>
+    <div id="nmod-status" style="display:none"></div>
     <div class="nmod-btns">
       <button class="nmod-save" onclick="saveNotif()">Αποθήκευση</button>
       <button class="nmod-cls" onclick="closeNotif()">Άκυρο</button>
@@ -2856,22 +2856,6 @@ function openNmod(){
   const ntog=document.getElementById('ntog');if(ntog)ntog.checked=on;
   document.getElementById('bell').classList.toggle('on',on);
   document.getElementById('ntime').value=localStorage.getItem('notif_time')||'09:00';
-  // Show background sync status
-  (async()=>{
-    const el=document.getElementById('nmod-status');
-    if(!el)return;
-    if(!('serviceWorker' in navigator)){el.textContent='⚠️ Service worker δεν υποστηρίζεται';return;}
-    try{
-      const reg=await navigator.serviceWorker.ready;
-      if(!('periodicSync' in reg)){el.textContent='⚠️ Background sync δεν υποστηρίζεται σε αυτή τη συσκευή';return;}
-      const tags=await reg.periodicSync.getTags();
-      if(tags.includes('fd-daily-notif')){
-        el.textContent='✅ Background sync ενεργό — ειδοποίηση μία φορά την ημέρα';
-      }else{
-        el.textContent='⚠️ Background sync δεν είναι ενεργό';
-      }
-    }catch(e){el.textContent='';}
-  })();
 }
 function closeNmod(){document.getElementById('nmod').style.display='none';const fab=document.querySelector('.fab-recipe');if(fab)fab.style.display='';}
 function openNotif(){openNmod();}
