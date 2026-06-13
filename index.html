@@ -454,6 +454,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .urform textarea{min-height:80px;resize:vertical;}
 .urform-btns{display:flex;gap:10px;margin-top:16px;}
 .urform-submit{flex:1;padding:13px;background:var(--pri);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;}
+.urform-submit:disabled{background:var(--bd);color:var(--t3);cursor:not-allowed;}
 .urform-cancel{padding:13px 20px;border:1.5px solid var(--bd);border-radius:12px;background:transparent;color:var(--t3);font-size:14px;cursor:pointer;}
 .urform-note{font-size:12px;color:var(--t2);background:rgba(58,117,88,.07);border-left:3px solid var(--pri);padding:8px 10px;border-radius:0 8px 8px 0;margin-bottom:14px;line-height:1.55;}
 .urform-check-row{display:flex;align-items:center;gap:10px;margin-top:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
@@ -955,7 +956,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
     </div>
     <div class="urform-btns">
       <button class="urform-cancel" onclick="closeUrform()">Άκυρο</button>
-      <button class="urform-submit" onclick="submitUserRecipe()">📤 Αποστολή</button>
+      <button class="urform-submit" id="ur-submit" onclick="submitUserRecipe()" disabled>📤 Αποστολή</button>
     </div>
   </div>
 </div>
@@ -2456,7 +2457,16 @@ function buildNotesTab(m){
 }
 
 // ── USER RECIPE FORM ────────────────────────────────────────────
-function openUrform(){document.getElementById('urform').classList.add('show');document.body.style.overflow='hidden';}
+function _urCheckReady(){
+  const ok=['ur-name','ur-ing','ur-steps'].every(id=>document.getElementById(id)?.value.trim());
+  const btn=document.getElementById('ur-submit');if(btn)btn.disabled=!ok;
+}
+function openUrform(){
+  document.getElementById('urform').classList.add('show');
+  document.body.style.overflow='hidden';
+  ['ur-name','ur-ing','ur-steps'].forEach(id=>document.getElementById(id)?.addEventListener('input',_urCheckReady));
+  _urCheckReady();
+}
 function closeUrform(){document.getElementById('urform').classList.remove('show');document.body.style.overflow='';}
 
 let _urPhoto=null;
@@ -2506,6 +2516,7 @@ async function submitUserRecipe(){
     const cb=document.getElementById('ur-trad');if(cb)cb.checked=false;
     document.getElementById('ur-trad-region')?.classList.remove('show');
     removePhoto();
+    const btn=document.getElementById('ur-submit');if(btn)btn.disabled=true;
   };
 
   // Primary: Web Share API — passes Unicode directly, attaches photo if present
