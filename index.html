@@ -3286,6 +3286,9 @@ function selGuest(n,btn){
   // Shuffle within each tier for variety
   const shuffle=a=>[...a].sort(()=>Math.random()-.5);
   const pool=[...shuffle(pick(P4)),...shuffle(pick(P3)),...shuffle(pick(P2))].slice(0,9);
+  // Αρνί στη σούβλα — ειδική περίσταση, εμφανίζεται πάντα τελευταίο
+  const suvIdx=pool.indexOf('arni_souvia');
+  if(suvIdx>-1){pool.splice(suvIdx,1);pool.push('arni_souvia');}
 
   // Section hints based on group size
   const hint= n<=2 ? '🍽️ Για ρομαντικό δείπνο ή μικρή παρέα'
