@@ -1,5 +1,5 @@
-// FoodDaily Service Worker v2.3
-const VERSION = '2026-06-12-07';
+// FoodDaily Service Worker v2.8
+const VERSION = '2026-06-13-05';
 const CACHE = `fooddaily-${VERSION}`;
 const ASSETS = [
   '/',
@@ -56,9 +56,46 @@ self.addEventListener('fetch', e => {
   );
 });
 
+// ── TIMER HELPERS (module-level so TIMER_PING can also call them) ──────────
+// Running notification uses a SEPARATE tag so the done notification is always NEW
+// (same tag = Android treats done as an update → no sound)
+const _swShowRunning = rem => {
+  const mins = Math.floor(rem / 60000);
+  const secs = Math.floor((rem % 60000) / 1000);
+  const body = mins > 0
+    ? `Απομένουν ${mins}:${String(secs).padStart(2, '0')}…`
+    : `Απομένουν ${secs} δλ…`;
+  return self.registration.showNotification('⏱️ Timer FoodDaily', {
+    body,
+    icon: '/icon-192.png',
+    badge: '/icon-96.png',
+    tag: 'fd-timer-run',
+    silent: true,
+    requireInteraction: true
+  });
+};
+
+const _swFireDone = () => {
+  if (self._timerPoll) { clearInterval(self._timerPoll); self._timerPoll = null; }
+  if (self._timerTo)   { clearTimeout(self._timerTo);    self._timerTo   = null; }
+  // Close the running notification first so done is always a fresh NEW notification
+  self.registration.getNotifications({ tag: 'fd-timer-run' })
+    .then(ns => ns.forEach(n => n.close()));
+  self.registration.showNotification('⏱️ FoodDaily — Timer', {
+    body: 'Ο χρόνος τελείωσε! Δες το επόμενο βήμα.',
+    icon: '/icon-192.png',
+    badge: '/icon-96.png',
+    tag: 'fd-timer',
+    vibrate: [300, 150, 300, 150, 300],
+    requireInteraction: true
+  });
+};
+
 // Message from page: show a notification (most reliable on Android TWA)
 self.addEventListener('message', e => {
-  if (e.data && e.data.type === 'SHOW_NOTIFICATION') {
+  if (!e.data) return;
+
+  if (e.data.type === 'SHOW_NOTIFICATION') {
     e.waitUntil(
       self.registration.showNotification(e.data.title, {
         body: e.data.body,
@@ -70,14 +107,111 @@ self.addEventListener('message', e => {
       })
     );
   }
+
+  // Step-timer: persistent notification + 2-second poll + keepalive pings from page
+  if (e.data.type === 'SCHEDULE_TIMER') {
+    if (self._timerTo) { clearTimeout(self._timerTo); self._timerTo = null; }
+    if (self._timerPoll) { clearInterval(self._timerPoll); self._timerPoll = null; }
+    self._timerEnd = Date.now() + e.data.delay;
+    self._timerMealId = e.data.mealId || '';
+    self._timerStepIdx = e.data.stepIdx || 0;
+    self._timerNotifDismissed = false;
+    self._timerLastNotifRem = e.data.delay;
+
+    // Immediate notification — prevents Android from killing the SW
+    e.waitUntil(_swShowRunning(e.data.delay));
+
+    // Poll every 2 s: check expiry + update display every ~15 s
+    self._timerPoll = setInterval(() => {
+      const rem = self._timerEnd - Date.now();
+      if (rem <= 0) { _swFireDone(); return; }
+      if (self._timerLastNotifRem - rem >= 15000) {
+        self._timerLastNotifRem = rem;
+        _swShowRunning(rem);
+      }
+    }, 2000);
+
+    // Primary trigger at exact time
+    self._timerTo = setTimeout(_swFireDone, e.data.delay);
+  }
+
+  if (e.data.type === 'CANCEL_TIMER') {
+    if (self._timerTo) { clearTimeout(self._timerTo); self._timerTo = null; }
+    if (self._timerPoll) { clearInterval(self._timerPoll); self._timerPoll = null; }
+    self._timerEnd = null;
+    self._timerNotifDismissed = false;
+    ['fd-timer-run','fd-timer'].forEach(tag =>
+      self.registration.getNotifications({ tag }).then(ns => ns.forEach(n => n.close()))
+    );
+  }
+
+  // App minimised — re-show notification (unless user dismissed it)
+  if (e.data.type === 'TIMER_APP_HIDDEN') {
+    if (self._timerEnd && !self._timerNotifDismissed) {
+      const rem = self._timerEnd - Date.now();
+      if (rem > 0) _swShowRunning(rem);
+      else _swFireDone(); // expired while we were deciding
+    }
+  }
+
+  // Keepalive ping from page every ~20 s — wakes SW, checks if timer already expired
+  if (e.data.type === 'TIMER_PING') {
+    if (self._timerEnd && Date.now() >= self._timerEnd) _swFireDone();
+  }
+
+  // Page requests any pending navigation (e.g. opened via timer notification tap)
+  if (e.data.type === 'GET_PENDING_NAV') {
+    if (self._pendingTimerNav && e.source) {
+      e.source.postMessage(self._pendingTimerNav);
+      self._pendingTimerNav = null;
+    }
+  }
+
+  // Daily meal suggestion notification — scheduled via setTimeout so it fires even with app closed.
+  // The page sends this on every app-open; the SW reschedules automatically every 24h.
+  if (e.data.type === 'SCHEDULE_DAILY_NOTIF') {
+    if (self._dailyNotifTo) clearTimeout(self._dailyNotifTo);
+    const fireAndReschedule = () => {
+      self.registration.showNotification('🍽️ FoodDaily', {
+        body: 'Τι μαγειρεύουμε σήμερα; Δες τις προτάσεις σου!',
+        icon: '/icon-192.png',
+        badge: '/icon-96.png',
+        tag: 'fd-meal-daily',
+        vibrate: [200, 100, 200],
+        requireInteraction: false
+      });
+      self._dailyNotifTo = setTimeout(fireAndReschedule, 24 * 60 * 60 * 1000);
+    };
+    self._dailyNotifTo = setTimeout(fireAndReschedule, e.data.delay);
+  }
+
+  if (e.data.type === 'CANCEL_DAILY_NOTIF') {
+    if (self._dailyNotifTo) { clearTimeout(self._dailyNotifTo); self._dailyNotifTo = null; }
+  }
 });
 
-// Notification click: open or focus the app
+// Notification dismissed by swipe — if timer still running, mark so we don't re-show
+self.addEventListener('notificationclose', e => {
+  // User swiped away the running notification — stop re-showing it
+  if (e.notification.tag === 'fd-timer-run' && self._timerEnd && Date.now() < self._timerEnd) {
+    self._timerNotifDismissed = true;
+  }
+});
+
+// Notification click: open or focus the app; for timer taps navigate to the recipe step
 self.addEventListener('notificationclick', e => {
   e.notification.close();
+  const isTimer = e.notification.tag === 'fd-timer' || e.notification.tag === 'fd-timer-run';
   e.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cls => {
       const existing = cls.find(c => c.url.includes(self.location.origin));
+      if (isTimer && self._timerMealId) {
+        const msg = { type: 'OPEN_TIMER_STEP', mealId: self._timerMealId, stepIdx: self._timerStepIdx || 0 };
+        if (existing) { existing.postMessage(msg); return existing.focus(); }
+        // App was closed — store nav, open app; page will request it via GET_PENDING_NAV
+        self._pendingTimerNav = msg;
+        return clients.openWindow('/');
+      }
       if (existing) return existing.focus();
       return clients.openWindow('/');
     })
@@ -122,28 +256,37 @@ self.addEventListener('periodicsync', e => {
           }
         }
 
-        // ── Daily meal suggestion (7:00–23:00) ───────────────────
-        if (nowH >= 23 || nowH < 7) return;
+        // ── Daily meal suggestion — respect user's scheduled time ────
+        if (nowH >= 23 || nowH < 6) return;
 
         const resp = await cache.match('/fd-notif-prefs');
         if (!resp) return;
         const prefs = await resp.json();
         if (prefs.on !== 'true') return;
 
+        // Don't fire before the user's chosen time
+        const now = new Date();
+        const [schedH, schedM] = (prefs.time || '09:00').split(':').map(Number);
+        const nowMins  = nowH * 60 + now.getMinutes();
+        const schedMins = schedH * 60 + schedM;
+        if (nowMins < schedMins) return;
+
         const lastResp = await cache.match('/fd-notif-last');
         if (lastResp && (await lastResp.text()) === today) return;
 
-        await self.registration.showNotification('🍽️ FoodDaily', {
-          body: 'Τι μαγειρεύουμε σήμερα; Δες τις προτάσεις σου!',
-          icon: '/icon-192.png',
-          badge: '/icon-96.png',
-          tag: 'fd-meal-daily',
-          vibrate: [200, 100, 200]
-        });
-
-        await cache.put('/fd-notif-last',
-          new Response(today, { headers: { 'Content-Type': 'text/plain' } })
-        );
+        // Only mark as sent if notification actually shows — prevents blocking future attempts
+        try {
+          await self.registration.showNotification('🍽️ FoodDaily', {
+            body: 'Τι μαγειρεύουμε σήμερα; Δες τις προτάσεις σου!',
+            icon: '/icon-192.png',
+            badge: '/icon-96.png',
+            tag: 'fd-meal-daily',
+            vibrate: [200, 100, 200]
+          });
+          await cache.put('/fd-notif-last',
+            new Response(today, { headers: { 'Content-Type': 'text/plain' } })
+          );
+        } catch(notifErr) { /* leave notif-last unset so next sync retries */ }
       } catch (err) {}
     })());
   }
