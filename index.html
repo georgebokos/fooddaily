@@ -451,11 +451,17 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .urform.show{display:flex;}
 .urform-inner{background:var(--bg);border-radius:20px 20px 0 0;padding:20px 20px 36px;width:100%;max-width:560px;max-height:85vh;overflow-y:auto;}
 .urform-t{font-size:18px;font-weight:700;color:var(--txt);margin-bottom:4px;display:flex;align-items:center;gap:8px;}
-.urform-sub{font-size:13px;color:var(--t3);margin-bottom:16px;}
+.urform-sub{font-size:13px;color:var(--t3);margin-bottom:10px;}
+.urform-note{font-size:12px;color:var(--t2);background:rgba(58,117,88,.07);border-left:3px solid var(--pri);padding:8px 10px;border-radius:0 8px 8px 0;margin-bottom:14px;line-height:1.55;}
 .urform-lbl{font-size:12px;font-weight:600;color:var(--t3);margin-bottom:4px;margin-top:10px;}
 .urform input,.urform textarea{width:100%;padding:10px 12px;border:1.5px solid var(--bd);border-radius:10px;font-size:14px;color:var(--txt);background:var(--bg);font-family:inherit;box-sizing:border-box;}
 .urform input:focus,.urform textarea:focus{outline:none;border-color:var(--pri);}
 .urform textarea{min-height:80px;resize:vertical;}
+.urform-check-row{display:flex;align-items:center;gap:10px;margin-top:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.urform-check-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri);cursor:pointer;flex-shrink:0;}
+.urform-check-lbl{font-size:14px;color:var(--txt);font-weight:600;}
+.urform-trad-region{display:none;}
+.urform-trad-region.show{display:block;}
 .urform-btns{display:flex;gap:10px;margin-top:16px;}
 .urform-submit{flex:1;padding:13px;background:var(--pri);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;}
 .urform-cancel{padding:13px 20px;border:1.5px solid var(--bd);border-radius:12px;background:transparent;color:var(--t3);font-size:14px;cursor:pointer;}
@@ -898,6 +904,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
   <div class="urform-inner">
     <div class="urform-t">👨‍🍳 Η συνταγή σου</div>
     <div class="urform-sub">Στείλε μας τη συνταγή σου και μπορεί να μπει στην εφαρμογή!</div>
+    <div class="urform-note">💡 Προτεραιότητα δίνεται σε συνταγές που <b>δεν υπάρχουν ήδη</b> στην εφαρμογή — μοναδικές, τοπικές ή οικογενειακές.</div>
     <div class="urform-lbl">Όνομα συνταγής *</div>
     <input type="text" id="ur-name" placeholder="π.χ. Μουσακάς της γιαγιάς μου">
     <div class="urform-lbl">Κατηγορία</div>
@@ -908,6 +915,14 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
     <textarea id="ur-steps" placeholder="Ένα βήμα ανά γραμμή"></textarea>
     <div class="urform-lbl">Το όνομά σου (προαιρετικά)</div>
     <input type="text" id="ur-author" placeholder="π.χ. Μαρία από Θεσσαλονίκη">
+    <label class="urform-check-row" for="ur-trad">
+      <input type="checkbox" id="ur-trad" onchange="document.getElementById('ur-trad-region').classList.toggle('show',this.checked)">
+      <span class="urform-check-lbl">🏛️ Παραδοσιακό τόπου</span>
+    </label>
+    <div class="urform-trad-region" id="ur-trad-region">
+      <div class="urform-lbl">Τόπος καταγωγής</div>
+      <input type="text" id="ur-region" placeholder="π.χ. Σύρος, Κρήτη, Ήπειρος, Μακεδονία…">
+    </div>
     <div class="urform-btns">
       <button class="urform-cancel" onclick="closeUrform()">Άκυρο</button>
       <button class="urform-submit" onclick="submitUserRecipe()">📤 Αποστολή</button>
@@ -2449,7 +2464,10 @@ function submitUserRecipe(){
   if(!name||!ing||!steps){showToast('⚠️ Συμπλήρωσε τουλάχιστον όνομα, υλικά και βήματα');return;}
   const cat=document.getElementById('ur-cat').value.trim();
   const author=document.getElementById('ur-author').value.trim();
-  const body=`Συνταγή: ${name}\nΚατηγορία: ${cat}\nΣυντάκτης: ${author}\n\nΥλικά:\n${ing}\n\nΒήματα:\n${steps}`;
+  const isTrad=document.getElementById('ur-trad').checked;
+  const region=document.getElementById('ur-region').value.trim();
+  const tradLine=isTrad?`Παραδοσιακό τόπου: ΝΑΙ${region?' — '+region:''}\n`:'';
+  const body=`Συνταγή: ${name}\nΚατηγορία: ${cat}\nΣυντάκτης: ${author}\n${tradLine}\nΥλικά:\n${ing}\n\nΒήματα:\n${steps}`;
   const mailto=`mailto:g.bokos1984@gmail.com?subject=${encodeURIComponent('FoodDaily - Νέα συνταγή: '+name)}&body=${encodeURIComponent(body)}`;
   window.location.href=mailto;
   closeUrform();
