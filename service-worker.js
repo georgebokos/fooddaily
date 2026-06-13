@@ -1,5 +1,5 @@
-// FoodDaily Service Worker v2.3
-const VERSION = '2026-06-12-13';
+// FoodDaily Service Worker v2.4
+const VERSION = '2026-06-13-01';
 const CACHE = `fooddaily-${VERSION}`;
 const ASSETS = [
   '/',
@@ -73,10 +73,27 @@ self.addEventListener('message', e => {
     );
   }
 
-  // Step-timer: schedule a notification after `delay` ms (works while screen is locked)
+  // Step-timer: show immediate "running" notification (keeps SW alive on Android),
+  // then fire "done" via both setInterval polling and setTimeout.
   if (e.data.type === 'SCHEDULE_TIMER') {
-    if (self._timerTo) clearTimeout(self._timerTo);
-    self._timerTo = setTimeout(() => {
+    if (self._timerTo) { clearTimeout(self._timerTo); self._timerTo = null; }
+    if (self._timerPoll) { clearInterval(self._timerPoll); self._timerPoll = null; }
+    self._timerEnd = Date.now() + e.data.delay;
+    const mins = Math.ceil(e.data.delay / 60000);
+
+    // Immediate visible notification — prevents Android from killing the SW
+    e.waitUntil(self.registration.showNotification('⏱️ Timer FoodDaily', {
+      body: `Αντίστροφη μέτρηση ${mins} λεπτ${mins === 1 ? 'ού' : 'ών'} ξεκίνησε`,
+      icon: '/icon-192.png',
+      badge: '/icon-96.png',
+      tag: 'fd-timer',
+      silent: true,
+      requireInteraction: true
+    }));
+
+    const _fireDone = () => {
+      if (self._timerPoll) { clearInterval(self._timerPoll); self._timerPoll = null; }
+      if (self._timerTo) { clearTimeout(self._timerTo); self._timerTo = null; }
       self.registration.showNotification('⏱️ FoodDaily — Timer', {
         body: 'Ο χρόνος τελείωσε! Δες το επόμενο βήμα.',
         icon: '/icon-192.png',
@@ -85,11 +102,23 @@ self.addEventListener('message', e => {
         vibrate: [300, 150, 300, 150, 300],
         requireInteraction: true
       });
-    }, e.data.delay);
+    };
+
+    // Poll every 5 s — catches expiry even if setTimeout is delayed by Android
+    self._timerPoll = setInterval(() => {
+      if (Date.now() >= self._timerEnd) _fireDone();
+    }, 5000);
+
+    // Primary: fires at exact time
+    self._timerTo = setTimeout(_fireDone, e.data.delay);
   }
 
   if (e.data.type === 'CANCEL_TIMER') {
     if (self._timerTo) { clearTimeout(self._timerTo); self._timerTo = null; }
+    if (self._timerPoll) { clearInterval(self._timerPoll); self._timerPoll = null; }
+    self._timerEnd = null;
+    self.registration.getNotifications({ tag: 'fd-timer' })
+      .then(notifs => notifs.forEach(n => n.close()));
   }
 
   // Daily meal suggestion notification — scheduled via setTimeout so it fires even with app closed.
