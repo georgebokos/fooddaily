@@ -1041,6 +1041,9 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
       <input type="time" id="nt3" value="18:00" style="display:none">
     </div>
     <div id="nmod-status" style="font-size:12px;color:var(--t3);padding:6px 0 2px;text-align:center;min-height:18px"></div>
+    <div style="font-size:11px;color:var(--t3);padding:4px 2px 6px;text-align:center;line-height:1.5">
+      📱 Android: Ρυθμίσεις → Εφαρμογές → FoodDaily → Μπαταρία → <strong>Χωρίς περιορισμούς</strong>
+    </div>
     <div class="nmod-btns">
       <button class="nmod-save" onclick="saveNotif()">Αποθήκευση</button>
       <button class="nmod-cls" onclick="closeNotif()">Άκυρο</button>
@@ -2908,6 +2911,7 @@ async function saveNotif(){
     startNotifTimer();
     storeNotifPrefsForSW(time,'true');
     registerPeriodicSync();
+    scheduleDailyNotifInSW();
     showToast('✅ Ειδοποιήσεις ενεργοποιήθηκαν!');
   } else {
     localStorage.setItem('notif_on','false');
@@ -2965,6 +2969,17 @@ function storeNotifPrefsForSW(time,on){
   caches.open('fd-prefs').then(c=>c.put('/fd-notif-prefs',
     new Response(JSON.stringify({time,on}),{headers:{'Content-Type':'application/json'}})
   ));
+}
+// Tell SW exactly when to fire today's daily notification via SCHEDULE_DAILY_NOTIF.
+// Called on every app open and on save — SW holds the scheduled setTimeout even when app is closed.
+function scheduleDailyNotifInSW(){
+  if(localStorage.getItem('notif_on')!=='true')return;
+  if(Notification.permission!=='granted')return;
+  const now=new Date();
+  const [h,m]=(localStorage.getItem('notif_time')||'09:00').split(':').map(Number);
+  const next=new Date(now);next.setHours(h,m,0,0);
+  if(next<=now)next.setDate(next.getDate()+1);
+  _swSend({type:'SCHEDULE_DAILY_NOTIF',delay:next-now});
 }
 
 // On app open: if scheduled time has passed today with no notification → send now
@@ -3444,6 +3459,7 @@ function closeProfile(){
     const _st=localStorage.getItem('notif_time')||'09:00';
     storeNotifPrefsForSW(_st,'true');
     registerPeriodicSync();
+    scheduleDailyNotifInSW();
     document.getElementById('bell').classList.add('on');
     syncNotifLastFromSW().then(()=>checkMissedNotif());
   }

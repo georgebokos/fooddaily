@@ -1,5 +1,5 @@
-// FoodDaily Service Worker v2.9
-const VERSION = '2026-06-13-06';
+// FoodDaily Service Worker v3.0
+const VERSION = '2026-06-13-07';
 const CACHE = `fooddaily-${VERSION}`;
 const ASSETS = [
   '/',
@@ -59,14 +59,13 @@ self.addEventListener('fetch', e => {
 // ── TIMER HELPERS (module-level so TIMER_PING can also call them) ──────────
 // Running notification uses a SEPARATE tag so the done notification is always NEW
 // (same tag = Android treats done as an update → no sound)
-const _swShowRunning = rem => {
-  const mins = Math.floor(rem / 60000);
-  const secs = Math.floor((rem % 60000) / 1000);
-  const body = mins > 0
-    ? `Απομένουν ${mins}:${String(secs).padStart(2, '0')}…`
-    : `Απομένουν ${secs} δλ…`;
+const _swShowRunning = () => {
+  if (!self._timerEnd) return;
+  const end = new Date(self._timerEnd);
+  const hh = String(end.getHours()).padStart(2, '0');
+  const mm = String(end.getMinutes()).padStart(2, '0');
   return self.registration.showNotification('⏱️ Timer FoodDaily', {
-    body,
+    body: `Τελειώνει στις ${hh}:${mm}`,
     icon: '/icon-192.png',
     badge: '/icon-96.png',
     tag: 'fd-timer-run',
@@ -118,20 +117,14 @@ self.addEventListener('message', e => {
     self._timerMealId = e.data.mealId || '';
     self._timerStepIdx = e.data.stepIdx || 0;
     self._timerNotifDismissed = false;
-    self._timerLastNotifRem = e.data.delay;
 
     // Immediate notification — prevents Android from killing the SW
-    e.waitUntil(_swShowRunning(e.data.delay));
+    e.waitUntil(_swShowRunning());
 
-    // Poll every 2 s: check expiry + update display every ~15 s
+    // Poll every 5 s: only check expiry (display shows absolute time, no updates needed)
     self._timerPoll = setInterval(() => {
-      const rem = self._timerEnd - Date.now();
-      if (rem <= 0) { _swFireDone(); return; }
-      if (self._timerLastNotifRem - rem >= 15000) {
-        self._timerLastNotifRem = rem;
-        _swShowRunning(rem);
-      }
-    }, 2000);
+      if (self._timerEnd - Date.now() <= 0) _swFireDone();
+    }, 5000);
 
     // Primary trigger at exact time
     self._timerTo = setTimeout(_swFireDone, e.data.delay);
@@ -150,9 +143,8 @@ self.addEventListener('message', e => {
   // App minimised — re-show notification (unless user dismissed it)
   if (e.data.type === 'TIMER_APP_HIDDEN') {
     if (self._timerEnd && !self._timerNotifDismissed) {
-      const rem = self._timerEnd - Date.now();
-      if (rem > 0) _swShowRunning(rem);
-      else _swFireDone(); // expired while we were deciding
+      if (self._timerEnd - Date.now() > 0) _swShowRunning();
+      else _swFireDone();
     }
   }
 
@@ -173,15 +165,29 @@ self.addEventListener('message', e => {
   // The page sends this on every app-open; the SW reschedules automatically every 24h.
   if (e.data.type === 'SCHEDULE_DAILY_NOTIF') {
     if (self._dailyNotifTo) clearTimeout(self._dailyNotifTo);
-    const fireAndReschedule = () => {
-      self.registration.showNotification('🍽️ FoodDaily', {
-        body: 'Τι μαγειρεύουμε σήμερα; Δες τις προτάσεις σου!',
-        icon: '/icon-192.png',
-        badge: '/icon-96.png',
-        tag: 'fd-meal-daily',
-        vibrate: [200, 100, 200],
-        requireInteraction: false
-      });
+    const fireAndReschedule = async () => {
+      // Guard: skip if already fired today (page reschedules on every open)
+      const cache = await caches.open('fd-prefs');
+      const today = new Date().toDateString();
+      const lastResp = await cache.match('/fd-notif-last');
+      if (lastResp && (await lastResp.text()) === today) {
+        // Already sent today — schedule for same time tomorrow
+        self._dailyNotifTo = setTimeout(fireAndReschedule, 24 * 60 * 60 * 1000);
+        return;
+      }
+      try {
+        await self.registration.showNotification('🍽️ FoodDaily', {
+          body: 'Τι μαγειρεύουμε σήμερα; Δες τις προτάσεις σου!',
+          icon: '/icon-192.png',
+          badge: '/icon-96.png',
+          tag: 'fd-meal-daily',
+          vibrate: [200, 100, 200],
+          requireInteraction: false
+        });
+        await cache.put('/fd-notif-last',
+          new Response(today, { headers: { 'Content-Type': 'text/plain' } })
+        );
+      } catch(err) { /* leave fd-notif-last unset so next open retries */ }
       self._dailyNotifTo = setTimeout(fireAndReschedule, 24 * 60 * 60 * 1000);
     };
     self._dailyNotifTo = setTimeout(fireAndReschedule, e.data.delay);
