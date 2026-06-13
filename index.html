@@ -2344,7 +2344,20 @@ function rateRecipe(id,stars){
 }
 
 // ── STEP TIMER ─────────────────────────────────────────────────
-let _timerInterval=null,_timerEndTime=null,_timerBtn=null,_timerMealId_page='',_timerStepIdx_page=-1;
+let _timerInterval=null,_timerEndTime=null,_timerBtn=null,_timerMealId_page='',_timerStepIdx_page=-1,_timerKeepalive=null;
+function _swSend(msg){
+  const ctrl=navigator.serviceWorker&&navigator.serviceWorker.controller;
+  if(ctrl){ctrl.postMessage(msg);return;}
+  if('serviceWorker' in navigator)navigator.serviceWorker.ready.then(r=>{if(r.active)r.active.postMessage(msg);});
+}
+function _startTimerKeepalive(){
+  if(_timerKeepalive)return;
+  _timerKeepalive=setInterval(()=>{
+    if(!_timerEndTime){clearInterval(_timerKeepalive);_timerKeepalive=null;return;}
+    _swSend({type:'TIMER_PING'});
+  },20000);
+}
+function _stopTimerKeepalive(){if(_timerKeepalive){clearInterval(_timerKeepalive);_timerKeepalive=null;}}
 function parseStepTime(txt){
   // Extract minutes from step text: "20 λεπτά", "30-35 λεπτά", "2 ώρες", "1.5 ώρα", "45-50 λεπτά"
   let m;
@@ -2359,9 +2372,9 @@ function parseStepTime(txt){
 function _timerFireDone(btn){
   clearInterval(_timerInterval);_timerInterval=null;_timerEndTime=null;_timerBtn=null;
   _timerMealId_page='';_timerStepIdx_page=-1;
+  _stopTimerKeepalive();
   btn.classList.remove('running');btn.classList.add('done');btn.textContent='✓ Έτοιμο!';
   if(navigator.vibrate)navigator.vibrate([300,150,300,150,300]);
-  // Web Audio beep (3 pulses)
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
     [0,.35,.7].forEach(t=>{
@@ -2373,10 +2386,8 @@ function _timerFireDone(btn){
       o.start(ctx.currentTime+t);o.stop(ctx.currentTime+t+.3);
     });
   }catch(e){}
-  // SW notification (λειτουργεί και σε background/κλειδωμένο)
-  if(navigator.serviceWorker&&navigator.serviceWorker.controller){
-    navigator.serviceWorker.controller.postMessage({type:'SHOW_NOTIFICATION',title:'⏱️ FoodDaily — Timer',body:'Ο χρόνος τελείωσε! Δες το επόμενο βήμα.',tag:'fd-timer'});
-  }
+  // Robust SW notification — falls back to .ready if controller is null
+  _swSend({type:'SHOW_NOTIFICATION',title:'⏱️ FoodDaily — Timer',body:'Ο χρόνος τελείωσε! Δες το επόμενο βήμα.',tag:'fd-timer'});
 }
 function startStepTimer(btn,minutes){
   if(btn.classList.contains('done')){
@@ -2385,9 +2396,9 @@ function startStepTimer(btn,minutes){
   if(btn.classList.contains('running')){
     clearInterval(_timerInterval);_timerInterval=null;_timerEndTime=null;_timerBtn=null;
     _timerMealId_page='';_timerStepIdx_page=-1;
+    _stopTimerKeepalive();
     btn.classList.remove('running');btn.textContent=`⏱ ${minutes}'`;
-    if(navigator.serviceWorker&&navigator.serviceWorker.controller)
-      navigator.serviceWorker.controller.postMessage({type:'CANCEL_TIMER'});
+    _swSend({type:'CANCEL_TIMER'});
     return;
   }
   clearInterval(_timerInterval);
@@ -2397,8 +2408,8 @@ function startStepTimer(btn,minutes){
   _timerMealId_page=_meal&&_meal.id||'';
   _timerStepIdx_page=parseInt(btn.dataset.step||'0');
   btn.classList.add('running');
-  if(navigator.serviceWorker&&navigator.serviceWorker.controller)
-    navigator.serviceWorker.controller.postMessage({type:'SCHEDULE_TIMER',delay:secs*1000,mealId:_timerMealId_page,stepIdx:_timerStepIdx_page});
+  _swSend({type:'SCHEDULE_TIMER',delay:secs*1000,mealId:_timerMealId_page,stepIdx:_timerStepIdx_page});
+  _startTimerKeepalive();
   // tick uses _timerBtn so it follows the button even after DOM rebuild
   const tick=()=>{
     if(!_timerBtn)return;
@@ -2420,8 +2431,7 @@ document.addEventListener('visibilitychange',()=>{
     }
   } else {
     // App minimized — ask SW to re-show running notification (unless user dismissed it)
-    if(_timerEndTime&&_timerEndTime>Date.now()&&navigator.serviceWorker&&navigator.serviceWorker.controller)
-      navigator.serviceWorker.controller.postMessage({type:'TIMER_APP_HIDDEN'});
+    if(_timerEndTime&&_timerEndTime>Date.now())_swSend({type:'TIMER_APP_HIDDEN'});
   }
 });
 

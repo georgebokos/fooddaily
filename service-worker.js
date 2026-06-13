@@ -1,5 +1,5 @@
-// FoodDaily Service Worker v2.6
-const VERSION = '2026-06-13-03';
+// FoodDaily Service Worker v2.7
+const VERSION = '2026-06-13-04';
 const CACHE = `fooddaily-${VERSION}`;
 const ASSETS = [
   '/',
@@ -56,6 +56,36 @@ self.addEventListener('fetch', e => {
   );
 });
 
+// ── TIMER HELPERS (module-level so TIMER_PING can also call them) ──────────
+const _swShowRunning = rem => {
+  const mins = Math.floor(rem / 60000);
+  const secs = Math.floor((rem % 60000) / 1000);
+  const body = mins > 0
+    ? `Απομένουν ${mins}:${String(secs).padStart(2, '0')}…`
+    : `Απομένουν ${secs} δλ…`;
+  return self.registration.showNotification('⏱️ Timer FoodDaily', {
+    body,
+    icon: '/icon-192.png',
+    badge: '/icon-96.png',
+    tag: 'fd-timer',
+    silent: true,
+    requireInteraction: true
+  });
+};
+
+const _swFireDone = () => {
+  if (self._timerPoll) { clearInterval(self._timerPoll); self._timerPoll = null; }
+  if (self._timerTo)   { clearTimeout(self._timerTo);    self._timerTo   = null; }
+  self.registration.showNotification('⏱️ FoodDaily — Timer', {
+    body: 'Ο χρόνος τελείωσε! Δες το επόμενο βήμα.',
+    icon: '/icon-192.png',
+    badge: '/icon-96.png',
+    tag: 'fd-timer',
+    vibrate: [300, 150, 300, 150, 300],
+    requireInteraction: true
+  });
+};
+
 // Message from page: show a notification (most reliable on Android TWA)
 self.addEventListener('message', e => {
   if (!e.data) return;
@@ -73,55 +103,31 @@ self.addEventListener('message', e => {
     );
   }
 
-  // Step-timer: persistent notification keeps SW alive; countdown updates every minute;
-  // tapping the notification reopens the app at the exact recipe step.
+  // Step-timer: persistent notification + 2-second poll + keepalive pings from page
   if (e.data.type === 'SCHEDULE_TIMER') {
     if (self._timerTo) { clearTimeout(self._timerTo); self._timerTo = null; }
     if (self._timerPoll) { clearInterval(self._timerPoll); self._timerPoll = null; }
     self._timerEnd = Date.now() + e.data.delay;
     self._timerMealId = e.data.mealId || '';
     self._timerStepIdx = e.data.stepIdx || 0;
-    self._timerLastMins = Math.ceil(e.data.delay / 60000);
-    self._timerNotifDismissed = false; // reset so re-show works for new timer
-
-    const _showRunning = mins => self.registration.showNotification('⏱️ Timer FoodDaily', {
-      body: `Απομένουν ${mins} λεπτ${mins === 1 ? 'ό' : 'ά'}…`,
-      icon: '/icon-192.png',
-      badge: '/icon-96.png',
-      tag: 'fd-timer',
-      silent: true,
-      requireInteraction: true
-    });
+    self._timerNotifDismissed = false;
+    self._timerLastNotifRem = e.data.delay;
 
     // Immediate notification — prevents Android from killing the SW
-    e.waitUntil(_showRunning(self._timerLastMins));
+    e.waitUntil(_swShowRunning(e.data.delay));
 
-    const _fireDone = () => {
-      if (self._timerPoll) { clearInterval(self._timerPoll); self._timerPoll = null; }
-      if (self._timerTo) { clearTimeout(self._timerTo); self._timerTo = null; }
-      self.registration.showNotification('⏱️ FoodDaily — Timer', {
-        body: 'Ο χρόνος τελείωσε! Δες το επόμενο βήμα.',
-        icon: '/icon-192.png',
-        badge: '/icon-96.png',
-        tag: 'fd-timer',
-        vibrate: [300, 150, 300, 150, 300],
-        requireInteraction: true
-      });
-    };
-
-    // Poll every 5 s: check expiry + update countdown display every minute
+    // Poll every 2 s: check expiry + update display every ~15 s
     self._timerPoll = setInterval(() => {
       const rem = self._timerEnd - Date.now();
-      if (rem <= 0) { _fireDone(); return; }
-      const remMins = Math.ceil(rem / 60000);
-      if (remMins !== self._timerLastMins) {
-        self._timerLastMins = remMins;
-        _showRunning(remMins);
+      if (rem <= 0) { _swFireDone(); return; }
+      if (self._timerLastNotifRem - rem >= 15000) {
+        self._timerLastNotifRem = rem;
+        _swShowRunning(rem);
       }
-    }, 5000);
+    }, 2000);
 
     // Primary trigger at exact time
-    self._timerTo = setTimeout(_fireDone, e.data.delay);
+    self._timerTo = setTimeout(_swFireDone, e.data.delay);
   }
 
   if (e.data.type === 'CANCEL_TIMER') {
@@ -133,19 +139,18 @@ self.addEventListener('message', e => {
       .then(notifs => notifs.forEach(n => n.close()));
   }
 
-  // App was minimised — re-show running notification unless user dismissed it
+  // App minimised — re-show notification (unless user dismissed it)
   if (e.data.type === 'TIMER_APP_HIDDEN') {
-    if (self._timerEnd && Date.now() < self._timerEnd && !self._timerNotifDismissed) {
-      const remMins = Math.ceil((self._timerEnd - Date.now()) / 60000);
-      self.registration.showNotification('⏱️ Timer FoodDaily', {
-        body: `Απομένουν ${remMins} λεπτ${remMins === 1 ? 'ό' : 'ά'}…`,
-        icon: '/icon-192.png',
-        badge: '/icon-96.png',
-        tag: 'fd-timer',
-        silent: true,
-        requireInteraction: true
-      });
+    if (self._timerEnd && !self._timerNotifDismissed) {
+      const rem = self._timerEnd - Date.now();
+      if (rem > 0) _swShowRunning(rem);
+      else _swFireDone(); // expired while we were deciding
     }
+  }
+
+  // Keepalive ping from page every ~20 s — wakes SW, checks if timer already expired
+  if (e.data.type === 'TIMER_PING') {
+    if (self._timerEnd && Date.now() >= self._timerEnd) _swFireDone();
   }
 
   // Page requests any pending navigation (e.g. opened via timer notification tap)
