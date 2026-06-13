@@ -3168,6 +3168,11 @@ function showSec(id,btn){
   // Update shortcuts active state
   if(id==='fridge'){const hf=document.getElementById('hshct-fridge');if(hf)hf.classList.add('on');}
   else if(id==='daily'){const hd=document.getElementById('hshct-daily');if(hd)hd.classList.add('on');}
+  // Tapping "Συνταγές" tab always resets to all-categories view and scrolls to top
+  if(id==='daily'){
+    selCat('all',document.getElementById('cpill-all'));
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
 }
 
 // ── SEARCH with accent-insensitive ──
