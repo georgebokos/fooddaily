@@ -2055,6 +2055,7 @@ function openR(id){
       const rem=Math.ceil((_timerEndTime-Date.now())/1000);
       const m2=Math.floor(rem/60),s2=rem%60;
       newBtn.textContent=`⏱ ${m2}:${String(s2).padStart(2,'0')}`;
+      if(!_timerInterval)_timerInterval=setInterval(_timerTick,500);
     }
   }
   renderOvRating(id);
@@ -2134,8 +2135,8 @@ function closeOv(){
   document.body.style.overflow='';
   _guestScale=1;_curSrv=0;
   stopTTS();
-  if(_timerInterval){clearInterval(_timerInterval);_timerInterval=null;}
-  // Don't cancel the timer — it keeps running in the SW notification
+  // Keep _timerInterval alive if timer is running — so countdown stays synced on reopen
+  if(_timerInterval && !_timerEndTime){clearInterval(_timerInterval);_timerInterval=null;}
   const nutrEl=document.getElementById('ov-nutr');if(nutrEl)nutrEl.innerHTML='';
 }
 
@@ -2337,6 +2338,14 @@ function _startTimerKeepalive(){
   },20000);
 }
 function _stopTimerKeepalive(){if(_timerKeepalive){clearInterval(_timerKeepalive);_timerKeepalive=null;}}
+function _timerTick(){
+  if(!_timerBtn||!_timerEndTime)return;
+  const rem=Math.ceil((_timerEndTime-Date.now())/1000);
+  if(rem<=0){_timerFireDone(_timerBtn);return;}
+  const m2=Math.floor(rem/60),s2=rem%60;
+  _timerBtn.textContent=`⏱ ${m2}:${String(s2).padStart(2,'0')}`;
+  _timerBtn.dataset.timer=rem;
+}
 function parseStepTime(txt){
   // Extract minutes from step text: "20 λεπτά", "30-35 λεπτά", "2 ώρες", "1.5 ώρα", "45-50 λεπτά"
   let m;
@@ -2380,6 +2389,8 @@ function startStepTimer(btn,minutes){
     btn.classList.remove('running');btn.textContent=`⏱ ${minutes}'`;
     return;
   }
+  // Clean up any previously running button from a different step
+  if(_timerBtn && _timerBtn!==btn){_timerBtn.classList.remove('running');_timerBtn=null;}
   clearInterval(_timerInterval);
   const secs=parseInt(btn.dataset.timer||minutes*60);
   _timerEndTime=Date.now()+secs*1000;
@@ -2393,15 +2404,7 @@ function startStepTimer(btn,minutes){
   }catch(e){}
   _swSend({type:'SCHEDULE_TIMER',delay:secs*1000,mealId:_timerMealId_page,stepIdx:_timerStepIdx_page});
   _startTimerKeepalive();
-  const tick=()=>{
-    if(!_timerBtn)return;
-    const rem=Math.ceil((_timerEndTime-Date.now())/1000);
-    if(rem<=0){_timerFireDone(_timerBtn);return;}
-    const m2=Math.floor(rem/60),s2=rem%60;
-    _timerBtn.textContent=`⏱ ${m2}:${String(s2).padStart(2,'0')}`;
-    _timerBtn.dataset.timer=rem;
-  };
-  _timerInterval=setInterval(tick,500);
+  _timerInterval=setInterval(_timerTick,500);
 }
 
 // ── SHARE INGREDIENTS ──────────────────────────────────────────
@@ -2925,9 +2928,15 @@ async function testNotif(){
   showToast('🔔 Ειδοποίηση εστάλη!');
 }
 async function sendNotif(){
-  const rids=recIds(7);
-  const pool=Object.values(MEALS).filter(m=>!rids.includes(m.id||''));
-  const m=(pool.length?pool:Object.values(MEALS))[Math.floor(Math.random()*(pool.length||Object.keys(MEALS).length))];
+  // Use today's featured meal if available, otherwise pick a non-recently-cooked meal
+  let m=null;
+  const today=new Date().toDateString();
+  try{const f=JSON.parse(localStorage.getItem('fd_feat')||'{}');if(f.date===today&&f.id&&MEALS[f.id])m=MEALS[f.id];}catch(e){}
+  if(!m){
+    const rids=recIds(7);
+    const pool=Object.values(MEALS).filter(x=>!rids.includes(x.id||''));
+    m=(pool.length?pool:Object.values(MEALS))[Math.floor(Math.random()*(pool.length||Object.keys(MEALS).length))];
+  }
   if(!m)return;
   const title='🍽️ FoodDaily — Πρόταση Μέρας';
   const body=`${m.e} ${m.n}  |  ⏱ ${m.time}'  |  🔥 ${m.cal}  |  💰 ${m.cost||'~5€'}`;

@@ -1,5 +1,5 @@
-// FoodDaily Service Worker v2.8
-const VERSION = '2026-06-13-05';
+// FoodDaily Service Worker v2.9
+const VERSION = '2026-06-13-06';
 const CACHE = `fooddaily-${VERSION}`;
 const ASSETS = [
   '/',
@@ -78,9 +78,8 @@ const _swShowRunning = rem => {
 const _swFireDone = () => {
   if (self._timerPoll) { clearInterval(self._timerPoll); self._timerPoll = null; }
   if (self._timerTo)   { clearTimeout(self._timerTo);    self._timerTo   = null; }
-  // Close the running notification first so done is always a fresh NEW notification
-  self.registration.getNotifications({ tag: 'fd-timer-run' })
-    .then(ns => ns.forEach(n => n.close()));
+  // Show done FIRST (running notification still keeping SW alive), THEN close running.
+  // If we close running first, the SW loses its keepalive and may die before done is shown.
   self.registration.showNotification('⏱️ FoodDaily — Timer', {
     body: 'Ο χρόνος τελείωσε! Δες το επόμενο βήμα.',
     icon: '/icon-192.png',
@@ -88,7 +87,10 @@ const _swFireDone = () => {
     tag: 'fd-timer',
     vibrate: [300, 150, 300, 150, 300],
     requireInteraction: true
-  });
+  }).then(() =>
+    self.registration.getNotifications({ tag: 'fd-timer-run' })
+      .then(ns => ns.forEach(n => n.close()))
+  );
 };
 
 // Message from page: show a notification (most reliable on Android TWA)
