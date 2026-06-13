@@ -2052,6 +2052,18 @@ function openR(id){
   }
   // Tabs content
   buildIngTab(m);buildStepsTab(m);buildPairTab(m);buildNotesTab(m);
+  // If a timer is running for this meal, reconnect to the new button in the rebuilt DOM
+  if(_timerEndTime&&_timerEndTime>Date.now()&&_timerMealId_page===id&&_timerStepIdx_page>=0){
+    const stepItems=document.querySelectorAll('#ot-steps .step-item');
+    const newBtn=stepItems[_timerStepIdx_page]&&stepItems[_timerStepIdx_page].querySelector('.step-timer-btn');
+    if(newBtn){
+      _timerBtn=newBtn;
+      newBtn.classList.add('running');
+      const rem=Math.ceil((_timerEndTime-Date.now())/1000);
+      const m2=Math.floor(rem/60),s2=rem%60;
+      newBtn.textContent=`⏱ ${m2}:${String(s2).padStart(2,'0')}`;
+    }
+  }
   renderOvRating(id);
   // TTS
   const ttsBtn=document.getElementById('ov-tts-btn');if(ttsBtn)ttsBtn.textContent=t('tts_p');
@@ -2317,7 +2329,7 @@ function rateRecipe(id,stars){
 }
 
 // ── STEP TIMER ─────────────────────────────────────────────────
-let _timerInterval=null,_timerEndTime=null,_timerBtn=null;
+let _timerInterval=null,_timerEndTime=null,_timerBtn=null,_timerMealId_page='',_timerStepIdx_page=-1;
 function parseStepTime(txt){
   // Extract minutes from step text: "20 λεπτά", "30-35 λεπτά", "2 ώρες", "1.5 ώρα", "45-50 λεπτά"
   let m;
@@ -2331,6 +2343,7 @@ function parseStepTime(txt){
 }
 function _timerFireDone(btn){
   clearInterval(_timerInterval);_timerInterval=null;_timerEndTime=null;_timerBtn=null;
+  _timerMealId_page='';_timerStepIdx_page=-1;
   btn.classList.remove('running');btn.classList.add('done');btn.textContent='✓ Έτοιμο!';
   if(navigator.vibrate)navigator.vibrate([300,150,300,150,300]);
   // Web Audio beep (3 pulses)
@@ -2356,6 +2369,7 @@ function startStepTimer(btn,minutes){
   }
   if(btn.classList.contains('running')){
     clearInterval(_timerInterval);_timerInterval=null;_timerEndTime=null;_timerBtn=null;
+    _timerMealId_page='';_timerStepIdx_page=-1;
     btn.classList.remove('running');btn.textContent=`⏱ ${minutes}'`;
     if(navigator.serviceWorker&&navigator.serviceWorker.controller)
       navigator.serviceWorker.controller.postMessage({type:'CANCEL_TIMER'});
@@ -2365,16 +2379,19 @@ function startStepTimer(btn,minutes){
   const secs=parseInt(btn.dataset.timer||minutes*60);
   _timerEndTime=Date.now()+secs*1000;
   _timerBtn=btn;
+  _timerMealId_page=_meal&&_meal.id||'';
+  _timerStepIdx_page=parseInt(btn.dataset.step||'0');
   btn.classList.add('running');
-  // Ζητάμε από τον SW να στείλει ειδοποίηση όταν λήξει (ακόμα και αν το screen είναι κλειστό)
   if(navigator.serviceWorker&&navigator.serviceWorker.controller)
-    navigator.serviceWorker.controller.postMessage({type:'SCHEDULE_TIMER',delay:secs*1000,mealId:_meal&&_meal.id||'',stepIdx:parseInt(btn.dataset.step||'0')});
+    navigator.serviceWorker.controller.postMessage({type:'SCHEDULE_TIMER',delay:secs*1000,mealId:_timerMealId_page,stepIdx:_timerStepIdx_page});
+  // tick uses _timerBtn so it follows the button even after DOM rebuild
   const tick=()=>{
+    if(!_timerBtn)return;
     const rem=Math.ceil((_timerEndTime-Date.now())/1000);
-    if(rem<=0){_timerFireDone(btn);return;}
+    if(rem<=0){_timerFireDone(_timerBtn);return;}
     const m2=Math.floor(rem/60),s2=rem%60;
-    btn.textContent=`⏱ ${m2}:${String(s2).padStart(2,'0')}`;
-    btn.dataset.timer=rem;
+    _timerBtn.textContent=`⏱ ${m2}:${String(s2).padStart(2,'0')}`;
+    _timerBtn.dataset.timer=rem;
   };
   _timerInterval=setInterval(tick,500);
 }
