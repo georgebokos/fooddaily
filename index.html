@@ -2460,23 +2460,34 @@ async function submitUserRecipe(){
   const subject='FoodDaily - Νέα συνταγή: '+name;
   const body=`Συνταγή: ${name}\nΚατηγορία: ${cat}\nΣυντάκτης: ${author}${tradLine}\n\nΥλικά:\n${ing}\n\nΒήματα:\n${steps}`;
 
-  // Use Web Share API when available — passes Unicode text directly, no percent-encoding issues
+  const clearForm=()=>{
+    ['ur-name','ur-ing','ur-steps','ur-cat','ur-author','ur-region'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    const cb=document.getElementById('ur-trad');if(cb)cb.checked=false;
+    document.getElementById('ur-trad-region')?.classList.remove('show');
+  };
+
+  // Primary: Web Share API — passes Unicode directly, no encoding issues
   if(navigator.share){
     try{
       await navigator.share({title:subject,text:`Αποστολή σε: g.bokos1984@gmail.com\n\n${body}`});
-      closeUrform();
-      showToast('📤 Ευχαριστούμε για τη συνταγή!');
+      clearForm();closeUrform();showToast('📤 Ευχαριστούμε για τη συνταγή!');
       return;
     }catch(err){
-      if(err.name==='AbortError')return; // user cancelled share sheet
+      if(err.name==='AbortError')return;
     }
   }
 
-  // Fallback for desktop: mailto link
-  const mailto=`mailto:g.bokos1984@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  window.location.href=mailto;
-  closeUrform();
-  showToast('📤 Ανοίγει το email σου...');
+  // Fallback: copy to clipboard (avoids mailto encoding issues in Yahoo/other clients)
+  const fullText=`Προς: g.bokos1984@gmail.com\nΘέμα: ${subject}\n\n${body}`;
+  try{
+    await navigator.clipboard.writeText(fullText);
+    clearForm();closeUrform();
+    showToast('📋 Αντιγράφηκε! Άνοιξε το email σου και κόλλα το κείμενο');
+  }catch(e){
+    // Last resort: mailto
+    window.location.href=`mailto:g.bokos1984@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    clearForm();closeUrform();showToast('📤 Ανοίγει το email σου...');
+  }
 }
 
 // ── WEEK PLAN ─────────────────────────────────────────────────
