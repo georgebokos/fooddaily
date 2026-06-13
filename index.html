@@ -3271,15 +3271,17 @@ function selGuest(n,btn){
 
   // Curated guest pool — meat/oven/seafood, no everyday cheap dishes
   const EXCL_GUEST=['fasolada','fakes','aglio','spanakoryzo','briami','revythada',
-    'horiatiki','gigantes','fava','salata_rokka','salata_rodi','taramosalata',
-    'halvas','lagana','tzatziki_dish','skordalia','eliestoursi','psarosoupa','kotosopa'];
+    'horiatiki','salata_rokka','salata_rodi','taramosalata',
+    'halvas','lagana','tzatziki_dish','skordalia','eliestoursi','kotosopa','mageiritsa'];
 
   // Priority buckets (most impressive first)
-  const P4=['arni_souvia','kontosouvi','gourounopoulo','galopoula','mageiritsa'];
+  const P4=['arni_souvia','kontosouvi','gourounopoulo','galopoula'];
   const P3=['giouvetsi','arnaki_lemonato','moussaka','pastitsio','stifado',
-            'kokkinisto','htapodi','garides','bakaliaro','anginaresPolita'];
+            'kokkinisto','htapodi','garides','bakaliaro','anginaresPolita',
+            'kreatopita','spanakopita','psarosoupa'];
   const P2=['kotopoulo','souvlakia','biftekia','kalamaria','tsipoura',
-            'dolmades','gemista','giouvarlaakia','psari_plaki','keftedes'];
+            'dolmades','gemista','giouvarlaakia','psari_plaki','keftedes',
+            'gigantes','fava','tyropita','hortopita','prasopita'];
 
   const pick=ids=>ids.filter(id=>MEALS[id]&&!EXCL_GUEST.includes(id));
 
