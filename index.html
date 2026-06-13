@@ -461,6 +461,10 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .urform-check-lbl{font-size:14px;color:var(--txt);font-weight:600;}
 .urform-trad-region{display:none;}
 .urform-trad-region.show{display:block;}
+.ur-photo-btn{width:100%;padding:12px;background:transparent;border:1.5px dashed var(--pri);border-radius:10px;color:var(--pri);font-size:14px;font-weight:600;cursor:pointer;margin-top:4px;}
+.ur-photo-preview{margin-top:8px;position:relative;border-radius:10px;overflow:hidden;}
+.ur-photo-preview img{width:100%;display:block;border-radius:10px;}
+.ur-photo-rm{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:15px;cursor:pointer;line-height:1;}
 /* ── BOTTOM FAB BUTTON ── */
 .fab-recipe{position:fixed;bottom:80px;right:16px;z-index:900;background:var(--pri);color:#fff;border:none;border-radius:28px;padding:12px 18px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 18px rgba(58,117,88,.4);display:flex;align-items:center;gap:7px;-webkit-tap-highlight-color:transparent;}
 .ov.show ~ .fab-recipe{display:none;}
@@ -932,6 +936,13 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
     <textarea id="ur-ing" placeholder="Ένα υλικό ανά γραμμή&#10;π.χ. Κιμάς μοσχαρίσιος 500γρ"></textarea>
     <div class="urform-lbl">Βήματα εκτέλεσης *</div>
     <textarea id="ur-steps" placeholder="Ένα βήμα ανά γραμμή"></textarea>
+    <div class="urform-lbl">Φωτογραφία πιάτου (προαιρετική)</div>
+    <button type="button" class="ur-photo-btn" onclick="document.getElementById('ur-photo-input').click()">📷 Τράβηξε φωτογραφία</button>
+    <input type="file" id="ur-photo-input" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoCapture(this)">
+    <div class="ur-photo-preview" id="ur-photo-preview" style="display:none">
+      <img id="ur-photo-img" alt="Φωτογραφία πιάτου">
+      <button type="button" class="ur-photo-rm" onclick="removePhoto()">✕</button>
+    </div>
     <div class="urform-lbl">Το όνομά σου (προαιρετικά)</div>
     <input type="text" id="ur-author" placeholder="π.χ. Μαρία από Θεσσαλονίκη">
     <label class="urform-check-row" for="ur-trad">
@@ -2447,6 +2458,36 @@ function buildNotesTab(m){
 // ── USER RECIPE FORM ────────────────────────────────────────────
 function openUrform(){document.getElementById('urform').classList.add('show');document.body.style.overflow='hidden';}
 function closeUrform(){document.getElementById('urform').classList.remove('show');document.body.style.overflow='';}
+
+let _urPhoto=null;
+function handlePhotoCapture(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      // Resize so neither dimension exceeds 1600px (good for food photo quality, ~300KB JPEG)
+      const ratio=Math.min(1600/Math.max(img.width,img.height),1);
+      const canvas=document.createElement('canvas');
+      canvas.width=Math.round(img.width*ratio);
+      canvas.height=Math.round(img.height*ratio);
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      canvas.toBlob(blob=>{
+        _urPhoto=new File([blob],'food-photo.jpg',{type:'image/jpeg'});
+        document.getElementById('ur-photo-img').src=URL.createObjectURL(_urPhoto);
+        document.getElementById('ur-photo-preview').style.display='block';
+      },'image/jpeg',0.85);
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function removePhoto(){
+  _urPhoto=null;
+  const inp=document.getElementById('ur-photo-input');if(inp)inp.value='';
+  const prev=document.getElementById('ur-photo-preview');if(prev)prev.style.display='none';
+  const img=document.getElementById('ur-photo-img');if(img)img.src='';
+}
 async function submitUserRecipe(){
   const name=document.getElementById('ur-name').value.trim();
   const ing=document.getElementById('ur-ing').value.trim();
@@ -2464,12 +2505,17 @@ async function submitUserRecipe(){
     ['ur-name','ur-ing','ur-steps','ur-cat','ur-author','ur-region'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
     const cb=document.getElementById('ur-trad');if(cb)cb.checked=false;
     document.getElementById('ur-trad-region')?.classList.remove('show');
+    removePhoto();
   };
 
-  // Primary: Web Share API — passes Unicode directly, no encoding issues
+  // Primary: Web Share API — passes Unicode directly, attaches photo if present
   if(navigator.share){
     try{
-      await navigator.share({title:subject,text:`Αποστολή σε: g.bokos1984@gmail.com\n\n${body}`});
+      const shareData={title:subject,text:`Αποστολή σε: g.bokos1984@gmail.com\n\n${body}`};
+      if(_urPhoto&&navigator.canShare&&navigator.canShare({files:[_urPhoto]})){
+        shareData.files=[_urPhoto];
+      }
+      await navigator.share(shareData);
       clearForm();closeUrform();showToast('📤 Ευχαριστούμε για τη συνταγή!');
       return;
     }catch(err){
