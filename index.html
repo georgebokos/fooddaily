@@ -622,30 +622,9 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
         <div class="onboard-feat"><span class="onboard-feat-ico">⏱️</span><span class="onboard-feat-txt">Timer ανά βήμα & αυτόματη ζύγιση</span></div>
       </div>
     </div>
-    <div class="onboard-slide">
-      <div class="onboard-art">💎</div>
-      <div class="onboard-h">7 ημέρες Premium δωρεάν</div>
-      <div class="onboard-s">Ξεκλείδωσε το εβδομαδιαίο πρόγραμμα, έξυπνες ειδοποιήσεις και σημειώσεις ανά συνταγή.</div>
-      <div class="onboard-feats">
-        <div class="onboard-feat"><span class="onboard-feat-ico">📅</span><span class="onboard-feat-txt">Εβδομαδιαίο meal plan με λίστα αγορών</span></div>
-        <div class="onboard-feat"><span class="onboard-feat-ico">🔔</span><span class="onboard-feat-txt">"Ξεπάγωσε τον κιμά" — το βράδυ πριν</span></div>
-        <div class="onboard-feat"><span class="onboard-feat-ico">📝</span><span class="onboard-feat-txt">Προσωπικές σημειώσεις ανά συνταγή</span></div>
-      </div>
-    </div>
-    <div class="onboard-slide">
-      <div class="onboard-art">🚀</div>
-      <div class="onboard-h">Έτοιμος να μαγειρέψεις;</div>
-      <div class="onboard-s">Η πρώτη σου πρόταση σε περιμένει. Μπορείς να αλλάξεις τις προτιμήσεις σου ανά πάσα στιγμή.</div>
-    </div>
-  </div>
-  <div class="onboard-dots" id="onboard-dots">
-    <div class="onboard-dot on"></div>
-    <div class="onboard-dot"></div>
-    <div class="onboard-dot"></div>
   </div>
   <div class="onboard-footer">
-    <button class="onboard-next" id="onboard-next" onclick="onboardNext()">Συνέχεια →</button>
-    <button class="onboard-skip" onclick="onboardFinish()">Παράλειψη</button>
+    <button class="onboard-next" id="onboard-next" onclick="onboardFinish()">Ξεκινάμε! 🍽️</button>
   </div>
 </div>
 
@@ -3323,26 +3302,14 @@ function copyShoppingList(){
 }
 
 // ── ONBOARDING ─────────────────────────────────────────────────
-let _obSlide=0;
-const OB_SLIDES=3;
 function initOnboarding(){
   if(localStorage.getItem('fd_onboard_done'))return;
   document.getElementById('onboard').classList.remove('hidden');
   document.body.style.overflow='hidden';
 }
-function onboardNext(){
-  _obSlide++;
-  if(_obSlide>=OB_SLIDES){onboardFinish();return;}
-  const slides=document.getElementById('onboard-slides');
-  slides.style.transform=`translateX(-${_obSlide*100}%)`;
-  document.querySelectorAll('.onboard-dot').forEach((d,i)=>d.classList.toggle('on',i===_obSlide));
-  if(_obSlide===OB_SLIDES-1){
-    document.getElementById('onboard-next').textContent='Ξεκινάμε! 🍽️';
-  }
-}
 function onboardFinish(){
   localStorage.setItem('fd_onboard_done','1');
-  startTrial(); // start trial when onboarding completes
+  startTrial();
   document.getElementById('onboard').classList.add('hidden');
   document.body.style.overflow='';
   renderTrialBanner();
