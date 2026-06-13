@@ -2102,7 +2102,7 @@ function buildIngTab(m){
 function buildStepsTab(m){
   document.getElementById('ot-steps').innerHTML=`<div class="step-list">${m.steps.map((s,i)=>{
     const mins=parseStepTime(s);
-    const timerBtn=mins>0?`<button class="step-timer-btn" data-timer="${mins*60}" onclick="startStepTimer(this,${mins})">⏱ ${mins}'</button>`:'';
+    const timerBtn=mins>0?`<button class="step-timer-btn" data-timer="${mins*60}" data-step="${i}" onclick="startStepTimer(this,${mins})">⏱ ${mins}'</button>`:'';
     return `<div class="step-item" onclick="if(event.target.tagName!=='BUTTON'){this.classList.toggle('done');this.querySelector('.step-num').textContent=this.classList.contains('done')?'✓':'${i+1}'}"><div class="step-num">${i+1}</div><div class="step-txt">${s}${timerBtn}</div></div>`;
   }).join('')}</div>`;
 }
@@ -2368,7 +2368,7 @@ function startStepTimer(btn,minutes){
   btn.classList.add('running');
   // Ζητάμε από τον SW να στείλει ειδοποίηση όταν λήξει (ακόμα και αν το screen είναι κλειστό)
   if(navigator.serviceWorker&&navigator.serviceWorker.controller)
-    navigator.serviceWorker.controller.postMessage({type:'SCHEDULE_TIMER',delay:secs*1000});
+    navigator.serviceWorker.controller.postMessage({type:'SCHEDULE_TIMER',delay:secs*1000,mealId:_meal&&_meal.id||'',stepIdx:parseInt(btn.dataset.step||'0')});
   const tick=()=>{
     const rem=Math.ceil((_timerEndTime-Date.now())/1000);
     if(rem<=0){_timerFireDone(btn);return;}
@@ -3424,13 +3424,25 @@ function closeProfile(){
     navigator.serviceWorker.register('/service-worker.js').catch(()=>{});
     navigator.serviceWorker.addEventListener('message', e => {
       if(e.data && e.data.type==='SW_UPDATED'){
-        // Show a non-intrusive update toast with a reload button
         const toast=document.createElement('div');
         toast.id='sw-update-toast';
         toast.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;z-index:9999;display:flex;align-items:center;gap:10px;box-shadow:0 4px 16px rgba(0,0,0,.35);';
         toast.innerHTML=`<span>${curLang==='en'?'🔄 New version available!':'🔄 Νέα έκδοση διαθέσιμη!'}</span><button onclick="window.location.reload()" style="background:var(--pri);color:#fff;border:none;border-radius:8px;padding:5px 12px;cursor:pointer;font-size:13px;">${curLang==='en'?'Update':'Ενημέρωση'}</button>`;
         document.body.appendChild(toast);
       }
+      if(e.data && e.data.type==='OPEN_TIMER_STEP' && e.data.mealId){
+        openR(e.data.mealId);
+        setTimeout(()=>{
+          ovTab('steps');
+          const items=document.querySelectorAll('#ot-steps .step-item');
+          const target=items[e.data.stepIdx];
+          if(target)target.scrollIntoView({behavior:'smooth',block:'center'});
+        },300);
+      }
+    });
+    // On load, ask SW for any pending timer navigation (set when app was closed and user tapped notification)
+    navigator.serviceWorker.ready.then(reg=>{
+      if(reg.active)reg.active.postMessage({type:'GET_PENDING_NAV'});
     });
   }
 })();

@@ -1,5 +1,5 @@
-// FoodDaily Service Worker v2.4
-const VERSION = '2026-06-13-01';
+// FoodDaily Service Worker v2.5
+const VERSION = '2026-06-13-02';
 const CACHE = `fooddaily-${VERSION}`;
 const ASSETS = [
   '/',
@@ -73,23 +73,27 @@ self.addEventListener('message', e => {
     );
   }
 
-  // Step-timer: show immediate "running" notification (keeps SW alive on Android),
-  // then fire "done" via both setInterval polling and setTimeout.
+  // Step-timer: persistent notification keeps SW alive; countdown updates every minute;
+  // tapping the notification reopens the app at the exact recipe step.
   if (e.data.type === 'SCHEDULE_TIMER') {
     if (self._timerTo) { clearTimeout(self._timerTo); self._timerTo = null; }
     if (self._timerPoll) { clearInterval(self._timerPoll); self._timerPoll = null; }
     self._timerEnd = Date.now() + e.data.delay;
-    const mins = Math.ceil(e.data.delay / 60000);
+    self._timerMealId = e.data.mealId || '';
+    self._timerStepIdx = e.data.stepIdx || 0;
+    self._timerLastMins = Math.ceil(e.data.delay / 60000);
 
-    // Immediate visible notification — prevents Android from killing the SW
-    e.waitUntil(self.registration.showNotification('⏱️ Timer FoodDaily', {
-      body: `Αντίστροφη μέτρηση ${mins} λεπτ${mins === 1 ? 'ού' : 'ών'} ξεκίνησε`,
+    const _showRunning = mins => self.registration.showNotification('⏱️ Timer FoodDaily', {
+      body: `Απομένουν ${mins} λεπτ${mins === 1 ? 'ό' : 'ά'}…`,
       icon: '/icon-192.png',
       badge: '/icon-96.png',
       tag: 'fd-timer',
       silent: true,
       requireInteraction: true
-    }));
+    });
+
+    // Immediate notification — prevents Android from killing the SW
+    e.waitUntil(_showRunning(self._timerLastMins));
 
     const _fireDone = () => {
       if (self._timerPoll) { clearInterval(self._timerPoll); self._timerPoll = null; }
@@ -104,12 +108,18 @@ self.addEventListener('message', e => {
       });
     };
 
-    // Poll every 5 s — catches expiry even if setTimeout is delayed by Android
+    // Poll every 5 s: check expiry + update countdown display every minute
     self._timerPoll = setInterval(() => {
-      if (Date.now() >= self._timerEnd) _fireDone();
+      const rem = self._timerEnd - Date.now();
+      if (rem <= 0) { _fireDone(); return; }
+      const remMins = Math.ceil(rem / 60000);
+      if (remMins !== self._timerLastMins) {
+        self._timerLastMins = remMins;
+        _showRunning(remMins);
+      }
     }, 5000);
 
-    // Primary: fires at exact time
+    // Primary trigger at exact time
     self._timerTo = setTimeout(_fireDone, e.data.delay);
   }
 
@@ -119,6 +129,14 @@ self.addEventListener('message', e => {
     self._timerEnd = null;
     self.registration.getNotifications({ tag: 'fd-timer' })
       .then(notifs => notifs.forEach(n => n.close()));
+  }
+
+  // Page requests any pending navigation (e.g. opened via timer notification tap)
+  if (e.data.type === 'GET_PENDING_NAV') {
+    if (self._pendingTimerNav && e.source) {
+      e.source.postMessage(self._pendingTimerNav);
+      self._pendingTimerNav = null;
+    }
   }
 
   // Daily meal suggestion notification — scheduled via setTimeout so it fires even with app closed.
@@ -144,12 +162,20 @@ self.addEventListener('message', e => {
   }
 });
 
-// Notification click: open or focus the app
+// Notification click: open or focus the app; for timer taps navigate to the recipe step
 self.addEventListener('notificationclick', e => {
   e.notification.close();
+  const isTimer = e.notification.tag === 'fd-timer';
   e.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cls => {
       const existing = cls.find(c => c.url.includes(self.location.origin));
+      if (isTimer && self._timerMealId) {
+        const msg = { type: 'OPEN_TIMER_STEP', mealId: self._timerMealId, stepIdx: self._timerStepIdx || 0 };
+        if (existing) { existing.postMessage(msg); return existing.focus(); }
+        // App was closed — store nav, open app; page will request it via GET_PENDING_NAV
+        self._pendingTimerNav = msg;
+        return clients.openWindow('/');
+      }
       if (existing) return existing.focus();
       return clients.openWindow('/');
     })
