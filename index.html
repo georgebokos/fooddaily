@@ -2051,8 +2051,8 @@ function openR(id){
   // Tabs content
   _timerMealId_page=id;
   buildIngTab(m);buildStepsTab(m);buildPairTab(m);buildNotesTab(m);
-  // Reconnect running timer to freshly-built DOM
-  if(_timerEndTime&&_timerEndTime>Date.now()&&_timerMealId_page===id&&_timerStepIdx_page>=0){
+  // Reconnect running timer to freshly-built DOM — only if THIS recipe owns the timer
+  if(_timerEndTime&&_timerEndTime>Date.now()&&_activeTimerMealId===id&&_timerStepIdx_page>=0){
     const stepItems=document.querySelectorAll('#ot-steps .step-item');
     const newBtn=stepItems[_timerStepIdx_page]&&stepItems[_timerStepIdx_page].querySelector('.step-timer-btn');
     if(newBtn){
@@ -2330,7 +2330,7 @@ function rateRecipe(id,stars){
 }
 
 // ── STEP TIMER ─────────────────────────────────────────────────
-let _timerInterval=null,_timerEndTime=null,_timerBtn=null,_timerMealId_page='',_timerStepIdx_page=-1,_timerKeepalive=null,_audioCtx=null;
+let _timerInterval=null,_timerEndTime=null,_timerBtn=null,_timerMealId_page='',_activeTimerMealId='',_timerStepIdx_page=-1,_timerKeepalive=null,_audioCtx=null;
 function _swSend(msg){
   const ctrl=navigator.serviceWorker&&navigator.serviceWorker.controller;
   if(ctrl){ctrl.postMessage(msg);return;}
@@ -2365,7 +2365,7 @@ function parseStepTime(txt){
 }
 function _timerFireDone(btn){
   clearInterval(_timerInterval);_timerInterval=null;_timerEndTime=null;_timerBtn=null;
-  _timerMealId_page='';_timerStepIdx_page=-1;
+  _activeTimerMealId='';_timerStepIdx_page=-1;
   _stopTimerKeepalive();
   btn.classList.remove('running');btn.classList.add('done');btn.textContent='✓ Έτοιμο!';
   if(navigator.vibrate)navigator.vibrate([300,150,300,150,300]);
@@ -2390,6 +2390,7 @@ function startStepTimer(btn,minutes){
   }
   if(btn.classList.contains('running')){
     clearInterval(_timerInterval);_timerInterval=null;_timerEndTime=null;_timerBtn=null;
+    _activeTimerMealId='';
     _stopTimerKeepalive();
     _swSend({type:'CANCEL_TIMER'});
     btn.classList.remove('running');btn.textContent=`⏱ ${minutes}'`;
@@ -2401,6 +2402,7 @@ function startStepTimer(btn,minutes){
   const secs=parseInt(btn.dataset.timer||minutes*60);
   _timerEndTime=Date.now()+secs*1000;
   _timerBtn=btn;
+  _activeTimerMealId=_timerMealId_page;
   _timerStepIdx_page=parseInt(btn.dataset.step??'-1');
   btn.classList.add('running');
   // Unlock AudioContext during this user-gesture so it plays when timer fires
@@ -2408,7 +2410,7 @@ function startStepTimer(btn,minutes){
     if(!_audioCtx)_audioCtx=new(window.AudioContext||window.webkitAudioContext)();
     if(_audioCtx.state==='suspended')_audioCtx.resume();
   }catch(e){}
-  _swSend({type:'SCHEDULE_TIMER',delay:secs*1000,mealId:_timerMealId_page,stepIdx:_timerStepIdx_page});
+  _swSend({type:'SCHEDULE_TIMER',delay:secs*1000,mealId:_activeTimerMealId,stepIdx:_timerStepIdx_page});
   _startTimerKeepalive();
   _timerInterval=setInterval(_timerTick,500);
 }
