@@ -105,9 +105,8 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .sec{display:none;padding:0 0 6.5rem;}.sec.show{display:block;}
 /* Daily section layout */
 .sec-head{padding:0;}
-.cat-row-wrap{padding:.25rem 1rem .5rem;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap;touch-action:pan-x;}
-.cat-row-wrap::-webkit-scrollbar{display:none}
-.cat-row{display:inline-flex;gap:6px;}
+.cat-row-wrap{padding:.25rem 1rem .5rem;}
+.cat-row{display:flex;flex-wrap:wrap;gap:6px 6px;}
 .daily-meta{display:flex;align-items:center;justify-content:space-between;padding:.25rem 1.25rem .5rem;}
 .daily-lbl-txt{font-size:13px;font-weight:600;color:var(--t2);letter-spacing:.01em;}
 .meal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem;padding:0 1.25rem;}
