@@ -2447,7 +2447,7 @@ function buildNotesTab(m){
 // ── USER RECIPE FORM ────────────────────────────────────────────
 function openUrform(){document.getElementById('urform').classList.add('show');document.body.style.overflow='hidden';}
 function closeUrform(){document.getElementById('urform').classList.remove('show');document.body.style.overflow='';}
-function submitUserRecipe(){
+async function submitUserRecipe(){
   const name=document.getElementById('ur-name').value.trim();
   const ing=document.getElementById('ur-ing').value.trim();
   const steps=document.getElementById('ur-steps').value.trim();
@@ -2457,8 +2457,23 @@ function submitUserRecipe(){
   const isTrad=document.getElementById('ur-trad').checked;
   const region=document.getElementById('ur-region').value.trim();
   const tradLine=isTrad?`\nΠαραδοσιακό τόπου: ${region||'(δεν δόθηκε τόπος)'}`:''
+  const subject='FoodDaily - Νέα συνταγή: '+name;
   const body=`Συνταγή: ${name}\nΚατηγορία: ${cat}\nΣυντάκτης: ${author}${tradLine}\n\nΥλικά:\n${ing}\n\nΒήματα:\n${steps}`;
-  const mailto=`mailto:g.bokos1984@gmail.com?subject=${encodeURIComponent('FoodDaily - Νέα συνταγή: '+name)}&body=${encodeURIComponent(body)}`;
+
+  // Use Web Share API when available — passes Unicode text directly, no percent-encoding issues
+  if(navigator.share){
+    try{
+      await navigator.share({title:subject,text:`Αποστολή σε: g.bokos1984@gmail.com\n\n${body}`});
+      closeUrform();
+      showToast('📤 Ευχαριστούμε για τη συνταγή!');
+      return;
+    }catch(err){
+      if(err.name==='AbortError')return; // user cancelled share sheet
+    }
+  }
+
+  // Fallback for desktop: mailto link
+  const mailto=`mailto:g.bokos1984@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   window.location.href=mailto;
   closeUrform();
   showToast('📤 Ανοίγει το email σου...');
