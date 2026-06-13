@@ -1925,9 +1925,16 @@ function renderMeals(cat){
   }else{
     const dow=new Date().getDay();
     const isSunday=dow===0;
+    const month=new Date().getMonth();
+    const isSummer=month>=5&&month<=7; // Ιούν–Αύγ: σούπες υποβαθμίζονται
+    const tieredP=m=>{
+      let p=MEAL_PRIORITY[m.id]||2;
+      if(isSummer&&m.cats.includes('soups'))p+=3;
+      return p;
+    };
     // Weekday: tier ascending (1→4). Sunday: cheap meat first, then rest by tier, expensive last.
     const fresh=pool.filter(m=>!rids.includes(m.id)&&!_cookedRecently(m.id)).sort((a,b)=>{
-      const pa=MEAL_PRIORITY[a.id]||2,pb=MEAL_PRIORITY[b.id]||2;
+      const pa=tieredP(a),pb=tieredP(b);
       if(isSunday){
         const am=a.cats.includes('meat')?0:1,bm=b.cats.includes('meat')?0:1;
         if(am!==bm)return am-bm;
@@ -1952,8 +1959,10 @@ function renderMeals(cat){
       featIdx=si>=0?si:0;
       if(si<0)localStorage.setItem('fd_feat',JSON.stringify({id:show[0].id,date:today}));
     }else{
-      featIdx=0;
-      localStorage.setItem('fd_feat',JSON.stringify({id:show[0].id,date:today}));
+      // Ημερήσιο hash → διαφορετικό featured meal κάθε μέρα (από τα top 3)
+      const dayHash=today.split('').reduce((h,c)=>h+c.charCodeAt(0),0);
+      featIdx=dayHash%Math.min(show.length,3);
+      localStorage.setItem('fd_feat',JSON.stringify({id:show[featIdx].id,date:today}));
     }
   }else{
     featIdx=0;
@@ -2912,9 +2921,18 @@ async function testNotif(){
   showToast('🔔 Ειδοποίηση εστάλη!');
 }
 async function sendNotif(){
-  const rids=recIds(7);
-  const pool=Object.values(MEALS).filter(m=>!rids.includes(m.id||''));
-  const m=(pool.length?pool:Object.values(MEALS))[Math.floor(Math.random()*(pool.length||Object.keys(MEALS).length))];
+  // Χρησιμοποιεί το ίδιο featured meal με την εφαρμογή (fd_feat)
+  let m=null;
+  try{
+    const feat=JSON.parse(localStorage.getItem('fd_feat')||'{}');
+    if(feat.date===new Date().toDateString()&&feat.id&&MEALS[feat.id])
+      m={...MEALS[feat.id],id:feat.id};
+  }catch(e){}
+  if(!m){
+    const rids=recIds(7);
+    const pool=Object.values(MEALS).filter(x=>!rids.includes(x.id||''));
+    m=(pool.length?pool:Object.values(MEALS))[Math.floor(Math.random()*(pool.length||Object.keys(MEALS).length))];
+  }
   if(!m)return;
   const title='🍽️ FoodDaily — Πρόταση Μέρας';
   const body=`${m.e} ${m.n}  |  ⏱ ${m.time}'  |  🔥 ${m.cal}  |  💰 ${m.cost||'~5€'}`;
