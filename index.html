@@ -382,9 +382,14 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .thumb-dn{width:32px;padding:5px;border-radius:var(--rs);border:1.5px solid #EDE8DE;background:var(--w);font-size:14px;cursor:pointer;transition:all .2s;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
 .thumb-dn:hover{background:#FEE2E2;border-color:#FCA5A5;}
 .thumb-planned{font-size:12px;color:#166534;font-weight:600;display:flex;align-items:center;gap:4px;}
+.thumb-cook{padding:6px 10px;border-radius:var(--rs);border:1.5px solid #D1D5DB;background:var(--w);color:var(--t2);font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;white-space:nowrap;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+.thumb-cook:hover{background:#F3F4F6;border-color:#9CA3AF;}
+.cooked-badge{font-size:12px;color:#6B7280;font-weight:500;display:flex;align-items:center;gap:4px;}
 [data-theme="dark"] .card-actions{border-top-color:#2A2820;}
 [data-theme="dark"] .thumb-dn{background:#1C1A16;border-color:#2A2820;}
 [data-theme="dark"] .thumb-up{background:#14291A;border-color:#166534;color:#4ADE80;}
+[data-theme="dark"] .thumb-cook{background:#1C1A16;border-color:#2A2820;color:var(--t2);}
+[data-theme="dark"] .cooked-badge{color:#6B7280;}
 .scale-note{background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border:1.5px solid #81C784;border-radius:8px;padding:8px 12px;font-size:13px;color:#2E7D32;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
 .srv-stepper{display:flex;align-items:center;gap:5px;}
 .srv-btn{width:24px;height:24px;border:1.5px solid var(--bd);border-radius:50%;background:var(--lt);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;font-weight:700;color:var(--pri);transition:all .18s;-webkit-tap-highlight-color:transparent;}
@@ -1984,9 +1989,13 @@ function renderMeals(cat){
     const freshBadge=ds>6?`<div class="mtop-fresh">${t('fresh')}</div>`:'';
     const fav=isFav(m.id);
     const planStatus=todayPlan[m.id];
-    const actHtml=planStatus==='plan'
+    const _clog=getCookedLog();
+    const _cd=_clog[m.id]?Math.floor((Date.now()-_clog[m.id])/86400000):null;
+    const actHtml=_cd!==null&&_cd<4
+      ?`<span class="cooked-badge">✓ ${_cd===0?'Μαγειρεύτηκε σήμερα':_cd+' μέρ. πριν'}</span>`
+      :planStatus==='plan'
       ?`<span class="thumb-planned">✓ Θα το φτιάξω σήμερα!</span>`
-      :`<button class="thumb-up" onclick="thumbUp('${m.id}',event)">👍 Θα το φτιάξω!</button><button class="thumb-dn" onclick="thumbDown('${m.id}',event)">👎</button>`;
+      :`<button class="thumb-up" onclick="thumbUp('${m.id}',event)">👍 Θα το φτιάξω!</button><button class="thumb-cook" onclick="markCooked('${m.id}',event)">✓ Το έφτιαξα</button><button class="thumb-dn" onclick="thumbDown('${m.id}',event)">👎</button>`;
     return `<div class="mcard" data-mid="${m.id}" onclick="openR('${m.id}')">
       <div class="mtop" style="background:${bg}">
         <img id="mi-${m.id}" alt="${m.n}" src="${MEAL_IMAGES[m.id]||''}" onload="this.classList.add('loaded');document.getElementById('me-${m.id}').style.opacity=0" onerror="this.style.display='none'">
@@ -3343,7 +3352,16 @@ function setTodayMeal(id,status){
   localStorage.setItem('fd_plan',JSON.stringify({date:today,meals:plan}));
 }
 
-// ── THUMBS UP / DOWN ──────────────────────────────────────────
+// ── THUMBS UP / DOWN / COOKED ──────────────────────────────────────────
+function getCookedLog(){try{return JSON.parse(localStorage.getItem('fd_cooked_log')||'{}');}catch(e){return {};}}
+function markCooked(id,ev){
+  if(ev){ev.stopPropagation();ev.preventDefault();}
+  const log=getCookedLog();log[id]=Date.now();
+  localStorage.setItem('fd_cooked_log',JSON.stringify(log));
+  const ca=document.getElementById('ca-'+id);
+  if(ca)ca.innerHTML='<span class="cooked-badge">✓ Μαγειρεύτηκε σήμερα</span>';
+  showToast('✓ Καταχωρήθηκε!');
+}
 function thumbUp(id,e){
   if(e){e.stopPropagation();e.preventDefault();}
   setTodayMeal(id,'plan');
