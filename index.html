@@ -1106,7 +1106,7 @@ const MEAL_PRIORITY={
   kotosopa:2,dolmades:2,gemista:2,psari_plaki:2,giouvarlaakia:2,
   moussaka:3,pastitsio:3,giouvetsi:3,arnaki_lemonato:3,htapodi:3,bakaliaro:3,
   stifado:3,kokkinisto:3,garides:3,
-  arni_souvia:4,kontosouvi:4,mageiritsa:4,gourounopoulo:4,galopoula:4
+  arni_souvia:4,kontosouvi:3,mageiritsa:4,gourounopoulo:3,galopoula:3
 };
 
 // Prep instructions: what needs to happen the evening BEFORE cooking
@@ -1395,7 +1395,7 @@ const MEALS={
     steps:['Μαρινάρεις 2+ ώρες με λεμόνι, ελαιόλαδο, σκόρδο, ρίγανη.','Ταψί με πατάτες. 190°C για 75-80 λεπτά.','Στα 50 λεπτά γυρνάς. Έτοιμο όταν το κρέας ξεκολλάει από το κόκαλο.'],
     wine:'Αγιωργίτικο Νεμέας.',beer:'Mythos.',plate:'Αρνί+πατάτες, λεμόνι, ρίγανη.',dip:'tzatziki_dish'},
 
-  arni_souvia:{en:'Easter Spit-Roasted Lamb',n:'Αρνί στη σούβλα',e:'🥩',cats:['meat'],cal:520,time:240,srv:10,pop:2,cost:'~25€',cps:'~2.50€',
+  arni_souvia:{en:'Easter Spit-Roasted Lamb',n:'Αρνί στη σούβλα',e:'🥩',cats:['meat'],noDaily:true,cal:520,time:240,srv:10,pop:2,cost:'~25€',cps:'~2.50€',
     ing:['Αρνί ολόκληρο 10-12kg','Ελαιόλαδο 200ml','Λεμόνια 4','Σκόρδο 10 σκελίδες','Ρίγανη & θυμάρι άφθονα','Αλάτι χοντρό & πιπέρι'],
     steps:['Το βράδυ πριν: ανοίγεις αρνί, τρίβεις παντού με αλάτι, πιπέρι, ρίγανη, σκόρδο, λεμόνι, ελαιόλαδο. Δένεις σφιχτά στη σούβλα.','Πρωί 8:00: ανάβεις φωτιά με κάρβουνα. Αρχίζεις γυρίσματα. Το αρνί κρατά απόσταση ~30εκ από φωτιά.','3-4 ώρες αργότερα, σε ~3.5 ώρες: ροδίζει ομοιόμορφα. Κόβεις ένα κομμάτι — αν βγαίνουν καθαροί χυμοί, είναι έτοιμο!'],
     wine:'Αγιωργίτικο Νεμέας.',beer:'Mythos παγωμένη!',plate:'Ολόκληρο αρνί, λεμόνι, ρίγανη. Πασχαλινή παράδοση!',dip:['tzatziki_dish','tirokafteri']},
@@ -3469,6 +3469,18 @@ let _obSlide=0;
 const OB_SLIDES=3;
 function initOnboarding(){
   if(localStorage.getItem('fd_onboard_done'))return;
+  // SW cache backup: if user already completed onboarding, restore without showing it
+  if('caches' in window){
+    caches.open('fd-prefs').then(c=>c.match('/fd-onboard-done')).then(r=>{
+      if(r){localStorage.setItem('fd_onboard_done','1');return;}
+      document.getElementById('onboard').classList.remove('hidden');
+      document.body.style.overflow='hidden';
+    }).catch(()=>{
+      document.getElementById('onboard').classList.remove('hidden');
+      document.body.style.overflow='hidden';
+    });
+    return;
+  }
   document.getElementById('onboard').classList.remove('hidden');
   document.body.style.overflow='hidden';
 }
@@ -3484,6 +3496,9 @@ function onboardNext(){
 }
 function onboardFinish(){
   localStorage.setItem('fd_onboard_done','1');
+  if('caches' in window){
+    caches.open('fd-prefs').then(c=>c.put('/fd-onboard-done',new Response('1',{headers:{'Content-Type':'text/plain'}})));
+  }
   startTrial(); // start trial when onboarding completes
   document.getElementById('onboard').classList.add('hidden');
   document.body.style.overflow='';
